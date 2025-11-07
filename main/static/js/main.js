@@ -250,3 +250,36 @@ function throttle(func, limit) {
     }
   };
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const button = document.getElementById('load-more');
+  const container = document.getElementById('product-list');
+  let offset = document.querySelectorAll('.product-card').length;
+
+  if (button) {
+    button.addEventListener('click', () => {
+      fetch(`/catalog/load_more/?offset=${offset}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.products.length === 0) {
+            button.style.display = 'none';
+            return;
+          }
+
+          data.products.forEach(p => {
+            const card = document.createElement('div');
+            card.classList.add('product-card');
+            card.innerHTML = `
+              <img src="${p.image}" alt="${p.name}">
+              <h3>${p.name}</h3>
+              <p class="price">${p.price} ₽</p>
+              <a href="#" class="btn">Подробнее</a>
+            `;
+            container.appendChild(card);
+          });
+
+          offset += data.products.length;
+        })
+        .catch(err => console.error('Ошибка загрузки:', err));
+    });
+  }
+});

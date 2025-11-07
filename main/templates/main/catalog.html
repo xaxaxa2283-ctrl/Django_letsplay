@@ -54,15 +54,17 @@
                         <span class="price-old">{{ product.old_price|floatformat:0 }} ₽</span>
                         {% endif %}
                     </div>
-
-                    <button class="btn btn-primary btn-full">Подробнее</button>
+                    <a href="{% url 'letsplay:catalog_detail'%}" class="btn btn-primary ">Купить</a>
+                    <button class="btn btn-primary ">Подробнее</button>
                 </div>
             </div>
             {% endfor %}
         </div>
 
         <div class="text-center">
-            <button class="btn btn-secondary">Показать ещё</button>
+            {% if show_button %}
+            <button id="load-more-btn" class="btn btn-secondary">Показать ещё</button>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -70,29 +72,115 @@
 
 {% block extra_js %}
 <script>
-// Category filter functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // --- элементы ---
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const products = document.querySelectorAll('.product-card');
+    const productsContainer = document.getElementById('productsGrid');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+
+    // --- фильтр ---
+    let currentCategory = 'all';
+    function applyFilterToAll() {
+        const cards = productsContainer.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            if (currentCategory === 'all' || card.dataset.category === currentCategory) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
 
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-            const category = this.dataset.category;
-            
-            // Update active button
+            currentCategory = this.dataset.category;
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
-            // Filter products
-            products.forEach(product => {
-                if (category === 'all' || product.dataset.category === category) {
-                    product.style.display = 'block';
-                } else {
-                    product.style.display = 'none';
-                }
-            });
+            applyFilterToAll();
         });
     });
+
+    // --- загрузка по клику "Показать ещё" ---
+    let offset = document.querySelectorAll('.product-card').length;
+    const loadUrl = "{% url 'letsplay:load_more_products' %}";
+
+    function buildCardHtml(p) {
+        // Возвращает HTMLElement для продукта p (p — объект из JSON)
+        const wrapper = document.createElement('div');
+        wrapper.className = 'product-card';
+        wrapper.dataset.category = p.category || 'all';
+
+        const imgHtml = p.image ? `
+            <div class="product-image">
+                <img src="${p.image}" alt="${p.name}" loading="lazy">
+                ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+            </div>
+        ` : '';
+
+        // Рейтинг: строим 5 звёзд, добавляем класс filled для рейтинга
+        let stars = '';
+        const rating = p.rating || 0;
+        for (let i=1; i<=5; i++) {
+            stars += `<svg class="star ${i <= rating ? 'filled' : ''}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+        }
+
+        const featuresHtml = (p.features || []).map(f => `<li>${f}</li>`).join('');
+
+        wrapper.innerHTML = `
+            ${imgHtml}
+            <div class="product-content">
+                <div class="product-rating">${stars}</div>
+                <h3 class="product-name">${p.name}</h3>
+                <ul class="product-features">${featuresHtml}</ul>
+                <div class="product-price">
+                    <span class="price-current">${Number(p.price).toLocaleString('ru-RU')} ₽</span>
+                    ${p.old_price ? `<span class="price-old">${Number(p.old_price).toLocaleString('ru-RU')} ₽</span>` : ''}
+                </div>
+                <button class="btn btn-primary btn-full">Подробнее</button>
+            </div>
+        `;
+        return wrapper;
+    }
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Загрузка...';
+
+            fetch(`${loadUrl}?offset=${offset}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
+                .then(data => {
+                    const products = data.products || [];
+                    if (products.length === 0) {
+                        // больше нет товаров
+                        loadMoreBtn.style.display = 'none';
+                        return;
+                    }
+                    products.forEach(p => {
+                        const card = buildCardHtml(p);
+                        productsContainer.appendChild(card);
+                    });
+                    // обновляем offset
+                    offset += products.length;
+                    // применяем фильтр к новым карточкам
+                    applyFilterToAll();
+                    // если пришло меньше лимита — скрываем кнопку
+                    if (products.length < 6) {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка при загрузке:', err);
+                })
+                .finally(() => {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Показать ещё';
+                });
+        });
+    }
 });
 </script>
 {% endblock %}
