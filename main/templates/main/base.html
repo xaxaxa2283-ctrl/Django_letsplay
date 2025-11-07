@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Animated Gradient Background -->
+    <div class="gradient-bg">
+        <div class="gradient-layer-1"></div>
+        <div class="gradient-layer-2"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="{% url 'letsplay:home' %}" class="logo">
+                    <div class="logo-box">
+                        <span>LetsPlay</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="nav-desktop">
+                    <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                    <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                    <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                    <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+                </nav>
+
+                <!-- Contact & CTA -->
+                <div class="header-actions">
+                    <div class="phone-number">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        <span>+7 999 499 36 41</span>
+                    </div>
+                    <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary">Выбрать приставку</a>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg class="icon menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg class="icon close-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                    <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                    <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                    <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+                    <div class="mobile-phone">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        <span>+7 999 499 36 41</span>
+                    </div>
+                    <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary btn-full">Выбрать приставку</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Company Info -->
+                <div class="footer-section">
+                    <div class="logo-box logo-footer">
+                        <span>LetsPlay</span>
+                    </div>
+                    <p class="footer-text">Магазин игровых консолей PlayStation в Екатеринбурге</p>
+                </div>
+
+                <!-- Navigation -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Навигация</h3>
+                    <nav class="footer-nav">
+                        <a href="{% url 'letsplay:home' %}">Главная</a>
+                        <a href="{% url 'letsplay:about' %}">О нас</a>
+                        <a href="{% url 'letsplay:catalog' %}">Каталог</a>
+                        <a href="{% url 'letsplay:reviews' %}">Отзывы</a>
+                    </nav>
+                </div>
+
+                <!-- Catalog -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Каталог</h3>
+                    <nav class="footer-nav">
+                        <a href="{% url 'letsplay:catalog' %}">PlayStation 5</a>
+                        <a href="{% url 'letsplay:catalog' %}">PlayStation 4</a>
+                        <a href="{% url 'letsplay:catalog' %}">Аксессуары</a>
+                        <a href="{% url 'letsplay:catalog' %}">Подписки</a>
+                    </nav>
+                </div>
+
+                <!-- Contacts -->
+                <div class="footer-section">
+                    <h3 class="footer-title">Контакты</h3>
+                    <div class="footer-contacts">
+                        <p>г. Екатеринбург</p>
+                        <p>ул. Тургенева 3</p>
+                        <p>+7 999 499 36 41</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 LetsPlay. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
