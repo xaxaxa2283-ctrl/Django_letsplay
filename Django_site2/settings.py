@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-1w_gc4v1pd+yr(4vi3rlt!h^=3&e(7^7kq_7m#$+_2!%&vtvie
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','.ru.tuna.am','.tuna.am','letsplayekb.shop']
-CSRF_TRUSTED_ORIGINS = ['https://letsplayekb.shop']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','.ru.tuna.am','.tuna.am','letsplayekb.shop',]
+CSRF_TRUSTED_ORIGINS = ['https://letsplayekb.shop','https://*.ru.tuna.am']
 
 # Application definition
 
@@ -64,6 +64,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.templates.main.context_processors.cart_count',
+
             ],
         },
     },
@@ -82,6 +84,11 @@ DATABASES = {
     }
 }
 
+#новая глава админа
+
+#AUTH_USER_MODEL = 'main.User'
+
+CSRF_FAILURE_VIEW = 'main.views.csrf_failure'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -123,7 +130,7 @@ STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Asia/Yekaterinburg'

@@ -1,0 +1,243 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Корзина - LetsPlay{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 min-h-screen">
+    <div class="container mx-auto px-4 max-w-6xl">
+        <!-- Back Button -->
+        <a href="{% url 'letsplay:catalog' %}"
+           class="inline-flex items-center gap-2 text-white/70 hover:text-[#00BCD4] transition-colors mb-8 group">
+            <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span>Вернуться к каталогу</span>
+        </a>
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-white mb-4 flex items-center justify-center gap-3">
+                <svg class="w-10 h-10 text-[#00BCD4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Корзина
+            </h1>
+            {% if total_items > 0 %}
+            <p class="text-white/70 text-lg">
+                {{ total_items }}
+                {% if total_items == 1 %}товар{% elif total_items < 5 %}товара{% else %}товаров{% endif %}
+                на сумму {{ total_price|floatformat:0 }} ₽
+            </p>
+            {% endif %}
+        </div>
+
+        {% if total_items == 0 %}
+        <!-- Empty Cart -->
+        <div class="text-center py-20">
+            <div class="bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-3xl p-12 max-w-md mx-auto">
+                <svg class="w-24 h-24 text-white/20 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <h2 class="text-white mb-4">Корзина пуста</h2>
+                <p class="text-white/60 mb-8">
+                    Добавьте товары из каталога, чтобы оформить заказ
+                </p>
+                <a href="{% url 'letsplay:catalog' %}"
+                   class="inline-block bg-[#00BCD4] hover:bg-[#00ACC1] text-white px-8 py-4 rounded-xl transition-colors">
+                    Перейти в каталог
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2 space-y-4">
+                {% for item in cart_items %}
+                <div class="bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-2xl p-6 hover:border-[#00BCD4]/50 transition-all">
+                    <div class="flex gap-6">
+                        <!-- Product Image -->
+                        <div class="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-white/5">
+                            <img src="{{ item.product.get_image_url }}"
+                                 alt="{{ item.product.name }}"
+                                 class="w-full h-full object-cover">
+                            {% if item.product.badge %}
+                            <div class="absolute top-2 left-2 bg-[#00BCD4] text-white px-2 py-1 rounded text-xs">
+                                {{ item.product.badge }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="text-white mb-2 hover:text-[#00BCD4] transition-colors">
+                                        {{ item.product.name }}
+                                    </h3>
+                                    <p class="text-white/50 text-sm">{{ item.product.get_category_name }}</p>
+                                </div>
+                     <form method="post" action="{% url 'letsplay:remove_from_cart' item.id %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </form>
+
+                            </div>
+
+                            <!-- Features -->
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                {% for feature in item.product.features|slice:":3" %}
+                                <span class="text-xs bg-white/10 text-white/70 px-3 py-1 rounded-full">
+                                    {{ feature }}
+                                </span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="flex justify-between items-end">
+                                <!-- Quantity Controls -->
+                                <div class="flex items-center gap-3 bg-white/10 rounded-xl p-1">
+                                    <form method="post" action="{% url 'letsplay:update_cart_item' item.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="decrease">
+                                        <button type="submit" class="text-white hover:bg-white/10 rounded-lg p-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <span class="text-white w-8 text-center">{{ item.quantity }}</span>
+                                    <form method="post" action="{% url 'letsplay:update_cart_item' item.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="increase">
+                                        <button type="submit" class="text-white hover:bg-white/10 rounded-lg p-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="text-right">
+                                    <div class="text-[#00BCD4] text-2xl">
+                                        {{ item.get_total_price|floatformat:0 }} ₽
+                                    </div>
+                                    {% if item.quantity > 1 %}
+                                    <div class="text-white/50 text-sm">
+                                        {{ item.product.price|floatformat:0 }} ₽ × {{ item.quantity }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Clear Cart Button -->
+                <form method="post" action="{% url 'letsplay:clear_cart' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            onclick="return confirm('Вы уверены, что хотите очистить корзину?')"
+                            class="text-red-400 hover:text-red-300 hover:bg-red-500/10 px-4 py-2 rounded transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Очистить корзину
+                    </button>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-2xl p-6 sticky top-24">
+                    <h3 class="text-white mb-6">Итого</h3>
+
+                    <!-- Price Breakdown -->
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span>Товары ({{ total_items }})</span>
+                            <span>{{ total_price|floatformat:0 }} ₽</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span>Доставка</span>
+                            <span class="text-green-400">Бесплатно</span>
+                        </div>
+                        <div class="border-t border-white/10 pt-4 flex justify-between">
+                            <span class="text-white">Всего:</span>
+                            <span class="text-[#00BCD4] text-2xl">{{ total_price|floatformat:0 }} ₽</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Button -->
+                    <a href="{% url 'letsplay:checkout' %}"
+                       class="block w-full bg-[#00BCD4] hover:bg-[#00ACC1] text-white py-4 rounded-xl mb-4 text-center transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        Оформить заказ
+                    </a>
+
+                    <!-- Contact Info -->
+                    <div class="bg-gradient-to-br from-[#00BCD4]/20 to-[#00BCD4]/5 border border-[#00BCD4]/30 rounded-xl p-4 space-y-3">
+                        <h4 class="text-white text-sm mb-3">Нужна помощь?</h4>
+
+                        <div class="flex items-start gap-3 text-sm">
+                            <svg class="w-4 h-4 text-[#00BCD4] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            <div>
+                                <div class="text-white/70 mb-1">Позвоните нам:</div>
+                                <a href="tel:+79994993641" class="text-[#00BCD4] hover:text-[#00ACC1] transition-colors">
+                                    +7 999 499 36 41
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 text-sm">
+                            <svg class="w-4 h-4 text-[#00BCD4] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <div>
+                                <div class="text-white/70 mb-1">Наш магазин:</div>
+                                <div class="text-white text-sm">
+                                    г. Екатеринбург<br>
+                                    ул. Тургенева, 3
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advantages -->
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center gap-3 text-sm text-white/70">
+                            <span class="text-xl">🛡️</span>
+                            <span>Гарантия 1 год</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-white/70">
+                            <span class="text-xl">🚚</span>
+                            <span>Бесплатная доставка</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-white/70">
+                            <span class="text-xl">↩️</span>
+                            <span>Обмен 14 дней</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Background Decorations -->
+    <div class="fixed top-1/4 right-0 w-96 h-96 bg-[#00BCD4]/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-1/4 left-0 w-96 h-96 bg-[#00BCD4]/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+</div>
+{% endblock %}

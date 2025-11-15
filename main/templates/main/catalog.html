@@ -1,4 +1,4 @@
-{% extends 'main/base.html' %}
+{% extends 'main/base_template.html' %}
 {% load static %}
 
 {% block content %}
@@ -10,13 +10,19 @@
         </div>
 
         <!-- Category Filters -->
-        <div class="category-filters" id="categoryFilters">
-            {% for category in categories %}
-            <button class="filter-btn {% if forloop.first %}active{% endif %}" data-category="{{ category.id }}">
-                {{ category.name }}
-            </button>
-            {% endfor %}
-        </div>
+ <div class="category-filters" id="categoryFilters">
+    <a href="{% url 'letsplay:catalog' %}?category=all"
+       class="filter-btn {% if current_category == 'all' %}active{% endif %}">
+       Все товары
+    </a>
+
+    {% for category in categories %}
+        <a href="{% url 'letsplay:catalog' %}?category={{ category.category_type }}"
+           class="filter-btn {% if current_category == category.category_type %}active{% endif %}">
+           {{ category.get_category_type_display }}
+        </a>
+    {% endfor %}
+</div>
 
         <!-- Products Grid -->
         <div class="products-grid" id="productsGrid">
@@ -24,7 +30,7 @@
             <div class="product-card" data-category="{{ product.category }}">
                 {% if product.image %}
                 <div class="product-image">
-                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                     {% if product.badge %}
                     <span class="product-badge">{{ product.badge }}</span>
                     {% endif %}
@@ -54,8 +60,16 @@
                         <span class="price-old">{{ product.old_price|floatformat:0 }} ₽</span>
                         {% endif %}
                     </div>
-                    <a href="{% url 'letsplay:catalog_detail'%}" class="btn btn-primary ">Купить</a>
-                    <button class="btn btn-primary ">Подробнее</button>
+                <form action="{% url 'letsplay:add_to_cart' product.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Купить</button>
+    </form>
+                <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="btn btn-primary ">Подробнее
+
+</a>
+
+
+
                 </div>
             </div>
             {% endfor %}

@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LetsPlay — магазин консолей{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Фон с анимацией -->
+    <div class="gradient-bg">
+        <div class="gradient-layer-1"></div>
+        <div class="gradient-layer-2"></div>
+    </div>
+
+    <!-- Шапка -->
+    <header class="header">
+        <div class="container header-content">
+
+            <a href="{% url 'letsplay:home' %}" class="logo">
+                <div class="logo-box">LetsPlay</div>
+            </a>
+
+            <!-- Навигация -->
+            <nav class="nav-desktop">
+                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+            <a href="{% url 'letsplay:cart_view' %}" class="nav-link {% if page == 'cart_view' %}active{% endif %}">КОРЗИНА</a>
+            </nav>
+
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'letsplay:my_orders_page' %}" class="btn btn-secondary">Профиль</a>
+                {% else %}
+                    <a href="{% url 'letsplay:login' %}" class="btn btn-primary">Войти</a>
+                {% endif %}
+
+                <!-- Корзина -->
+                <a href="{% url 'letsplay:cart_view' %}" class="cart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 2.25l1.5 1.5m0 0L6 12.75h12.75L21 6H5.25m-1.5-2.25L5.25 6m0 0l.75 3M6 12.75h12.75M9 21a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm9 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    </svg>
+                    {% if cart_items_count %}
+                        <span class="cart-badge">{{ cart_items_count }}</span>
+                    {% endif %}
+                </a>
+
+                <!-- Кнопка меню для мобилы -->
+                <button class="mobile-menu-btn" id="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Мобильное меню -->
+        <div class="mobile-menu" id="mobile-menu">
+            <nav class="mobile-nav">
+                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+<a href="{% url 'letsplay:cart_view' %}" class="nav-link {% if page == 'cart_view' %}active{% endif %}">КОРЗИНА</a>
+            </nav>
+
+            <div class="mobile-phone">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h2l3 7-1.5 4.5L9 19l3-2 5.5 2L21 7H7" />
+                </svg>
+                <span>+7 999 499 36 41</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo logo-footer">
+                        <div class="logo-box">LetsPlay</div>
+                    </div>
+                    <p class="footer-text">
+                        Магазин игровых консолей нового поколения.  
+                        Лучшие цены, быстрая доставка и забота о клиентах.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Меню</h4>
+                    <nav class="footer-nav">
+                        <a href="{% url 'letsplay:home' %}">Главная</a>
+                        <a href="{% url 'letsplay:about' %}">О нас</a>
+                        <a href="{% url 'letsplay:catalog' %}">Каталог</a>
+                        <a href="{% url 'letsplay:reviews' %}">Отзывы</a>
+                    </nav>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Контакты</h4>
+                    <div class="footer-contacts">
+                        <p>+7 999 499 36 41</p>
+                        <p>letsplay.ekb@yandex.ru</p>
+                        <p>Екатеринбург, Тургенева 3</p>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Мы в соцсетях</h4>
+                    <div class="footer-nav">
+                        <a href="#">Instagram</a>
+                        <a href="#">Telegram</a>
+                        <a href="#">YouTube</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 LetsPlay. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const menuBtn = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        menuBtn.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active");
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

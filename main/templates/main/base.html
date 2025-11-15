@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ title }}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% block extra_css %}{% endblock %}
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <!-- Animated Gradient Background -->
@@ -15,64 +17,95 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <!-- Logo -->
-                <a href="{% url 'letsplay:home' %}" class="logo">
-                    <div class="logo-box">
-                        <span>LetsPlay</span>
-                    </div>
-                </a>
-
-                <!-- Desktop Navigation -->
-                <nav class="nav-desktop">
-                    <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
-                    <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
-                    <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
-                    <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
-                </nav>
-
-                <!-- Contact & CTA -->
-                <div class="header-actions">
-                    <div class="phone-number">
-                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                        <span>+7 999 499 36 41</span>
-                    </div>
-                    <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary">Выбрать приставку</a>
-                    
-                    <!-- Mobile Menu Button -->
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <svg class="icon menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                        <svg class="icon close-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <!-- Logo -->
+            <a href="{% url 'letsplay:home' %}" class="logo">
+                <div class="logo-box">
+                    <span>LetsPlay</span>
                 </div>
-            </div>
+            </a>
 
-            <!-- Mobile Menu -->
-            <div class="mobile-menu" id="mobileMenu">
-                <nav class="mobile-nav">
-                    <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
-                    <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
-                    <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
-                    <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
-                    <div class="mobile-phone">
-                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                        <span>+7 999 499 36 41</span>
-                    </div>
-                    <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary btn-full">Выбрать приставку</a>
-                </nav>
+            <!-- Desktop Navigation -->
+            <nav class="nav-desktop">
+                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+            <a href="{% url 'letsplay:cart_view' %}" class="nav-link {% if page == 'cart_view' %}active{% endif %}">КОРЗИНА</a>
+            </nav>
+
+            <!-- Contact & CTA -->
+            <div class="header-actions">
+                <!-- Телефон -->
+                <div class="phone-number">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span>+7 999 499 36 41</span>
+                </div>
+
+                <!-- Кнопка выбора -->
+                <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary">Выбрать приставку</a>
+
+                <!-- Корзина
+                <div class="cart-icon position-relative" style="margin-left: 15px;">
+                    <a href="{% url 'letsplay:cart_view' %}" class="nav-link position-relative" style="display: flex; align-items: center; font-size: 20px;">
+                        🛒
+                        {% if cart_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ cart_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </div>-->
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <svg class="icon menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg class="icon close-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
         </div>
-    </header>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <nav class="mobile-nav">
+                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+<a href="{% url 'letsplay:cart_view' %}" class="nav-link {% if page == 'cart_view' %}active{% endif %}">КОРЗИНА</a>
+                <div class="mobile-phone">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span>+7 999 499 36 41</span>
+                </div>
+
+                <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary btn-full">Выбрать приставку</a>
+
+                <!-- Корзина (в мобилке)
+                <a href="{% url 'letsplay:cart_view' %}" class="nav-link mt-3 text-center" style="font-size: 18px;">
+                    🛒 Моя корзина
+                    {% if cart_count > 0 %}
+                        <span class="badge bg-danger">{{ cart_count }}</span>
+                    {% endif %}
+                </a>-->
+            </nav>
+        </div>
+    </div>
+</header>
+
 
     <!-- Main Content -->
     <main>

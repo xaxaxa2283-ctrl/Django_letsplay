@@ -1,0 +1,17 @@
+{
+  "name": "django_site2",
+  "version": "1.0.0",
+  "description": "Это руководство поможет вам перенести React-приложение LetsPlay в Django проект.",
+  "main": "index.js",
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+ "build:css": "tailwindcss -i ./main/static/css/styles.css -o ./main/static/css/output.css --minify"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "tailwindcss": "^4.1.17"
+  }
+}

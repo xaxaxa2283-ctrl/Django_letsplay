@@ -1,4 +1,7 @@
 /* LetsPlay - Django CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ==================== Variables ==================== */
 :root {
@@ -1425,4 +1428,105 @@ ul, ol {
   .page-section {
     padding: 6rem 0 3rem;
   }
+}
+.cart-icon {
+  position: relative;
+  margin-left: 20px;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.cart-icon:hover {
+  transform: scale(1.1);
+  color: #00bcd4;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background-color: #ff4d4f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+
+.messages {
+    margin-bottom: 1.5rem;
+}
+
+.alert {
+    padding: 1rem 1.2rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.alert.success {
+    background-color: rgba(0, 200, 83, 0.15);
+    color: #00c853;
+    border: 1px solid rgba(0, 200, 83, 0.3);
+}
+
+.alert.error {
+    background-color: rgba(255, 82, 82, 0.15);
+    color: #ff5252;
+    border: 1px solid rgba(255, 82, 82, 0.3);
+}
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+}
+
+.toast {
+  background-color: rgba(0, 200, 83, 0.15);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  color: #00c853;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  font-size: 15px;
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease;
+}
+
+.toast.error {
+  background-color: rgba(255, 82, 82, 0.15);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+}
+
+
+.toast {
+  position: fixed;
+  top: 100px;
+  right: 40px;
+  background-color: rgba(0, 200, 83, 0.9);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  z-index: 9999;
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.5s ease;
+}
+
+.toast.hide {
+  opacity: 0;
+  transform: translateY(-20px);
 }

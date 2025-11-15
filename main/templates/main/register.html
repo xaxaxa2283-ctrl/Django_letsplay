@@ -1,0 +1,13 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+{% block content %}
+<h2>Регистрация</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Логин:</label>
+    <input type="text" name="username"><br>
+    <label>Пароль:</label>
+    <input type="password" name="password"><br>
+    <button type="submit">Зарегистрироваться</button>
+</form>
+{% endblock %}

@@ -1,10 +1,605 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>letsplay</title>
-</head>
-<body>
+{% extends 'main/base.html' %}
+{% load static %}
+{% csrf_token %}
 
-</body>
-</html>
+{% block title %}{{ product.name }} - LetsPlay{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    /* Дополнительные стили для страницы товара */
+    .product-detail-page {
+        padding-top: 6rem;
+        padding-bottom: 4rem;
+        min-height: 100vh;
+    }
+
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        transition: color 0.3s;
+        text-decoration: none;
+        margin-bottom: 2rem;
+    }
+    
+    .back-button:hover {
+        color: #00BCD4;
+    }
+    
+    .back-button svg {
+        transition: transform 0.3s;
+    }
+    
+    .back-button:hover svg {
+        transform: translateX(-0.25rem);
+    }
+    
+.product-image-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    /* overflow: hidden;  ❌ УДАЛИТЬ */
+    position: sticky;
+    top: 6rem;
+}
+    
+    .product-image {
+        aspect-ratio: 1;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .product-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: #00BCD4;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+
+
+    .share-feedback {
+    margin-left: 8px;
+    color: #00e0ff;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .out-of-stock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .out-of-stock-badge {
+        background: #ef4444;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .star {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .star.filled {
+        color: #fbbf24;
+        fill: #fbbf24;
+    }
+    
+    .star.empty {
+        color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .category-badge {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+    }
+    
+    .price-section {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .current-price {
+        font-size: 2.5rem;
+        color: #00BCD4;
+        font-weight: bold;
+    }
+    
+    .old-price {
+        color: rgba(255, 255, 255, 0.4);
+        text-decoration: line-through;
+    }
+    
+    .discount-badge {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+    }
+    
+    .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .feature-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background: rgba(0, 188, 212, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .feature-icon svg {
+        width: 1rem;
+        height: 1rem;
+        color: #00BCD4;
+    }
+    
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .spec-row:last-child {
+        border-bottom: none;
+    }
+    
+    .spec-label {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .spec-value {
+        color: white;
+    }
+
+
+    .relative {
+    position: relative;
+}
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+    }
+    
+    .btn-primary {
+        flex: 1;
+        background: #00BCD4;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary:hover {
+        background: #00ACC1;
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .btn-icon {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .btn-icon:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .advantages-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .advantage-item {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .advantage-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: #00BCD4;
+        margin: 0 auto 0.5rem;
+    }
+    
+    .contact-card {
+        background: linear-gradient(to bottom right, rgba(0, 188, 212, 0.2), rgba(0, 188, 212, 0.05));
+        border: 1px solid rgba(0, 188, 212, 0.3);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #00BCD4;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        transition: background 0.3s;
+    }
+    
+    .contact-link:hover {
+        background: #00ACC1;
+    }
+
+    @media (max-width: 768px) {
+  .product-image-container {
+    position: static !important;
+    top: auto !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-page">
+    <div class="container mx-auto px-4">
+        <!-- Кнопка назад -->
+        <a href="{% url 'letsplay:catalog' %}" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Вернуться к каталогу</span>
+        </a>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            <!-- Изображение товара -->
+            <div class="product-image-container">
+                {% if enriched_product.image %}
+                    <div class="relative">
+                        <img src="{{ enriched_product.image }}" alt="{{ product.name }}" class="product-image">
+                        
+                        {% if enriched_product.badge %}
+                            <div class="product-badge">{{ enriched_product.badge }}</div>
+                        {% endif %}
+                        
+                        {% if not enriched_product.in_stock %}
+                            <div class="out-of-stock-overlay">
+                                <div class="out-of-stock-badge">Нет в наличии</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="aspect-square bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Информация о товаре -->
+            <div>
+                <!-- Рейтинг и категория -->
+                <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                <svg class="star {% if forloop.counter <= enriched_product.rating %}filled{% else %}empty{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            {% endfor %}
+                        </div>
+                        <span class="text-white/60 ml-2">({{ enriched_product.rating }}.0)</span>
+                    </div>
+                    <div class="category-badge">{{ enriched_product.category_name }}</div>
+                </div>
+
+                <!-- Название -->
+                <h1 class="text-white mb-6">{{ product.name }}</h1>
+
+                <!-- Цена -->
+                <div class="price-section">
+                    <span class="current-price">{{ enriched_product.price|floatformat:0 }} ₽</span>
+                    {% if enriched_product.old_price %}
+                        <span class="old-price">{{ enriched_product.old_price|floatformat:0 }} ₽</span>
+                        {% if enriched_product.discount_percent %}
+                            <span class="discount-badge">-{{ enriched_product.discount_percent }}%</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Описание -->
+                <div class="info-card">
+                    <h3 class="text-white mb-3">Описание</h3>
+                    <p class="text-white/70 leading-relaxed">{{ enriched_product.description }}</p>
+                </div>
+
+                <!-- Ключевые особенности -->
+                <div class="info-card">
+                    <h3 class="text-white mb-4">Ключевые особенности</h3>
+                    <div class="features-grid">
+                        {% for feature in product.features %}
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <span>{{ feature }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Характеристики -->
+                {% if enriched_product.specifications %}
+                <div class="info-card">
+                    <h3 class="text-white mb-4">Характеристики</h3>
+                    <div>
+                        {% for spec in enriched_product.specifications %}
+                            <div class="spec-row">
+                                <span class="spec-label">{{ spec.label }}</span>
+                                <span class="spec-value">{{ spec.value }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <form action="{% url 'letsplay:add_to_cart' enriched_product.id %}" method="post" class="add-to-cart-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary" {% if not enriched_product.in_stock %}disabled{% endif %}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            {% if enriched_product.in_stock %}Добавить в корзину{% else %}Нет в наличии{% endif %}
+                        </button>
+                    </form>
+                    <script>
+            document.querySelector('.add-to-cart').addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            fetch(`/cart/add/${productId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                });
+            });
+        </script>
+                    <button class="btn-icon" title="В избранное">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
+                    <button id="share-button" class="btn-icon" title="Поделиться">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    </button>
+
+                    <span id="share-feedback" class="share-feedback"></span>
+                </div>
+
+                <!-- Преимущества -->
+                <div class="advantages-grid">
+                    <div class="advantage-item">
+                        <svg class="advantage-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        <p class="text-white/70 text-sm">Гарантия 1 год</p>
+                    </div>
+                    <div class="advantage-item">
+                        <svg class="advantage-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13"></rect>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                        <p class="text-white/70 text-sm">Бесплатная доставка</p>
+                    </div>
+                    <div class="advantage-item">
+                        <svg class="advantage-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <p class="text-white/70 text-sm">Обмен 14 дней</p>
+                    </div>
+                </div>
+
+                <!-- Контакты -->
+                <div class="contact-card">
+                    <h3 class="text-white mb-3">Остались вопросы?</h3>
+                    <p class="text-white/70 mb-4">
+                        Позвоните нам или приходите в магазин на Тургенева 3, Екатеринбург
+                    </p>
+                    <a href="tel:+79994993641" class="contact-link">
+                        <span>+7 999 499 36 41</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Похожие товары -->
+        {% if related_products %}
+        <div class="mt-20">
+            <h2 class="text-white text-center mb-12">Похожие товары</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for related in related_products %}
+                <a href="{% url 'letsplay:catalog_detail_by_slug' related.slug %}" class="block group">
+                    <div class="info-card hover:border-cyan-500 transition-all">
+                        {% if related.get_image_url %}
+                            <img src="{{ related.get_image_url }}" alt="{{ related.name }}" class="w-full aspect-square object-cover rounded-lg mb-4">
+                        {% endif %}
+                        <h4 class="text-white group-hover:text-cyan-400 transition-colors mb-2">{{ related.name }}</h4>
+                        <p class="text-cyan-400 font-bold">{{ related.price|floatformat:0 }} ₽</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Background Decorations -->
+<div class="fixed top-1/4 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="fixed bottom-1/4 left-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Плавная прокрутка вверх при загрузке страницы
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Можно добавить JavaScript для функциональности корзины, избранного и т.д.
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // обновим счётчик корзины, если он есть
+                    const countEl = document.querySelector('.cart-count');
+                    if (countEl) countEl.textContent = data.cart_total_items;
+
+                    // добавим уведомление (вместо alert можно сделать красивый toast)
+                    alert(data.message);
+                }
+            })
+            .catch(err => console.error('Ошибка:', err));
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('share-button');
+    const feedback = document.getElementById('share-feedback');
+
+    if (!button) return;
+
+    button.addEventListener('click', async function() {
+        try {
+            const url = window.location.href;
+            await navigator.clipboard.writeText(url);
+            feedback.textContent = 'Ссылка скопирована!';
+            feedback.style.opacity = 1;
+
+            setTimeout(() => {
+                feedback.style.opacity = 0;
+            }, 2000);
+        } catch (err) {
+            feedback.textContent = 'Ошибка при копировании';
+            feedback.style.opacity = 1;
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

@@ -1,9 +1,11 @@
-{% extends 'main/base.html' %}
+{% extends 'main/base_template.html' %}
 {% load static %}
 
 {% block content %}
 <section class="page-section">
   <div class="container">
+
+
     <div class="page-header">
       <h1>Отзывы наших клиентов</h1>
       <p>Более 1900 довольных клиентов делятся своим опытом покупок в LetsPlay</p>
@@ -38,7 +40,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                         </svg>
                     </div>
-                    <div class="stats-banner-value">{{ stats.recommendations }}</div>
+                    <div class="stats-banner-value">{{ stats.recommendations }}%</div>
                     <p>Рекомендуют друзьям</p>
                 </div>
             </div>
@@ -72,7 +74,7 @@
         <p class="review-text">{{ review.text }}</p>
 
         <div class="review-footer">
-          <button class="review-action">
+          <button class="review-action like-btn" data-id="{{ review.id }}">
             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
             </svg>
@@ -96,16 +98,45 @@
             </div>
             <h2>Поделитесь своим опытом</h2>
             <p>Ваше мнение очень важно для нас и помогает другим клиентам сделать правильный выбор</p>
-            <button class="btn btn-primary btn-large">Оставить отзыв</button>
+            <a href="{% url 'letsplay:submit_review' %}" class="btn btn-primary btn-large">Оставить отзыв</a>
+
+
         </div>
     </div>
+
+
+<!-- Модальное окно
+<div id="reviewModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Оставить отзыв</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+    <button class="modal-close">Закрыть</button>
+  </div>
+</div>-->
+
+<script>
+  const modal = document.getElementById('reviewModal');
+  const openBtn = document.querySelector('.btn.btn-primary.btn-large');
+  const closeBtn = document.querySelector('.modal-close');
+
+  openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+  closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+</script>
+
+
+
 </section>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
   let offset = document.querySelectorAll('.review-card').length;
   const grid = document.getElementById('reviewsGrid');
   const loadUrl = "{% url 'letsplay:load_more_reviews' %}";
-    const loadMoreBtn = document.querySelector('.btn.btn-secondary');
+  const loadMoreBtn = document.getElementById('loadMoreReviewsBtn');
+
 
   loadMoreBtn.addEventListener('click', function() {
     loadMoreBtn.disabled = true;
@@ -135,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
               <p class="review-text">${r.text}</p>
               <div class="review-footer">
-                <button class="review-action">
+                <button class="review-action like-btn" data-id="${r.id}">
                   <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
                   </svg>
@@ -157,4 +188,135 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
     </script>
+
+    <style>
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 400px;
+  width: 100%;
+}
+.like-btn.liked .icon {
+    stroke: #00BCD4;
+}
+
+
+</style>
+{% if messages %}
+  <div class="toast-container" id="toast-container">
+    {% for message in messages %}
+      <div class="toast {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let offset = document.querySelectorAll('.review-card').length;
+  const grid = document.getElementById('reviewsGrid');
+  const loadUrl = "{% url 'letsplay:load_more_reviews' %}";
+  const loadMoreBtn = document.getElementById('loadMoreReviewsBtn');
+
+  loadMoreBtn.addEventListener('click', function() {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Загрузка...';
+
+    fetch(`${loadUrl}?offset=${offset}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.reviews || data.reviews.length === 0) {
+          loadMoreBtn.style.display = 'none';
+          return;
+        }
+
+        data.reviews.forEach(r => {
+          const html = `
+            <div class="review-card">
+              <div class="quote-icon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M14.017..." /></svg></div>
+              <div class="review-header">
+                <div class="review-avatar">${r.avatar}</div>
+                <div>
+                  <h3>${r.name}</h3>
+                  <p class="review-date">${r.date}</p>
+                  <div class="review-rating">
+                    ${[1,2,3,4,5].map(i => `<svg class="star ${i <= r.rating ? 'filled' : ''}" fill="currentColor" ...></svg>`).join('')}
+                  </div>
+                </div>
+              </div>
+              <p class="review-text">${r.text}</p>
+              <div class="review-footer">
+                <button class="review-action like-btn" data-id="${r.id}">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path ... />
+                  </svg>
+                  <span>${r.likes}</span>
+                </button>
+              </div>
+            </div>`;
+          grid.insertAdjacentHTML('beforeend', html);
+        });
+
+        offset += data.reviews.length;
+        if (data.reviews.length < 6) loadMoreBtn.style.display = 'none';
+      })
+      .finally(() => {
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.textContent = 'Показать ещё отзывы';
+      });
+  });
+});
+
+
+document.addEventListener("click", function(e) {
+    const btn = e.target.closest(".like-btn");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+
+    fetch(`/review/${id}/like/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            btn.querySelector("span").textContent = data.likes;
+
+            if (data.liked) {
+                btn.classList.add("liked");
+            } else {
+                btn.classList.remove("liked");
+            }
+        }
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    document.cookie.split(';').forEach(cookie => {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    });
+    return cookieValue;
+}
+</script>
+
+
+
+
 {% endblock %}

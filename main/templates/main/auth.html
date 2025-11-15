@@ -1,0 +1,240 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+
+{% block title %}Вход / Регистрация - LetsPlay{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-24 max-w-lg">
+    <!-- Back Button -->
+    <a href="{% url 'letsplay:home' %}" class="flex items-center gap-2 text-white/70 hover:text-cyan-400 transition-colors mb-8 group">
+        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Назад</span>
+    </a>
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-white mb-4">Личный кабинет</h1>
+        <p class="text-white/70">
+            Войдите или зарегистрируйтесь, чтобы отслеживать ваши заказы
+        </p>
+    </div>
+
+    <!-- Auth Forms -->
+    <div class="bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-2xl p-8">
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-8 bg-white/10 p-1 rounded-xl">
+            <button onclick="switchTab('login')" id="login-tab"
+                class="flex-1 py-3 px-6 rounded-lg transition-all bg-cyan-500 text-white">
+                Вход
+            </button>
+            <button onclick="switchTab('register')" id="register-tab"
+                class="flex-1 py-3 px-6 rounded-lg transition-all text-white/70 hover:text-white">
+                Регистрация
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" method="POST" action="{% url 'letsplay:api_login' %}" class="space-y-6">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label for="login-email" class="text-white block">Email <span class="text-red-400">*</span></label>
+                <input type="email" id="login-email" name="email" required
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="your@email.com" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="login-password" class="text-white block">Пароль <span class="text-red-400">*</span></label>
+                <input type="password" id="login-password" name="password" required
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="••••••••" />
+            </div>
+
+            <button type="submit"
+                class="w-full bg-cyan-500 hover:bg-cyan-600 text-white py-4 rounded-xl transition-colors">
+                Войти
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" method="POST" action="{% url 'letsplay:api_register' %}" class="space-y-6 hidden">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label for="register-name" class="text-white block">Имя <span class="text-red-400">*</span></label>
+                <input type="text" id="register-name" name="name" required
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="Иван Иванов" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="register-email" class="text-white block">Email <span class="text-red-400">*</span></label>
+                <input type="email" id="register-email" name="email" required
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="your@email.com" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="register-phone" class="text-white block">Телефон <span class="text-red-400">*</span></label>
+                <input type="tel" id="register-phone" name="phone" required
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="+7 999 999 99 99" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="register-address" class="text-white block">Адрес доставки</label>
+                <input type="text" id="register-address" name="address"
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="г. Екатеринбург, ул. Ленина, д. 1" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="register-password" class="text-white block">Пароль <span
+                        class="text-red-400">*</span></label>
+                <input type="password" id="register-password" name="password" required minlength="6"
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="••••••••" />
+            </div>
+
+            <div class="space-y-2">
+                <label for="register-confirm-password" class="text-white block">Подтверждение пароля <span
+                        class="text-red-400">*</span></label>
+                <input type="password" id="register-confirm-password" name="confirm_password" required minlength="6"
+                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-cyan-400 transition-colors"
+                    placeholder="••••••••" />
+            </div>
+
+            <button type="submit"
+                class="w-full bg-cyan-500 hover:bg-cyan-600 text-white py-4 rounded-xl transition-colors">
+                Зарегистрироваться
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Контейнер для уведомлений -->
+<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3"></div>
+
+<script>
+// === Переключение вкладок ===
+function switchTab(tab) {
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    if (tab === 'login') {
+        loginTab.classList.add('bg-cyan-500', 'text-white');
+        loginTab.classList.remove('text-white/70');
+        registerTab.classList.remove('bg-cyan-500', 'text-white');
+        registerTab.classList.add('text-white/70');
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+    } else {
+        registerTab.classList.add('bg-cyan-500', 'text-white');
+        registerTab.classList.remove('text-white/70');
+        loginTab.classList.remove('bg-cyan-500', 'text-white');
+        loginTab.classList.add('text-white/70');
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+    }
+}
+
+// === TOAST уведомления ===
+function showToast(message, type = "info") {
+    const colors = {
+        success: "bg-green-500",
+        error: "bg-red-500",
+        warning: "bg-yellow-500",
+        info: "bg-cyan-500",
+    };
+
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = `flex items-center gap-3 text-white px-5 py-3 rounded-xl shadow-lg backdrop-blur-md ${colors[type]} animate-fade-in`;
+    toast.innerHTML = `<span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-x-5");
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+const style = document.createElement("style");
+style.textContent = `
+@keyframes fadeIn { from {opacity: 0; transform: translateY(-10px);} to {opacity: 1; transform: translateY(0);} }
+.animate-fade-in { animation: fadeIn 0.4s ease-out; }
+`;
+document.head.appendChild(style);
+
+// === Обработка Входа ===
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = { email: formData.get('email'), password: formData.get('password') };
+
+    try {
+        const response = await fetch(e.target.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast("✅ Вы успешно вошли!", "success");
+            setTimeout(() => { window.location.href = "{% url 'letsplay:my_orders_page' %}"; }, 1500);
+        } else if (result.error === "invalid_credentials") {
+            showToast("❌ Неверный email или пароль", "error");
+        } else {
+            showToast(result.error || "Ошибка входа", "error");
+        }
+    } catch {
+        showToast("Ошибка соединения с сервером", "error");
+    }
+});
+
+// === Обработка Регистрации ===
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirm_password');
+
+    if (password !== confirmPassword) {
+        showToast("Пароли не совпадают", "warning");
+        return;
+    }
+
+    const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        password: password,
+        phone: formData.get('phone'),
+        address: formData.get('address')
+    };
+
+    try {
+        const response = await fetch(e.target.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast("🎉 Регистрация успешна!", "success");
+            setTimeout(() => { window.location.href = "{% url 'letsplay:my_orders_page' %}"; }, 1500);
+        } else if (result.error === "user_exists") {
+            showToast("⚠️ Пользователь с таким email уже зарегистрирован", "warning");
+        } else {
+            showToast(result.error || "Ошибка регистрации", "error");
+        }
+    } catch {
+        showToast("Ошибка соединения с сервером", "error");
+    }
+});
+</script>
+{% endblock %}
