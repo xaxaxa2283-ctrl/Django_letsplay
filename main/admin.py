@@ -59,11 +59,20 @@ class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
 
     list_display = [
-        'name', 'category', 'price', 'old_price',
+        'name', 'category', 'platform', 'subscription_type',
+        'price', 'old_price',
         'rating', 'in_stock', 'is_active', 'badge'
     ]
 
-    list_filter = ['category', 'rating', 'in_stock', 'is_active']
+    list_filter = [
+        'category',
+        'platform',
+        'subscription_type',
+        'rating',
+        'in_stock',
+        'is_active'
+    ]
+
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ['price', 'in_stock', 'is_active']
@@ -73,7 +82,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'slug', 'category', 'badge')
+            'fields': (
+                'name', 'slug', 'category',
+                'platform', 'subscription_type',
+                'badge'
+            )
         }),
         ('Цены', {
             'fields': ('price', 'old_price')
@@ -97,6 +110,7 @@ class ProductAdmin(admin.ModelAdmin):
         css = {
             'all': ('admin/css/custom_admin.css',)
         }
+
 
 
 # ======================================

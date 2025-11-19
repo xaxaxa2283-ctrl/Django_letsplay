@@ -1455,6 +1455,21 @@ ul, ol {
 }
 
 
+
+#extraFilters {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-subgroup {
+    margin-bottom: 10px;
+}
+
+.filter-label {
+    margin-right: 10px;
+    font-weight: 600;
+}
+
 .messages {
     margin-bottom: 1.5rem;
 }

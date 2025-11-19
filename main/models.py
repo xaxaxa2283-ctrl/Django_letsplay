@@ -68,6 +68,19 @@ class Category(models.Model):
 
 class Product(models.Model):
     """Модель товара (объединённая версия)"""
+    PLATFORM_CHOICES = [
+        ('ps4', 'PlayStation 4'),
+        ('ps5', 'PlayStation 5'),
+        ('xbox', 'Xbox'),
+        ('universal', 'Универсальный'),
+    ]
+
+    SUBSCRIPTION_TYPE_CHOICES = [
+        ('essential', 'Plus Essential'),
+        ('extra', 'Plus Extra'),
+        ('deluxe', 'Plus Deluxe'),
+    ]
+
     name = models.CharField('Название', max_length=200)
     slug = models.SlugField('URL',unique=True, blank=True, null=True)  # убрали unique
     category = models.ForeignKey(
@@ -90,11 +103,28 @@ class Product(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлен', auto_now=True)
     is_active = models.BooleanField('Активен', default=True)
-
+    platform = models.CharField(
+        'Платформа',
+        max_length=20,
+        choices=PLATFORM_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Платформа для консолей и аксессуаров"
+    )
+    subscription_type = models.CharField(
+        'Тип подписки',
+        max_length=20,
+        choices=SUBSCRIPTION_TYPE_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Тип подписки PlayStation Plus"
+    )
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Каталог'
         ordering = ['-created_at']
+        models.Index(fields=['platform']),  # Новый индекс
+        models.Index(fields=['subscription_type']),  # Новый индекс
 
     def __str__(self):
         return self.name
@@ -447,5 +477,6 @@ class UserProfile(models.Model):
 
 
 
-#новая глава админа
+#новая глава catalog_detail
+
 

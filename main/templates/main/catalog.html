@@ -1,200 +1,298 @@
 {% extends 'main/base_template.html' %}
 {% load static %}
 
+{% block title %}Каталог товаров — LetsPlay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .catalog-page {
+        padding-top: 6rem;
+        padding-bottom: 4rem;
+        min-height: 100vh;
+    }
+
+    .category-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .category-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .category-btn.active {
+        background: #00BCD4;
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(0, 188, 212, 0.3);
+        transform: scale(1.05);
+    }
+
+    .category-btn:not(.active) {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .category-btn:not(.active):hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .product-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+    }
+
+    .product-card:hover {
+        border-color: #00BCD4;
+        transform: scale(1.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-image {
+        aspect-ratio: 1;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: #00BCD4;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .product-content {
+        padding: 1.5rem;
+    }
+
+    .rating-stars {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .star {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .star.filled {
+        color: #fbbf24;
+        fill: #fbbf24;
+    }
+
+    .star.empty {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    .product-name {
+        color: white;
+        margin-bottom: 0.75rem;
+        transition: color 0.3s;
+    }
+
+    .product-card:hover .product-name {
+        color: #00BCD4;
+    }
+
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .feature-dot {
+        width: 0.25rem;
+        height: 0.25rem;
+        background: #00BCD4;
+        border-radius: 50%;
+    }
+
+    .price-section {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .current-price {
+        color: #00BCD4;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .old-price {
+        color: rgba(255, 255, 255, 0.4);
+        text-decoration: line-through;
+        font-size: 0.875rem;
+    }
+
+    .detail-btn {
+        width: 100%;
+        background: #00BCD4;
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .detail-btn:hover {
+        background: #00ACC1;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="page-section">
-    <div class="container">
-        <div class="page-header">
-            <h1>Каталог товаров</h1>
-            <p>Широкий выбор игровых консолей, аксессуаров и подписок PlayStation</p>
+<div class="catalog-page">
+    <div class="container mx-auto px-4">
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-white mb-4">Каталог товаров</h1>
+            <p class="text-white/70 text-lg max-w-2xl mx-auto">
+                Широкий выбор игровых консолей, аксессуаров и подписок PlayStation
+            </p>
         </div>
 
         <!-- Category Filters -->
- <div class="category-filters" id="categoryFilters">
-    <a href="{% url 'letsplay:catalog' %}?category=all"
-       class="filter-btn {% if current_category == 'all' %}active{% endif %}">
-       Все товары
-    </a>
+    <!-- Category Filters -->
+    {# --- Верхние категории (показываются только если выбрана "all") --- #}
+    {% if active_category == 'all' %}
 
-    {% for category in categories %}
-        <a href="{% url 'letsplay:catalog' %}?category={{ category.category_type }}"
-           class="filter-btn {% if current_category == category.category_type %}active{% endif %}">
-           {{ category.get_category_type_display }}
+    <div class="category-filter">
+
+        <a href="?category=all"
+           class="category-btn {% if active_category == 'all' %}active{% endif %}">
+            Все товары
         </a>
+
+        {% for key, title in categories.items %}
+        <a href="?category={{ key }}"
+           class="category-btn {% if active_category == key %}active{% endif %}">
+            {{ title }}
+        </a>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+{# --- Подкатегории (вместо верхних) --- #}
+
+<div class="category-filter mt-10">
+
+    <a href="?category=all" class="category-btn">← Назад</a>
+
+    {% for f in filters %}
+    <a href="?category={{ active_category }}&filter={{ f }}"
+       class="category-btn {% if active_filter == f %}active{% endif %}">
+        {{ f|title }}
+    </a>
     {% endfor %}
+
 </div>
 
+{% endif %}
+
         <!-- Products Grid -->
-        <div class="products-grid" id="productsGrid">
+        <div class="products-grid">
             {% for product in products %}
-            <div class="product-card" data-category="{{ product.category }}">
+            <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="product-card">
+
                 {% if product.image %}
-                <div class="product-image">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                <div class="relative overflow-hidden">
+                    <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
                     {% if product.badge %}
-                    <span class="product-badge">{{ product.badge }}</span>
+                    <div class="product-badge">{{ product.badge }}</div>
                     {% endif %}
                 </div>
                 {% endif %}
 
                 <div class="product-content">
-                    <div class="product-rating">
+
+                    <!-- Rating -->
+                    <div class="rating-stars">
                         {% for i in "12345" %}
-                        <svg class="star {% if forloop.counter <= product.rating %}filled{% endif %}" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        <svg class="star {% if forloop.counter <= product.rating %}filled{% else %}empty{% endif %}"
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2" />
                         </svg>
                         {% endfor %}
                     </div>
 
                     <h3 class="product-name">{{ product.name }}</h3>
 
-                    <ul class="product-features">
-                        {% for feature in product.features %}
-                        <li>{{ feature }}</li>
+                    <ul class="features-list">
+                        {% for f in product.features %}
+                        <li class="feature-item">
+                            <div class="feature-dot"></div>
+                            <span>{{ f }}</span>
+                        </li>
                         {% endfor %}
                     </ul>
 
-                    <div class="product-price">
-                        <span class="price-current">{{ product.price|floatformat:0 }} ₽</span>
+                    <div class="price-section">
+                        <span class="current-price">{{ product.price|floatformat:0 }} ₽</span>
                         {% if product.old_price %}
-                        <span class="price-old">{{ product.old_price|floatformat:0 }} ₽</span>
+                        <span class="old-price">{{ product.old_price|floatformat:0 }} ₽</span>
                         {% endif %}
                     </div>
-                <form action="{% url 'letsplay:add_to_cart' product.id %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Купить</button>
-    </form>
-                <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="btn btn-primary ">Подробнее
 
-</a>
-
-
-
+                    <button class="detail-btn">Подробнее</button>
                 </div>
-            </div>
+
+            </a>
+            {% empty %}
+            <p class="text-center text-white/60 col-span-full py-10">
+                Товары не найдены
+            </p>
             {% endfor %}
         </div>
 
-        <div class="text-center">
-            {% if show_button %}
-            <button id="load-more-btn" class="btn btn-secondary">Показать ещё</button>
-            {% endif %}
-        </div>
     </div>
-</section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // --- элементы ---
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const productsContainer = document.getElementById('productsGrid');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-
-    // --- фильтр ---
-    let currentCategory = 'all';
-    function applyFilterToAll() {
-        const cards = productsContainer.querySelectorAll('.product-card');
-        cards.forEach(card => {
-            if (currentCategory === 'all' || card.dataset.category === currentCategory) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            currentCategory = this.dataset.category;
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            applyFilterToAll();
-        });
-    });
-
-    // --- загрузка по клику "Показать ещё" ---
-    let offset = document.querySelectorAll('.product-card').length;
-    const loadUrl = "{% url 'letsplay:load_more_products' %}";
-
-    function buildCardHtml(p) {
-        // Возвращает HTMLElement для продукта p (p — объект из JSON)
-        const wrapper = document.createElement('div');
-        wrapper.className = 'product-card';
-        wrapper.dataset.category = p.category || 'all';
-
-        const imgHtml = p.image ? `
-            <div class="product-image">
-                <img src="${p.image}" alt="${p.name}" loading="lazy">
-                ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
-            </div>
-        ` : '';
-
-        // Рейтинг: строим 5 звёзд, добавляем класс filled для рейтинга
-        let stars = '';
-        const rating = p.rating || 0;
-        for (let i=1; i<=5; i++) {
-            stars += `<svg class="star ${i <= rating ? 'filled' : ''}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
-        }
-
-        const featuresHtml = (p.features || []).map(f => `<li>${f}</li>`).join('');
-
-        wrapper.innerHTML = `
-            ${imgHtml}
-            <div class="product-content">
-                <div class="product-rating">${stars}</div>
-                <h3 class="product-name">${p.name}</h3>
-                <ul class="product-features">${featuresHtml}</ul>
-                <div class="product-price">
-                    <span class="price-current">${Number(p.price).toLocaleString('ru-RU')} ₽</span>
-                    ${p.old_price ? `<span class="price-old">${Number(p.old_price).toLocaleString('ru-RU')} ₽</span>` : ''}
-                </div>
-                <button class="btn btn-primary btn-full">Подробнее</button>
-            </div>
-        `;
-        return wrapper;
-    }
-
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            loadMoreBtn.disabled = true;
-            loadMoreBtn.textContent = 'Загрузка...';
-
-            fetch(`${loadUrl}?offset=${offset}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    return res.json();
-                })
-                .then(data => {
-                    const products = data.products || [];
-                    if (products.length === 0) {
-                        // больше нет товаров
-                        loadMoreBtn.style.display = 'none';
-                        return;
-                    }
-                    products.forEach(p => {
-                        const card = buildCardHtml(p);
-                        productsContainer.appendChild(card);
-                    });
-                    // обновляем offset
-                    offset += products.length;
-                    // применяем фильтр к новым карточкам
-                    applyFilterToAll();
-                    // если пришло меньше лимита — скрываем кнопку
-                    if (products.length < 6) {
-                        loadMoreBtn.style.display = 'none';
-                    }
-                })
-                .catch(err => {
-                    console.error('Ошибка при загрузке:', err);
-                })
-                .finally(() => {
-                    loadMoreBtn.disabled = false;
-                    loadMoreBtn.textContent = 'Показать ещё';
-                });
-        });
-    }
-});
-</script>
+</div>
 {% endblock %}

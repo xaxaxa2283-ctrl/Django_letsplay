@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 import json
 
 
@@ -376,29 +376,63 @@ def catalog_detail(request, product_id):
 from django.shortcuts import render, get_object_or_404
 from .models import Product, Review
 
-def catalog(request):
-    """Каталог товаров с фильтрацией по категориям"""
-    # Получаем выбранную категорию из GET-параметров (?category=consoles)
-    category_param = request.GET.get('category', 'all')
-    print("catalog: category_param =", category_param)
-    # Все категории для отображения кнопок
-    categories = Category.objects.all()
 
-    # Фильтрация товаров по категории
-    if category_param != 'all':
-        products = Product.objects.filter(category__category_type=category_param)
-    else:
-        products = Product.objects.all()
-    print("catalog: products count =", products.count())
-    context = {
-        'page': 'catalog',
-        'title': 'Каталог товаров — LetsPlay',
-        'categories': categories,
-        'products': products,
-        'current_category': category_param,
+
+
+def catalog(request):
+    category = request.GET.get('category', None)
+
+    # Основные категории
+    categories_map = {
+        'consoles': 'Приставки',
+        'accessories': 'Аксессуары',
+        'subscriptions': 'Подписки',
     }
 
-    return render(request, 'main/catalog.html', context)
+    # Фильтры по подкатегориям
+    filter_map = {
+        'consoles': ['ps5', 'ps4', 'xbox'],
+        'accessories': ['gamepad', 'charger', 'headset'],
+        'subscriptions': ['deluxe', 'extra', 'essential'],
+    }
+
+    # Если category не выбран → считаем "all"
+    active_category = category if category else 'all'
+
+    products = Product.objects.all()
+
+    # Фильтрация по выбранной основной категории
+    if active_category != 'all':
+        products = products.filter(category__category_type=active_category)
+
+    # Подфильтр
+    active_filter = request.GET.get('filter')
+    if active_filter:
+        products = products.filter(
+            Q(platform=active_filter) |
+            Q(subscription_type=active_filter)
+        )
+
+    context = {
+        "products": products,
+
+        # Важное отличие — тут мы передаём точно то, что нужно HTML
+        "active_category": active_category,
+
+        # Если выбрана основная категория → берём её фильтры
+        "filters": filter_map.get(active_category, []) if active_category != 'all' else [],
+
+        "active_filter": active_filter,
+
+        # Карта основных категорий (для верхних кнопок)
+        "categories": categories_map,
+    }
+
+    return render(request, "main/catalog.html", context)
+
+
+
+
 def catalog_detail(request, product_id):
     """Детальная страница по старому ID (оставляем для обратной совместимости)"""
     product = get_object_or_404(Product, id=product_id)
