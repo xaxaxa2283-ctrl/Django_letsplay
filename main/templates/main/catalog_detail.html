@@ -303,6 +303,16 @@
     top: auto !important;
   }
 }
+
+    .product-image-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    position: sticky;
+    top: 6rem;
+    height: max-content;
+}
 </style>
 {% endblock %}
 
@@ -318,7 +328,8 @@
             <span>Вернуться к каталогу</span>
         </a>
 
-        <div class="grid lg:grid-cols-2 gap-12">
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
+
             <!-- Изображение товара -->
             <div class="product-image-container">
                 {% if enriched_product.image %}
