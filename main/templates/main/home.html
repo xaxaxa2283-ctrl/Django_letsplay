@@ -23,17 +23,34 @@
             </p>
 
             <div class="console-selector">
-                <button class="console-btn active">
-                    <span class="console-name">PlayStation 5</span>
-                    <span class="console-price">от 54 990 ₽</span>
-                </button>
-                <button class="console-btn">
-                    <span class="console-name">PlayStation 4</span>
-                    <span class="console-price">от 24 990 ₽</span>
-                </button>
-            </div>
+    <button class="console-btn active"
+            data-category="consoles"
+            data-filter="ps5">
+        <span class="console-name">PlayStation 5</span>
+        <span class="console-price">от 37 990 ₽</span>
+    </button>
 
-            <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary btn-large">Выбрать консоль</a>
+    <button class="console-btn"
+            data-category="consoles"
+            data-filter="xbox">
+        <span class="console-name">Xbox</span>
+        <span class="console-price">от 23 700 ₽</span>
+    </button>
+
+    <button class="console-btn"
+            data-category="consoles"
+            data-filter="ps4">
+        <span class="console-name">PlayStation 4</span>
+        <span class="console-price">от 16 700 ₽</span>
+    </button>
+</div>
+
+<a id="choose-console-btn"
+   href="{% url 'letsplay:catalog' %}"
+   class="btn btn-primary btn-large">
+    Выбрать консоль
+</a>
+
         </div>
     </div>
 
@@ -174,4 +191,35 @@
         </div>
     </div>
 </section>
+
+
+    <script>
+    let selectedCategory = "consoles";
+    let selectedFilter = "ps5";
+
+    document.querySelectorAll(".console-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            // Переключаем активную кнопку
+            document.querySelectorAll(".console-btn")
+                    .forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // Читаем выбранные данные
+            selectedCategory = btn.dataset.category;
+            selectedFilter = btn.dataset.filter;
+        });
+    });
+
+    // Кнопка "Выбрать консоль"
+    document.getElementById("choose-console-btn").addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const base = this.getAttribute("href");
+        const url = `${base}?category=${selectedCategory}&filter=${selectedFilter}`;
+
+        window.location.href = url;
+    });
+</script>
+
 {% endblock %}

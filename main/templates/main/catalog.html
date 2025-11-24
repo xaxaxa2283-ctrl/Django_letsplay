@@ -241,55 +241,72 @@
         <!-- Products Grid -->
         <div class="products-grid">
             {% for product in products %}
-            <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="product-card">
+      {% for product in products %}
+<div class="product-card">
 
-                {% if product.image %}
-                <div class="relative overflow-hidden">
-                    <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
-                    {% if product.badge %}
-                    <div class="product-badge">{{ product.badge }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
+    <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}">
+        <div class="relative overflow-hidden">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+            {% endif %}
 
-                <div class="product-content">
+            {% if product.badge %}
+            <div class="product-badge">{{ product.badge }}</div>
+            {% endif %}
+        </div>
+    </a>
 
-                    <!-- Rating -->
-                    <div class="rating-stars">
-                        {% for i in "12345" %}
-                        <svg class="star {% if forloop.counter <= product.rating %}filled{% else %}empty{% endif %}"
-                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2" />
-                        </svg>
-                        {% endfor %}
-                    </div>
+    <div class="product-content">
 
-                    <h3 class="product-name">{{ product.name }}</h3>
+        <!-- Rating -->
+        <div class="rating-stars">
+            {% for i in "12345" %}
+            <svg class="star {% if forloop.counter <= product.rating %}filled{% else %}empty{% endif %}"
+                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2" />
+            </svg>
+            {% endfor %}
+        </div>
 
-                    <ul class="features-list">
-                        {% for f in product.features %}
-                        <li class="feature-item">
-                            <div class="feature-dot"></div>
-                            <span>{{ f }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-
-                    <div class="price-section">
-                        <span class="current-price">{{ product.price|floatformat:0 }} ₽</span>
-                        {% if product.old_price %}
-                        <span class="old-price">{{ product.old_price|floatformat:0 }} ₽</span>
-                        {% endif %}
-                    </div>
-
-                    <button class="detail-btn">Подробнее</button>
-                </div>
-
+        <h3 class="product-name">
+            <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}">
+                {{ product.name }}
             </a>
-            {% empty %}
-            <p class="text-center text-white/60 col-span-full py-10">
-                Товары не найдены
-            </p>
+        </h3>
+
+        <ul class="features-list">
+            {% for f in product.features %}
+            <li class="feature-item">
+                <div class="feature-dot"></div>
+                <span>{{ f }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="product-price">
+            <span class="price-current">{{ product.price|floatformat:0 }} ₽</span>
+            {% if product.old_price %}
+            <span class="price-old">{{ product.old_price|floatformat:0 }} ₽</span>
+            {% endif %}
+        </div>
+
+        <!-- Buttons -->
+        <form action="{% url 'letsplay:add_to_cart' product.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Купить</button>
+    </form>
+                <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="btn btn-primary ">Подробнее
+
+</a>
+
+                </div>
+            </div>
+
+    </div>
+
+</div>
+{% endfor %}
+
             {% endfor %}
         </div>
 

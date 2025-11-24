@@ -392,8 +392,8 @@ def catalog(request):
     # Фильтры по подкатегориям
     filter_map = {
         'consoles': ['ps5', 'ps4', 'xbox'],
-        'accessories': ['gamepad', 'charger', 'headset'],
-        'subscriptions': ['deluxe', 'extra', 'essential'],
+        'accessories': ['Геймпады', 'Зарядки', 'Другое'],
+        'subscriptions': ['deluxe', 'extra', 'essential','Ea play'],
     }
 
     # Если category не выбран → считаем "all"
