@@ -75,8 +75,9 @@ urlpatterns = [
     path('api/logout/', views_auth.api_logout, name='api_logout'),
     path('auth/', views.auth_page_view, name='auth_page'),
     path('review/<int:review_id>/like/', views.like_review, name='like_review'),
-
-
+    path("add-to-cart/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
+    path("cart-count/", views.cart_count, name="cart_count"),
+path("cart/item/<int:product_id>/", views.get_cart_item, name="get_cart_item"),
 
 ]
 

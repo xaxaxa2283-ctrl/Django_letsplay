@@ -551,41 +551,6 @@ def get_cart(request):
 from .models import Cart, CartItem, Product
 
 
-@require_POST
-def add_to_cart(request, product_id):
-    """Добавление товара в корзину"""
-    product = get_object_or_404(Product, id=product_id, is_active=True)
-    cart = get_or_create_cart(request)
-
-    # Получаем количество из POST или устанавливаем 1
-    quantity = int(request.POST.get('quantity', 1))
-
-    # Проверяем, есть ли товар в корзине
-    cart_item, created = CartItem.objects.get_or_create(
-        cart=cart,
-        product=product,
-        defaults={'quantity': quantity}
-    )
-
-    if not created:
-        # Если товар уже есть, увеличиваем количество
-        cart_item.quantity += quantity
-        cart_item.save()
-        messages.success(request, f'{product.name} добавлен в корзину ({cart_item.quantity} шт.)')
-    else:
-        messages.success(request, f'{product.name} добавлен в корзину')
-
-    # Если это AJAX-запрос, возвращаем JSON
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'success': True,
-            'message': f'{product.name} добавлен в корзину',
-            'cart_total_items': cart.get_total_items(),
-            'cart_total_price': float(cart.get_total_price()),
-        })
-
-    # Иначе редирект на страницу корзины
-    return redirect('letsplay:cart_view')
 
 
 from django.contrib.auth.models import User
@@ -654,38 +619,28 @@ def checkout_success(request):
     return render(request, 'main/checkout_success.html')
 
 
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import CartItem
+
+@csrf_exempt          # ← добавили
 @require_POST
 def update_cart_item(request, item_id):
-    """Обновление количества товара в корзине"""
-    cart = get_or_create_cart(request)
-    cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
+    cart_item = get_object_or_404(CartItem, id=item_id)
 
-    action = request.POST.get('action')
+    data = json.loads(request.body or "{}")
+    delta = int(data.get("delta", 0))
 
-    if action == 'increase':
-        cart_item.increase_quantity()
-        messages.success(request, 'Количество увеличено')
-    elif action == 'decrease':
-        cart_item.decrease_quantity()
-        messages.success(request, 'Количество уменьшено')
-    elif action == 'set':
-        quantity = int(request.POST.get('quantity', 1))
-        if quantity > 0:
-            cart_item.quantity = quantity
-            cart_item.save()
-        else:
-            cart_item.delete()
+    cart_item.quantity += delta
 
-    # Если это AJAX-запрос, возвращаем JSON
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'success': True,
-            'cart_total_items': cart.get_total_items(),
-            'cart_total_price': float(cart.get_total_price()),
-            'item_total_price': float(cart_item.get_total_price()) if cart_item.id else 0,
-        })
+    if cart_item.quantity <= 0:
+        cart_item.delete()
+        return JsonResponse({"quantity": 0})
 
-    return redirect('letsplay:cart_view')
+    cart_item.save()
+    return JsonResponse({"quantity": cart_item.quantity})
+
 
 
 @require_POST
@@ -942,6 +897,99 @@ def like_review(request, review_id):
         'liked': liked,
         'likes': review.likes
     })
+
+
+import json
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from .models import Product, Cart, CartItem
+
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from .models import Product, Cart, CartItem
+import json
+
+@csrf_exempt          # ← добавили
+@require_POST
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    # корзина по юзеру или по сессии
+    if request.user.is_authenticated:
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+    else:
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
+        cart, _ = Cart.objects.get_or_create(session_key=session_key)
+
+    # базовое количество - 1
+    quantity = 1
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product,
+        defaults={'quantity': quantity}
+    )
+
+    if not created:
+        cart_item.quantity += quantity
+        cart_item.save()
+
+    # количество уникальных позиций
+    cart_count = cart.items.count()
+
+    # обязательно JSON, чтобы фронт смог распарсить
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({
+            "ok": True,
+            "product_id": product.id,
+            "item_id": cart_item.id,
+            "quantity": cart_item.quantity,
+            "cart_count": cart_count,
+        })
+
+    # на всякий случай fallback при обычном POST
+    return redirect("letsplay:cart_view")
+
+
+
+
+
+
+
+def cart_count(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_key = request.session.session_key
+        cart = Cart.objects.filter(session_key=session_key).first() if session_key else None
+
+    count = cart.items.count() if cart else 0
+    return JsonResponse({"count": count})
+
+
+
+def get_cart_item(request, product_id):
+    if not request.session.session_key:
+        return JsonResponse({"exists": False})
+
+    try:
+        cart = Cart.objects.get(session_key=request.session.session_key)
+        cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
+        return JsonResponse({
+            "exists": True,
+            "item_id": cart_item.id,
+            "quantity": cart_item.quantity
+        })
+    except (Cart.DoesNotExist, CartItem.DoesNotExist):
+        return JsonResponse({"exists": False})
+
+
+
+
 
 
 

@@ -60,9 +60,9 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 2.25l1.5 1.5m0 0L6 12.75h12.75L21 6H5.25m-1.5-2.25L5.25 6m0 0l.75 3M6 12.75h12.75M9 21a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm9 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
-                    {% if cart_items_count %}
-                        <span class="cart-badge">{{ cart_items_count }}</span>
-                    {% endif %}
+                        <span id="cart-counter" class="cart-count-badge">
+            {{ cart_count }}
+        </span>
                 </a>
 
                 <!-- Кнопка меню для мобилы -->
@@ -148,13 +148,64 @@
         </div>
     </footer>
 
-    <script>
-        const menuBtn = document.getElementById("menu-toggle");
-        const mobileMenu = document.getElementById("mobile-menu");
-        menuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("active");
-        });
-    </script>
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function updateCartCounter() {
+    console.log("[updateCartCounter] called");
+    fetch("/cart-count/")
+        .then(response => response.json())
+        .then(data => {
+            console.log("[updateCartCounter] got", data);
+            const counter = document.getElementById("cart-counter");
+            if (counter) { counter.innerText = data.count; }
+        })
+        .catch(err => console.error("[updateCartCounter] error", err));
+}
+
+function addToCart(productId) {
+    console.log("[addToCart] productId=", productId);
+    fetch(`/add-to-cart/${productId}/`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Accept": "application/json"
+        }
+    })
+    .then(res => {
+        console.log("[addToCart] response status", res.status);
+        return res.json().catch(() => ({ok:false, error: "invalid_json"}));
+    })
+    .then(data => {
+        console.log("[addToCart] json:", data);
+        if (data.ok) {
+            updateCartCounter();
+        } else {
+            alert("Add to cart failed: " + (data.error || JSON.stringify(data)));
+        }
+    })
+    .catch(err => {
+        console.error("[addToCart] fetch error", err);
+        alert("Network error, see console");
+    });
+}
+</script>
+
 
     {% block extra_js %}{% endblock %}
 </body>

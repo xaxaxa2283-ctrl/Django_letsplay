@@ -150,14 +150,14 @@
         border-radius: 50%;
     }
 
-    .price-section {
+    .product-price {
         display: flex;
         align-items: baseline;
         gap: 0.5rem;
         margin-bottom: 1rem;
     }
 
-    .current-price {
+    .price-current {
         color: #00BCD4;
         font-size: 1.5rem;
         font-weight: bold;
@@ -168,22 +168,99 @@
         text-decoration: line-through;
         font-size: 0.875rem;
     }
+.product-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1rem;
+}
 
-    .detail-btn {
-        width: 100%;
-        background: #00BCD4;
-        color: white;
-        border: none;
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
+.product-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
 
-    .detail-btn:hover {
-        background: #00ACC1;
-    }
+.qty-control-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.qty-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+}
+
+.qty-btn-mini {
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.qty-btn-mini:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.qty-value-mini {
+    min-width: 20px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-cart {
+    flex: 1;
+    text-align: center;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: #00BCD4;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-cart:hover {
+    background: #00ACC1;
+    transform: translateY(-1px);
+}
+
+.btn-detail-link {
+    display: block;
+    text-align: center;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.04);
+    transition: 0.2s;
+}
+
+.btn-detail-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+
 </style>
 {% endblock %}
 
@@ -200,109 +277,187 @@
         </div>
 
         <!-- Category Filters -->
-    <!-- Category Filters -->
-    {# --- Верхние категории (показываются только если выбрана "all") --- #}
-    {% if active_category == 'all' %}
+        {% if active_category == 'all' %}
+        <div class="category-filter">
 
-    <div class="category-filter">
+            <a href="?category=all"
+               class="category-btn {% if active_category == 'all' %}active{% endif %}">
+                Все товары
+            </a>
 
-        <a href="?category=all"
-           class="category-btn {% if active_category == 'all' %}active{% endif %}">
-            Все товары
-        </a>
+            {% for key, title in categories.items %}
+            <a href="?category={{ key }}"
+               class="category-btn {% if active_category == key %}active{% endif %}">
+                {{ title }}
+            </a>
+            {% endfor %}
 
-        {% for key, title in categories.items %}
-        <a href="?category={{ key }}"
-           class="category-btn {% if active_category == key %}active{% endif %}">
-            {{ title }}
-        </a>
-        {% endfor %}
+        </div>
 
-    </div>
+        {% else %}
+        <div class="category-filter mt-10">
 
-    {% else %}
-{# --- Подкатегории (вместо верхних) --- #}
+            <a href="?category=all" class="category-btn">← Назад</a>
 
-<div class="category-filter mt-10">
+            {% for f in filters %}
+            <a href="?category={{ active_category }}&filter={{ f }}"
+               class="category-btn {% if active_filter == f %}active{% endif %}">
+                {{ f|title }}
+            </a>
+            {% endfor %}
 
-    <a href="?category=all" class="category-btn">← Назад</a>
-
-    {% for f in filters %}
-    <a href="?category={{ active_category }}&filter={{ f }}"
-       class="category-btn {% if active_filter == f %}active{% endif %}">
-        {{ f|title }}
-    </a>
-    {% endfor %}
-
-</div>
-
-{% endif %}
+        </div>
+        {% endif %}
 
         <!-- Products Grid -->
-      {% for product in products %}
-<div class="product-card">
-
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card" id="product-{{ product.id }}">
     <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}">
-        <div class="relative overflow-hidden">
-            {% if product.image %}
-            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
-            {% endif %}
-
-            {% if product.badge %}
-            <div class="product-badge">{{ product.badge }}</div>
-            {% endif %}
-        </div>
+        <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
     </a>
 
     <div class="product-content">
+        <h3 class="product-name">{{ product.name }}</h3>
 
-        <!-- Rating -->
-        <div class="rating-stars">
-            {% for i in "12345" %}
-            <svg class="star {% if forloop.counter <= product.rating %}filled{% else %}empty{% endif %}"
-                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2" />
-            </svg>
-            {% endfor %}
-        </div>
-
-        <h3 class="product-name">
-            <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}">
-                {{ product.name }}
-            </a>
-        </h3>
-
-        <ul class="features-list">
-            {% for f in product.features %}
-            <li class="feature-item">
-                <div class="feature-dot"></div>
-                <span>{{ f }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <div class="product-price">
+        <div class="product-price-row">
             <span class="price-current">{{ product.price|floatformat:0 }} ₽</span>
             {% if product.old_price %}
-            <span class="price-old">{{ product.old_price|floatformat:0 }} ₽</span>
+                <span class="old-price">{{ product.old_price|floatformat:0 }} ₽</span>
             {% endif %}
         </div>
 
-        <!-- Buttons -->
-        <form action="{% url 'letsplay:add_to_cart' product.id %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Купить</button>
-    </form>
-                <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}" class="btn btn-primary ">Подробнее
+        <!-- ВАЖНО: именно такой id, по нему JS будет менять HTML -->
+        <div class="product-bottom" id="controls-{{ product.id }}">
+            <button type="button"
+        class="btn-cart"
+        onclick="catalogAddToCart({{ product.id }})">
+    Купить
+</button>
+        </div>
 
-</a>
+        <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}"
+           class="btn-detail-link">
+            Подробнее
+        </a>
+    </div>
+</div>
 
-                </div>
-            </div>
+
+
+            {% endfor %}
+        </div>
 
     </div>
-
 </div>
-{% endfor %}
+<script>
+function catalogAddToCart(productId) {
+    console.log('click catalogAddToCart', productId);
+
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('catalogAddToCart response:', data);
+        if (data.ok) {
+            renderQtyControls(productId, data.item_id, data.quantity);
+            updateCartCounter();
+        }
+    })
+    .catch(err => console.error('catalogAddToCart error:', err));
+}
+
+function renderQtyControls(productId, itemId, quantity) {
+    const container = document.getElementById(`controls-${productId}`);
+    if (!container) return;
+
+    container.innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;">
+            <div class="qty-control-mini">
+                <span class="qty-label">шт</span>
+                <button type="button"
+                        class="qty-btn-mini"
+                        onclick="changeQty(${itemId}, -1, ${productId})">−</button>
+                <span class="qty-value-mini" id="qty-${productId}">${quantity}</span>
+                <button type="button"
+                        class="qty-btn-mini"
+                        onclick="changeQty(${itemId}, 1, ${productId})">+</button>
+            </div>
+            <button type="button"
+                    class="btn-cart"
+                    onclick="window.location.href='/cart/'">
+                В корзину
+            </button>
+        </div>
+    `;
+}
+
+function changeQty(itemId, delta, productId) {
+    fetch(`/cart/update/${itemId}/`, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ delta: delta })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('update qty response:', data);
+        if (data.quantity > 0) {
+            const span = document.getElementById(`qty-${productId}`);
+            if (span) span.innerText = data.quantity;
+        } else {
+            // если количество стало 0, возвращаем кнопку "Купить"
+            const container = document.getElementById(`controls-${productId}`);
+            if (container) {
+                container.innerHTML = `
+                    <button type="button"
+                            class="btn-cart"
+                            onclick="addToCart(${productId})">
+                        Купить
+                    </button>
+                `;
+            }
+        }
+        updateCartCounter();
+    })
+    .catch(err => console.error('changeQty error:', err));
+}
+
+function updateCartCounter() {
+    fetch("/cart-count/")
+        .then(res => res.json())
+        .then(data => {
+            const el = document.getElementById("cart-counter");
+            if (el) el.innerText = data.count;
+        });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+
+
+
+
+
+
 
 {% endblock %}
