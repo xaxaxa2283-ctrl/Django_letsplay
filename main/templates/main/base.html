@@ -7,8 +7,93 @@
     <title>{% block title %}{{ title }}{% endblock %}</title>
     <script src="https://unpkg.com/tailwindcss-cdn"></script>
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% block extra_css %}{% endblock %}
+
+<style>
+  /* Корзина в шапке (второй шаблон) */
+  .header-actions .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 16px;
+  }
+
+  .header-actions .cart-icon svg {
+      display: block;
+  }
+
+  #cart-counter.cart-count-badge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #00BCD4;
+      color: #ffffff;
+      font-size: 11px;
+      line-height: 16px;
+      text-align: center;
+      font-weight: 600;
+  }
+
+
+  /* Корзина в шапке (второй шаблон) */
+  .header-actions .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 16px;
+  }
+
+  .header-actions .cart-icon svg {
+      display: block;
+  }
+
+  #cart-counter.cart-count-badge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #00BCD4;
+      color: #ffffff;
+      font-size: 11px;
+      line-height: 16px;
+      text-align: center;
+      font-weight: 600;
+  }
+
+  /* Мобильное меню (по умолчанию скрыто) */
+  .mobile-menu {
+      display: none;
+  }
+
+  .mobile-menu.open {
+      display: block;
+  }
+
+  /* при необходимости можно добавить адаптив именно под мобилки */
+  @media (min-width: 1024px) {
+      .mobile-menu {
+          display: none !important;
+      }
+  }
+  @media (max-width: 640px) {
+  .header.header--compact .btn.btn-primary {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+  }
+}
+</style>
+
+
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
@@ -32,7 +117,7 @@
     </div>
 
     <!-- Header -->
-<header class="header">
+<header class="header {% if page == 'cart' %}header--compact{% endif %}">
     <div class="container">
         <div class="header-content">
             <!-- Logo -->
@@ -64,7 +149,19 @@
 
                 <!-- Кнопка выбора -->
                 <a href="{% url 'letsplay:catalog' %}" class="btn btn-primary">Выбрать приставку</a>
-
+                 <!-- ✅ Корзина -->
+                    <!-- КОРЗИНА -->
+                    <a href="{% url 'letsplay:cart_view' %}" class="cart-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M2.25 2.25l1.5 1.5m0 0L6 12.75h12.75L21 6H5.25m-1.5-2.25L5.25 6m0 0l.75 3M6 12.75h12.75M9 21a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm9 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                        </svg>
+                        <span id="cart-counter" class="cart-count-badge">
+                            {{ cart_count }}
+                        </span>
+                    </a>
                 <!-- Корзина
                 <div class="cart-icon position-relative" style="margin-left: 15px;">
                     <a href="{% url 'letsplay:cart_view' %}" class="nav-link position-relative" style="display: flex; align-items: center; font-size: 20px;">
@@ -179,6 +276,36 @@
     </footer>
 
     <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn  = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+
+    if (!btn || !menu) return;
+
+    const menuIcon  = btn.querySelector('.menu-icon');
+    const closeIcon = btn.querySelector('.close-icon');
+
+    btn.addEventListener('click', function () {
+        // переключаем класс на меню
+        const isOpen = menu.classList.toggle('open');
+
+        // меняем иконки (гамбургер / крестик)
+        if (menuIcon && closeIcon) {
+            if (isOpen) {
+                menuIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+            } else {
+                closeIcon.classList.add('hidden');
+                menuIcon.classList.remove('hidden');
+            }
+        }
+    });
+});
+</script>
+
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

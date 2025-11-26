@@ -2,7 +2,19 @@
 {% load static %}
 
 {% block title %}Корзина - LetsPlay{% endblock %}
-
+<style>
+    .cart-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    transition: background 0.2s;
+}
+.cart-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+</style>
 {% block content %}
 <div class="pt-24 pb-16 min-h-screen">
     <div class="container mx-auto px-4 max-w-6xl">
@@ -54,10 +66,12 @@
             <!-- Cart Items -->
             <div class="lg:col-span-2 space-y-4">
                 {% for item in cart_items %}
+                    <a href="{% url 'letsplay:catalog_detail_by_slug' item.product.slug %}" class="cart-item">
                 <div class="bg-white/5 backdrop-blur-xl border-2 border-white/10 rounded-2xl p-6 hover:border-[#00BCD4]/50 transition-all">
                     <div class="flex gap-6">
                         <!-- Product Image -->
                         <div class="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-white/5">
+
                             <img src="{{ item.product.get_image_url }}"
                                  alt="{{ item.product.name }}"
                                  class="w-full h-full object-cover">
@@ -138,6 +152,7 @@
                         </div>
                     </div>
                 </div>
+                     </a>
                 {% endfor %}
 
                 <!-- Clear Cart Button -->

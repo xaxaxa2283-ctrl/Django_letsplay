@@ -61,7 +61,8 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'category', 'platform', 'subscription_type',
         'price', 'old_price',
-        'rating', 'in_stock', 'is_active', 'badge'
+        'rating', 'in_stock', 'is_active', 'badge',
+        'variant_group', 'variant_name', 'variant_order',
     ]
 
     list_filter = [
@@ -70,10 +71,10 @@ class ProductAdmin(admin.ModelAdmin):
         'subscription_type',
         'rating',
         'in_stock',
-        'is_active'
+        'is_active',
+        'variant_group',
     ]
-
-    search_fields = ['name', 'description']
+    search_fields = ['name', 'description', 'variant_group', 'variant_name']
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ['price', 'in_stock', 'is_active']
 
@@ -87,6 +88,10 @@ class ProductAdmin(admin.ModelAdmin):
                 'platform', 'subscription_type',
                 'badge'
             )
+        }),
+        # 👇 НОВЫЙ БЛОК ДЛЯ ВАРИАНТОВ
+        ('Варианты товара', {
+            'fields': ('variant_group', 'variant_name', 'variant_order', 'variant_color'),
         }),
         ('Цены', {
             'fields': ('price', 'old_price')

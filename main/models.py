@@ -103,6 +103,35 @@ class Product(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлен', auto_now=True)
     is_active = models.BooleanField('Активен', default=True)
+
+    variant_group = models.CharField(
+        'Группа вариантов',
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text='Например: dualsense-ps5, ps-plus-deluxe'
+    )
+    variant_name = models.CharField(
+        'Название варианта',
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text='Например: Белый, Чёрный, 1 месяц, 3 месяца, 12 месяцев'
+    )
+    variant_order = models.IntegerField(
+        'Порядок варианта',
+        default=0,
+    help_text = 'Для сортировки вариантов (0,1,2...)'
+    )
+
+    # 👇 НОВОЕ поле
+    variant_color = models.CharField(
+        'Цвет варианта',
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text='HEX-цвет, например: #ffffff, #000000, #1e90ff'
+    )
     platform = models.CharField(
         'Платформа',
         max_length=20,

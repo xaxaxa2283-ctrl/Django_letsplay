@@ -379,56 +379,69 @@ from .models import Product, Review
 
 
 
+from django.db.models import Q
+# вверху файла это уже, кажется, есть, но пусть будет напоминание
+
 def catalog(request):
     category = request.GET.get('category', None)
 
-    # Основные категории
     categories_map = {
         'consoles': 'Приставки',
         'accessories': 'Аксессуары',
         'subscriptions': 'Подписки',
     }
 
-    # Фильтры по подкатегориям
     filter_map = {
         'consoles': ['ps5', 'ps4', 'xbox'],
         'accessories': ['Геймпады', 'Зарядки', 'Другое'],
-        'subscriptions': ['deluxe', 'extra', 'essential','Ea play'],
+        'subscriptions': ['deluxe', 'extra', 'essential', 'Ea play'],
     }
 
-    # Если category не выбран → считаем "all"
     active_category = category if category else 'all'
 
-    products = Product.objects.all()
+    # Берём только активные товары
+    qs = Product.objects.filter(is_active=True)
 
-    # Фильтрация по выбранной основной категории
+    # Фильтр по категории
     if active_category != 'all':
-        products = products.filter(category__category_type=active_category)
+        qs = qs.filter(category__category_type=active_category)
 
-    # Подфильтр
+    # Подфильтр (платформа / тип подписки)
     active_filter = request.GET.get('filter')
     if active_filter:
-        products = products.filter(
+        qs = qs.filter(
             Q(platform=active_filter) |
             Q(subscription_type=active_filter)
         )
 
+    # Сначала сортируем так, чтобы "главный" вариант группы был первым
+    qs = qs.order_by('variant_group', 'variant_order', 'id')
+
+    # Теперь "сжимаем":
+    # - если variant_group пустой → показываем как есть
+    # - если не пустой → только первый товар в группе
+    unique_products = []
+    seen_groups = set()
+
+    for p in qs:
+        if p.variant_group:
+            if p.variant_group in seen_groups:
+                continue
+            seen_groups.add(p.variant_group)
+            unique_products.append(p)
+        else:
+            unique_products.append(p)
+
     context = {
-        "products": products,
-
-        # Важное отличие — тут мы передаём точно то, что нужно HTML
+        "products": unique_products,
         "active_category": active_category,
-
-        # Если выбрана основная категория → берём её фильтры
         "filters": filter_map.get(active_category, []) if active_category != 'all' else [],
-
         "active_filter": active_filter,
-
-        # Карта основных категорий (для верхних кнопок)
         "categories": categories_map,
     }
 
     return render(request, "main/catalog.html", context)
+
 
 
 
@@ -441,27 +454,35 @@ def catalog_detail(request, product_id):
 from django.shortcuts import render, get_object_or_404
 from .models import Product, Review
 
+from django.db.models import Avg
+
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Avg
+from .models import Product, Review
+
 def catalog_detail_by_slug(request, slug):
     """Детальная страница товара по slug"""
 
     product = get_object_or_404(Product, slug=slug)
-    print("Я тут")
-    print(product.get_enriched_data())
 
-    # "Обогащённые" данные из метода модели
     enriched_product = product.get_enriched_data()
-
-    # Галерея дополнительных изображений
     gallery = product.images.all()
 
-    # Похожие товары (в той же категории, кроме текущего)
+    # Похожие товары
     related_products = Product.objects.filter(
         category=product.category
     ).exclude(id=product.id)[:4]
 
-    # Отзывы об этом товаре
+    # Отзывы
     reviews = Review.objects.filter(is_approved=True).order_by('-date')
 
+    # 🔥 ВАЖНО: подбираем варианты по variant_group
+    variants = []
+    if product.variant_group:
+        variants = Product.objects.filter(
+            variant_group=product.variant_group,
+            is_active=True
+        ).order_by('variant_order', 'id')
 
     return render(request, 'main/catalog_detail.html', {
         'product': product,
@@ -469,9 +490,11 @@ def catalog_detail_by_slug(request, slug):
         'gallery': gallery,
         'related_products': related_products,
         'reviews': reviews,
+        'variants': variants,   # ← тут ПЕРЕДАЁМ
         'page': 'catalog_detail',
         'title': f"{product.name} — LetsPlay Екатеринбург",
     })
+
 
 
 from django.db.models import Avg
@@ -619,27 +642,69 @@ def checkout_success(request):
     return render(request, 'main/checkout_success.html')
 
 
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import CartItem
+from django.shortcuts import get_object_or_404, redirect
+import json
 
-@csrf_exempt          # ← добавили
+@csrf_exempt
 @require_POST
 def update_cart_item(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id)
+    """
+    Обновление количества товара в корзине:
+    - если AJAX (каталог) → ждём JSON {"delta": +/-1} и отвечаем JSON
+    - если обычная форма (страница корзины) → используем POST-поля и делаем redirect
+    """
+    cart = get_or_create_cart(request)
+    cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
 
-    data = json.loads(request.body or "{}")
-    delta = int(data.get("delta", 0))
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-    cart_item.quantity += delta
+    if is_ajax:
+        # === ВЕТКА ДЛЯ КАТАЛОГА (fetch + JSON) ===
+        try:
+            raw_body = request.body.decode('utf-8').strip()
+            data = json.loads(raw_body) if raw_body else {}
+        except json.JSONDecodeError:
+            data = {}
 
-    if cart_item.quantity <= 0:
-        cart_item.delete()
-        return JsonResponse({"quantity": 0})
+        delta = int(data.get("delta", 0))
 
-    cart_item.save()
-    return JsonResponse({"quantity": cart_item.quantity})
+        cart_item.quantity += delta
+
+        if cart_item.quantity <= 0:
+            cart_item.delete()
+            return JsonResponse({"quantity": 0})
+
+        cart_item.save()
+        return JsonResponse({"quantity": cart_item.quantity})
+
+    # === ВЕТКА ДЛЯ СТРАНИЦЫ КОРЗИНЫ (обычная POST-форма) ===
+    action = request.POST.get('action')
+
+    if action == 'increase':
+        cart_item.quantity += 1
+        cart_item.save()
+    elif action == 'decrease':
+        cart_item.quantity -= 1
+        if cart_item.quantity <= 0:
+            cart_item.delete()
+        else:
+            cart_item.save()
+    elif action == 'set':
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except (TypeError, ValueError):
+            quantity = 1
+
+        if quantity <= 0:
+            cart_item.delete()
+        else:
+            cart_item.quantity = quantity
+            cart_item.save()
+
+    return redirect('letsplay:cart_view')
 
 
 
@@ -973,19 +1038,27 @@ def cart_count(request):
 
 
 def get_cart_item(request, product_id):
-    if not request.session.session_key:
+    # ищем корзину так же, как в add_to_cart / cart_count
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        if not request.session.session_key:
+            return JsonResponse({"exists": False})
+        cart = Cart.objects.filter(session_key=request.session.session_key).first()
+
+    if not cart:
         return JsonResponse({"exists": False})
 
     try:
-        cart = Cart.objects.get(session_key=request.session.session_key)
         cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
         return JsonResponse({
             "exists": True,
             "item_id": cart_item.id,
             "quantity": cart_item.quantity
         })
-    except (Cart.DoesNotExist, CartItem.DoesNotExist):
+    except CartItem.DoesNotExist:
         return JsonResponse({"exists": False})
+
 
 
 

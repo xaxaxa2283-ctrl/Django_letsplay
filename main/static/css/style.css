@@ -1575,3 +1575,36 @@ ul, ol {
     color: #fff;
     border-color: #007bff;
 }
+
+
+/* Корзина в шапке */
+.cart-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.cart-icon svg {
+    display: block;
+}
+
+/* Бейджик с количеством */
+.cart-count-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #00BCD4;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: 600;
+}
+
