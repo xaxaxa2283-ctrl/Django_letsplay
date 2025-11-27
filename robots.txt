@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+
+Allow: /
+
+Sitemap: https://letsplayekb.shop/sitemap.xml
+Host: https://letsplayekb.shop

@@ -6,8 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico?v=2' %}">
-    <title>{% block title %}{{ title }}{% endblock %}</title>
+    {% block title %}{{ title }}{% endblock %}
     <script src="https://unpkg.com/tailwindcss-cdn"></script>
+
+
+{% block meta %}
+<meta name="description"
+      content="LetsPlay — магазин приставок PlayStation в Екатеринбурге. PS4, PS5, геймпады DualSense, игры и подписки с гарантией и настройкой. Магазин на Тургенева 3.">
+<meta name="keywords"
+      content="купить ps5 екатеринбург, купить ps4 екатеринбург, приставка playstation, магазин приставок екатеринбург, dualsense екатеринбург">
+<meta name="robots" content="index, follow">
+{% endblock %}
+
+
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% block extra_css %}{% endblock %}
@@ -110,6 +121,35 @@
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/105346552&quot; style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+
+
+
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGameStore",
+  "name": "LetsPlay",
+  "url": "{% if request.is_secure %}https{% else %}http{% endif %}://{{ request.get_host }}/",
+  "telephone": "+7 999 499 36 41",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "ул. Тургенева, 3",
+    "addressLocality": "Екатеринбург",
+    "addressRegion": "Свердловская область",
+    "postalCode": "",
+    "addressCountry": "RU"
+  },
+  "priceRange": "₽₽",
+  "image": "{% static 'images/about_us.jpg' %}",
+  "sameAs": [
+    "https://vk.com/letsplayekb",
+    "https://t.me/letsplayekb_bot"
+  ]
+}
+</script>
+{% endblock %}
 </head>
 <body>
     <!-- Animated Gradient Background -->

@@ -2,9 +2,47 @@
 {% load static %}
 {% csrf_token %}
 
-{% block title %}{{ product.name }} - LetsPlay{% endblock %}
+{% block title %}{{ product.name }} купить в Екатеринбурге — LetsPlay{% endblock %}
+
+
+
+{% block meta %}
+<meta name="description"
+      content="Купить {{ product.name }} в Екатеринбурге. Цена {{ enriched_product.price|floatformat:0 }} ₽. Официальная гарантия 1 год, настройка и установка игр. Магазин LetsPlay, ул. Тургенева 3.">
+<meta name="keywords"
+      content="{{ product.name }}, купить {{ product.name }} екатеринбург, playstation {{ product.get_category_name }} екатеринбург">
+<meta name="robots" content="index, follow">
+{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": [
+    "{{ enriched_product.image|escapejs }}"{% for img in product.images.all %},
+    "{{ img.image.url|escapejs }}"{% endfor %}
+  ],
+  "description": "{{ enriched_product.description|striptags|truncatechars:200|escapejs }}",
+  "sku": "{{ product.id }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "PlayStation"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri|escapejs }}",
+    "priceCurrency": "RUB",
+    "price": "{{ enriched_product.price|floatformat:0 }}",
+    "availability": "{% if enriched_product.in_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
+
 <style>
 
     /* Дополнительные стили для страницы товара */
@@ -41,16 +79,20 @@
     backdrop-filter: blur(20px);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 1.5rem;
-    /* overflow: hidden;  ❌ УДАЛИТЬ */
+    overflow: hidden;              /* ✅ вернули */
     position: sticky;
     top: 6rem;
+    height: max-content;
 }
-    
-    .product-image {
-        aspect-ratio: 1;
-        object-fit: cover;
-        width: 100%;
-    }
+
+.product-image {
+    aspect-ratio: 1;
+    object-fit: cover;
+    width: 100%;
+    display: block;
+    border-radius: 1.5rem;         /* ✅ скругляем саму картинку */
+}
+
     
     .product-badge {
         position: absolute;
@@ -313,6 +355,54 @@
     top: 6rem;
     height: max-content;
 }
+
+    /* Галерея изображений */
+.thumbs-wrap {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+
+.thumb-btn.active-thumb {
+    border-color: #00BCD4;
+}
+.thumbs-wrap {
+    margin-top: 1rem;
+}
+
+.thumbs-set {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+.thumb-btn {
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+}
+
+.thumb-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0.75rem;
+}
+
+/* если вдруг класса hidden нет */
+.hidden {
+    display: none !important;
+}
+
 </style>
 {% endblock %}
 
@@ -349,16 +439,54 @@
                 </div>
             {% endif %}
         </div>
-    {% else %}
-                    <div class="aspect-square bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
-                    </div>
+
+                {# --- Миниатюры --- #}
+                {# --- Миниатюры для КАЖДОГО варианта --- #}
+        <div id="thumbs-wrap">
+            {% for v in variants %}
+                {% with main_image=v.get_image_url %}
+                {% if main_image or v.images.all %}
+                <div class="thumbs-set {% if v.id != product.id %}hidden{% endif %}"
+                     data-variant-id="{{ v.id }}">
+                    {# главная картинка варианта #}
+                    {% if main_image %}
+                        <button type="button"
+                                class="thumb-btn active-thumb"
+                                data-image="{{ main_image }}">
+                            <img src="{{ main_image }}" alt="{{ v.name }}">
+                        </button>
+                    {% endif %}
+
+                    {# дополнительные картинки варианта #}
+                    {% for img in v.images.all %}
+                        {% if img.image %}
+                        <button type="button"
+                                class="thumb-btn"
+                                data-image="{{ img.image.url }}">
+                            <img src="{{ img.image.url }}" alt="{{ v.name }}">
+                        </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
                 {% endif %}
-            </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+
+
+
+    {% else %}
+        <div class="aspect-square bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+        </div>
+    {% endif %}
+</div>
+
 
             <!-- Информация о товаре -->
             <div>
@@ -604,8 +732,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const addBtn     = document.getElementById('detail-add-to-cart');
     const form       = document.getElementById('detail-cart-form');
     const variantBtns = document.querySelectorAll('.variant-btn');
+    const thumbsWrap  = document.getElementById('thumbs-wrap');
 
-    // ---- помощники для кнопки ----
     function setButtonState(inCart) {
         if (!addBtn) return;
         const addText   = addBtn.querySelector('.add-text');
@@ -634,16 +762,35 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(err => console.error('get_cart_item error:', err));
     }
 
-    // ---- при первом открытии страницы проверяем текущий товар ----
+    // Проверяем текущий товар при загрузке
     if (addBtn) {
         const initialId = addBtn.dataset.productId;
         checkInCart(initialId);
     }
 
-    // ---- переключение вариантов ----
+    // ✅ Делегированный обработчик кликов по миниатюрам
+    if (thumbsWrap && imageEl) {
+        thumbsWrap.addEventListener('click', function (e) {
+            const btn = e.target.closest('.thumb-btn');
+            if (!btn) return;
+
+            const url = btn.dataset.image;
+            if (url) {
+                imageEl.src = url;
+            }
+
+            // снимаем активный класс со всех видимых миниатюр
+            thumbsWrap.querySelectorAll('.thumb-btn').forEach(b => {
+                b.classList.remove('active-thumb');
+            });
+            btn.classList.add('active-thumb');
+        });
+    }
+
+    // ✅ Переключение варианта (цвета/подписки)
     variantBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            // оформление кнопок вариантов
+            // визуальное состояние кнопок
             variantBtns.forEach(b => {
                 b.classList.remove('bg-cyan-500', 'text-white');
                 b.classList.add('bg-white/10');
@@ -656,6 +803,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const price     = btn.dataset.price;
             const oldPrice  = btn.dataset.oldPrice;
             const productId = btn.dataset.id;
+            const variantName = btn.dataset.variantName;
 
             if (imageEl && img)      imageEl.src = img;
             if (titleEl && name)     titleEl.textContent = name;
@@ -677,17 +825,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 form.action = `/add-to-cart/${productId}/`;
             }
 
-            // 🔥 при смене цвета/варианта — сразу проверяем, есть ли он в корзине
+            // подпись "Вариант: Чёрный"
+            const variantLabel = document.getElementById('detail-variant-label');
+            if (variantLabel && variantName) {
+                variantLabel.style.display = '';
+                variantLabel.textContent = `Вариант: ${variantName}`;
+            }
+
+            // 🔥 переключаем набор миниатюр под выбранный variantId
+            if (thumbsWrap) {
+                thumbsWrap.querySelectorAll('.thumbs-set').forEach(set => {
+                    set.classList.add('hidden');
+                });
+                const currentSet = thumbsWrap.querySelector(
+                    `.thumbs-set[data-variant-id="${productId}"]`
+                );
+                if (currentSet) {
+                    currentSet.classList.remove('hidden');
+
+                    // сделать первую миниатюру активной
+                    const firstThumb = currentSet.querySelector('.thumb-btn');
+                    if (firstThumb) {
+                        currentSet.querySelectorAll('.thumb-btn').forEach(b => {
+                            b.classList.remove('active-thumb');
+                        });
+                        firstThumb.classList.add('active-thumb');
+                    }
+                }
+            }
+
+            // проверяем, лежит ли этот вариант в корзине
             checkInCart(productId);
         });
     });
 
-    // ---- обработчик submit формы (как раньше) ----
+    // ✅ отправка формы "Добавить в корзину" (AJAX)
     if (form && addBtn) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-
-            const productId = addBtn.dataset.productId;
 
             fetch(form.action, {
                 method: 'POST',
@@ -703,7 +878,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (typeof updateCartCounter === 'function') {
                         updateCartCounter();
                     }
-                    // сразу показываем состояние "В корзине"
                     setButtonState(true);
                 }
             })
@@ -711,8 +885,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-
-    // --- Остальной твой код (share и т.п.) остаётся как был ---
+    // Кнопка "Поделиться"
     const shareBtn = document.getElementById('share-button');
     const feedback = document.getElementById('share-feedback');
     if (shareBtn && feedback) {
@@ -742,8 +915,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue;
     }
 });
-
 </script>
+
+
+
 
 
 
