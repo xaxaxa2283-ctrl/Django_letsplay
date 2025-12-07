@@ -94,9 +94,15 @@ a {
 }
 
 img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* svg не растягиваем глобально */
+svg {
+    max-width: none;
+    height: auto;
 }
 
 button {
