@@ -15,18 +15,18 @@
 
 {% block extra_css %}
 <style>
+/* Общий контейнер страницы */
 .service-section {
     padding-top: 6.5rem;
     padding-bottom: 4rem;
 }
-
 .service-inner {
     max-width: 1040px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
 
-/* стрелка назад */
+/* Стрелка назад */
 .service-back {
     display: inline-flex;
     align-items: center;
@@ -44,7 +44,7 @@
     color: #00bcd4;
 }
 
-/* лёгкая карточка */
+/* Основная карточка */
 .service-card {
     border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -53,7 +53,7 @@
     backdrop-filter: blur(8px);
 }
 
-/* бейдж сверху */
+/* Бейдж вверху */
 .service-badge {
     display: inline-flex;
     align-items: center;
@@ -75,7 +75,7 @@
     justify-content: center;
 }
 
-/* основной текст */
+/* Текст в шапке */
 .service-title {
     font-size: 1.9rem;
     color: #fff;
@@ -95,7 +95,7 @@
     color: #fff;
 }
 
-/* сетка подарков */
+/* Сетка подарков */
 .gift-grid {
     margin-top: 1.6rem;
     margin-bottom: 1.8rem;
@@ -112,10 +112,12 @@
     align-items: center;
     text-align: center;
 }
+
+/* Картинка подарка – во всю ширину карточки */
 .gift-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 16px;
+    width: 100%;
+    aspect-ratio: 4 / 3;              /* единое соотношение сторон */
+    border-radius: 14px;
     background: rgba(0,0,0,0.18);
     display: flex;
     align-items: center;
@@ -124,10 +126,12 @@
     overflow: hidden;
 }
 .gift-icon img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;                /* заполняет блок без пустых полей */
+    display: block;
 }
+
 .gift-title {
     font-size: 0.98rem;
     color: #fff;
@@ -138,7 +142,7 @@
     color: rgba(255,255,255,0.75);
 }
 
-/* спец-бейдж для подписки */
+/* Бейдж для подписки */
 .gift-tag {
     display: inline-flex;
     align-items: center;
@@ -151,73 +155,7 @@
     color: #e0ffff;
 }
 
-/* блок с играми */
-.games-block {
-    margin-top: 0.6rem;
-    padding-top: 1.4rem;
-    border-top: 1px dashed rgba(255,255,255,0.08);
-}
-.games-title {
-    font-size: 1.3rem;
-    color: #fff;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.4rem;
-}
-.games-subtitle {
-    text-align: center;
-    font-size: 0.96rem;
-    color: rgba(255,255,255,0.8);
-    margin-bottom: 1.3rem;
-}
-
-.games-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px 32px;
-}
-.games-col-title {
-    font-weight: 600;
-    font-size: 0.97rem;
-    color: #fff;
-    margin-bottom: 4px;
-}
-.games-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.8);
-}
-.games-list li {
-    position: relative;
-    padding-left: 22px;
-    margin-bottom: 4px;
-}
-.games-list li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    top: 0.5px;
-    font-size: 0.75rem;
-    width: 14px;
-    height: 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(0,229,255,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00e5ff;
-}
-
-.games-footnote {
-    margin-top: 0.8rem;
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.6);
-}
-
-/* низ карточки */
+/* Нижняя часть карточки */
 .service-footer {
     border-top: 1px solid rgba(255,255,255,0.05);
     margin-top: 1.4rem;
@@ -246,33 +184,10 @@
     color: #80ffff;
 }
 
-/* адаптив */
-@media (max-width: 900px) {
-    .gift-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .games-grid {
-        grid-template-columns: 1fr;
-    }
-}
-@media (max-width: 640px) {
-    .service-card {
-        padding: 22px 18px 20px;
-    }
-    .service-title {
-        font-size: 1.55rem;
-    }
-    .gift-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-
-/* Блок игр — лёгкий, с воздухом */
+/* Блок игр */
 .games-section {
     margin-top: 56px;
 }
-
 .games-card {
     max-width: 1120px;
     margin: 0 auto;
@@ -287,12 +202,11 @@
     color: #f9fdff;
 }
 
-/* Шапка блока */
+/* Шапка блока игр */
 .games-header {
     text-align: center;
     margin-bottom: 32px;
 }
-
 .games-kicker {
     font-size: 13px;
     letter-spacing: .18em;
@@ -300,13 +214,11 @@
     color: rgba(255, 255, 255, 0.55);
     margin-bottom: 6px;
 }
-
 .games-title {
     font-size: 24px;
     line-height: 1.35;
     margin-bottom: 8px;
 }
-
 .games-subtitle {
     max-width: 640px;
     margin: 0 auto;
@@ -315,19 +227,16 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Сетка колонок */
+/* Сетка колонок игр */
 .games-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 32px 72px;
     margin-bottom: 28px;
 }
-
 .games-col {
     min-width: 0;
 }
-
-/* Заголовки групп игр */
 .games-group {
     font-size: 16px;
     font-weight: 600;
@@ -340,7 +249,6 @@
     padding: 0;
     margin: 0 0 20px;
 }
-
 .games-list li {
     position: relative;
     padding-left: 26px;
@@ -349,8 +257,6 @@
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.86);
 }
-
-/* чек-иконка */
 .games-list li::before {
     content: "";
     position: absolute;
@@ -363,14 +269,13 @@
     box-shadow: 0 0 0 3px rgba(25, 229, 255, 0.18);
 }
 
-/* нижний текст и подвал */
+/* Подвал блока игр */
 .games-note {
     font-size: 13px;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.65);
     margin-bottom: 20px;
 }
-
 .games-footer {
     display: flex;
     justify-content: space-between;
@@ -381,7 +286,6 @@
     font-size: 14px;
     color: rgba(255, 255, 255, 0.82);
 }
-
 .games-link {
     color: #3de8ff;
     text-decoration: none;
@@ -392,6 +296,28 @@
 }
 
 /* Адаптив */
+@media (max-width: 900px) {
+    .gift-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 640px) {
+    .service-card {
+        padding: 22px 18px 20px;
+    }
+    .service-title {
+        font-size: 1.55rem;
+    }
+    .gift-grid {
+        grid-template-columns: 1fr;
+    }
+    .games-title {
+        font-size: 20px;
+    }
+    .games-card {
+        padding: 28px 18px 24px;
+    }
+}
 @media (max-width: 1024px) {
     .games-card {
         padding: 32px 24px 28px;
@@ -409,16 +335,6 @@
         white-space: normal;
     }
 }
-
-@media (max-width: 640px) {
-    .games-title {
-        font-size: 20px;
-    }
-    .games-card {
-        padding: 28px 18px 24px;
-    }
-}
-
 </style>
 {% endblock %}
 
@@ -426,7 +342,7 @@
 <section class="service-section">
     <div class="service-inner">
 
-        {# стрелка назад #}
+        <!-- Стрелка назад -->
         <a href="{% url 'letsplay:home' %}" class="service-back">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor" stroke-width="2">
@@ -455,12 +371,12 @@
                 или соревноваться онлайн — поможем собрать идеальный набор.
             </p>
 
-            {# Блок «что входит в подарок» #}
+            <!-- Подарки -->
             <div class="gift-grid">
 
                 <div class="gift-item">
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-gamepad.png' %}" alt="Геймпад в комплекте">
+                        <img src="{% static 'images/gift-gamepad.jpg' %}" alt="Геймпад в комплекте">
                     </div>
                     <div class="gift-title">Геймпад DualSense / DualShock</div>
                     <div class="gift-note">основной контроллер в комплекте, второй — со скидкой</div>
@@ -468,16 +384,15 @@
 
                 <div class="gift-item">
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-games-pack.png' %}" alt="Игры в подарок">
+                        <img src="{% static 'images/gift-games-pack.jpg' %}" alt="Игры в подарок">
                     </div>
                     <div class="gift-title">Более 700 игр в комплекте</div>
                     <div class="gift-note">топ-библиотека хитов разных жанров — как будто полка с дисками</div>
                 </div>
 
                 <div class="gift-item">
-                    <div class="gift-tag">1 месяц в подарок</div>
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-psplus.png' %}" alt="Подписка PS Plus в подарок">
+                        <img src="{% static 'images/gift-psplus.jpg' %}" alt="Подписка PS Plus в подарок">
                     </div>
                     <div class="gift-title">Подписка PS Plus</div>
                     <div class="gift-note">онлайн-игра, ежемесячные игры и акции в течение первого месяца</div>
@@ -485,7 +400,7 @@
 
                 <div class="gift-item">
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-cables.png' %}" alt="Кабели и подключение">
+                        <img src="{% static 'images/gift-cables.jpg' %}" alt="Кабели и подключение">
                     </div>
                     <div class="gift-title">Необходимые кабели</div>
                     <div class="gift-note">HDMI, питание и всё, чтобы просто подключить и играть</div>
@@ -493,7 +408,7 @@
 
                 <div class="gift-item">
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-setup.png' %}" alt="Настройка приставки">
+                        <img src="{% static 'images/gift-setup.jpg' %}" alt="Настройка приставки">
                     </div>
                     <div class="gift-title">Полная настройка</div>
                     <div class="gift-note">мы обновляем систему, ставим игры и настраиваем профиль</div>
@@ -501,80 +416,80 @@
 
                 <div class="gift-item">
                     <div class="gift-icon">
-                        <img src="{% static 'images/gift-support.png' %}" alt="Поддержка и консультация">
+                        <img src="{% static 'images/gift-support.jpg' %}" alt="Поддержка и консультация">
                     </div>
                     <div class="gift-title">Помощь и поддержка</div>
                     <div class="gift-note">подскажем с выбором игр и поможем, если возникнут вопросы</div>
                 </div>
             </div>
 
-           <section class="games-section">
-    <div class="games-card">
+            <!-- Блок игр -->
+            <section class="games-section">
+                <div class="games-card">
 
-        <header class="games-header">
-            <p class="games-kicker">Игры в комплекте</p>
-            <h2 class="games-title">Игры в комплекте (топ-библиотека)</h2>
-            <p class="games-subtitle">
-                В зависимости от комплекта вы получаете до <strong>700+ игр</strong>:
-                от спортивных симуляторов до сюжетных блокбастеров и игр для всей семьи.
-            </p>
-        </header>
+                    <header class="games-header">
+                        <p class="games-kicker">Игры в комплекте</p>
+                        <h2 class="games-title">Игры в комплекте (топ-библиотека)</h2>
+                        <p class="games-subtitle">
+                            В зависимости от комплекта вы получаете до <strong>700+ игр</strong>:
+                            от спортивных симуляторов до сюжетных блокбастеров и игр для всей семьи.
+                        </p>
+                    </header>
 
-        <div class="games-grid">
-            <div class="games-col">
-                <h3 class="games-group">Файтинги и спорт</h3>
-                <ul class="games-list">
-                    <li>FC 24 + прошлые версии FIFA</li>
-                    <li>UFC 5 / 4 / 3</li>
-                    <li>NHL 23*</li>
-                    <li>Mortal Kombat 11 и классические части</li>
-                    <li>NBA, Street Fighter, Tekken и другие</li>
-                </ul>
+                    <div class="games-grid">
+                        <div class="games-col">
+                            <h3 class="games-group">Файтинги и спорт</h3>
+                            <ul class="games-list">
+                                <li>FC 24 + прошлые версии FIFA</li>
+                                <li>UFC 5 / 4 / 3</li>
+                                <li>NHL 23*</li>
+                                <li>Mortal Kombat 11 и классические части</li>
+                                <li>NBA, Street Fighter, Tekken и другие</li>
+                            </ul>
 
-                <h3 class="games-group">Шутеры и онлайн-проекты</h3>
-                <ul class="games-list">
-                    <li>Call of Duty, Battlefield, Rainbow Six</li>
-                    <li>Apex Legends, Fortnite, Warzone*</li>
-                    <li>Tom Clancy’s The Division, Destiny 2</li>
-                </ul>
-            </div>
+                            <h3 class="games-group">Шутеры и онлайн-проекты</h3>
+                            <ul class="games-list">
+                                <li>Call of Duty, Battlefield, Rainbow Six</li>
+                                <li>Apex Legends, Fortnite, Warzone*</li>
+                                <li>Tom Clancy’s The Division, Destiny 2</li>
+                            </ul>
+                        </div>
 
-            <div class="games-col">
-                <h3 class="games-group">Экшены и блокбастеры</h3>
-                <ul class="games-list">
-                    <li>GTA V, Red Dead Redemption 2</li>
-                    <li>God of War, The Last of Us</li>
-                    <li>Uncharted 4, Horizon Zero Dawn</li>
-                    <li>Marvel’s Spider-Man, Ghost of Tsushima</li>
-                    <li>Assassin’s Creed, Watch Dogs и др.</li>
-                </ul>
+                        <div class="games-col">
+                            <h3 class="games-group">Экшены и блокбастеры</h3>
+                            <ul class="games-list">
+                                <li>GTA V, Red Dead Redemption 2</li>
+                                <li>God of War, The Last of Us</li>
+                                <li>Uncharted 4, Horizon Zero Dawn</li>
+                                <li>Marvel’s Spider-Man, Ghost of Tsushima</li>
+                                <li>Assassin’s Creed, Watch Dogs и др.</li>
+                            </ul>
 
-                <h3 class="games-group">Для всей семьи</h3>
-                <ul class="games-list">
-                    <li>Crash Bandicoot, Ratchet &amp; Clank</li>
-                    <li>LEGO-серии (Marvel, Star Wars и др.)</li>
-                    <li>Just Dance, аркады и платформеры</li>
-                </ul>
-            </div>
-        </div>
+                            <h3 class="games-group">Для всей семьи</h3>
+                            <ul class="games-list">
+                                <li>Crash Bandicoot, Ratchet &amp; Clank</li>
+                                <li>LEGO-серии (Marvel, Star Wars и др.)</li>
+                                <li>Just Dance, аркады и платформеры</li>
+                            </ul>
+                        </div>
+                    </div>
 
-        <p class="games-note">
-            Конкретный набор игр и подписок может немного отличаться в зависимости от модели приставки
-            и акций в магазине. На месте мы подробно расскажем, что входит именно в ваш комплект.
-        </p>
+                    <p class="games-note">
+                        Конкретный набор игр и подписок может немного отличаться в зависимости от модели приставки
+                        и акций в магазине. На месте мы подробно расскажем, что входит именно в ваш комплект.
+                    </p>
 
-        <div class="games-footer">
-            <div class="games-store">
-                Магазин <strong>LetsPlay</strong>, г. Екатеринбург,<br>
-                ул. Тургенева, 3
-            </div>
-            <a href="{% url 'letsplay:catalog' %}" class="games-link">
-                Смотреть приставки с подарками в каталоге →
-            </a>
-        </div>
-    </div>
-</section>
-            
+                    <div class="games-footer">
+                        <div class="games-store">
+                            Магазин <strong>LetsPlay</strong>, г. Екатеринбург,<br>
+                            ул. Тургенева, 3
+                        </div>
+                        <a href="{% url 'letsplay:catalog' %}" class="games-link">
+                            Смотреть приставки с подарками в каталоге →
+                        </a>
+                    </div>
+                </div>
+            </section>
 
         </article>
     </div>
