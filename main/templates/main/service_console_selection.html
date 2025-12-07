@@ -1,0 +1,280 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+
+{% block title %}Подбор игровой приставки PlayStation в Екатеринбурге — LetsPlay{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== КНОПКА НАЗАД (как на gifts) ===== */
+.service-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+
+    padding: 6px 10px;
+    border-radius: 999px;
+    transition: color .2s ease, background .2s ease, transform .15s ease;
+}
+
+.service-back svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.2;
+    transition: transform .15s ease;
+}
+
+.service-back:hover {
+    color: #00BCD4;
+    transform: translateX(-1px);
+}
+
+.service-back:hover svg {
+    transform: translateX(-2px);
+}
+
+/* ===== КАРТОЧКА С ФОТО ===== */
+.service-card--with-photo {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 40px;
+
+    padding: 40px 48px;
+    border-radius: 32px;
+
+    background: rgba(5, 28, 60, 0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+
+    margin: 16px auto 72px;
+    max-width: 1150px;
+}
+
+.service-photo img {
+    width: 100%;
+    height: auto;
+    border-radius: 22px;
+    object-fit: cover;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.service-text {
+    color: #e8f4ff;
+}
+
+.service-title {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.service-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.82);
+    margin-bottom: 20px;
+}
+
+.service-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 22px;
+}
+
+.service-list li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+}
+
+.service-list li::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border: 2px solid #30eaff;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    top: 7px;
+    box-shadow: 0 0 0 3px rgba(48,234,255,0.18);
+}
+
+.service-note {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ===== ПРЕМИУМ-CTA ВНИЗУ ===== */
+.service-cta {
+    margin-top: 80px;
+    padding: 32px 40px;
+    border-radius: 32px;
+
+    background: linear-gradient(135deg,
+        rgba(0, 40, 80, 0.96),
+        rgba(0, 120, 170, 0.9));
+    border: 1px solid rgba(0, 240, 255, 0.18);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.service-cta-main {
+    max-width: 720px;
+}
+
+.service-cta-title {
+    font-size: 26px;
+    margin-bottom: 6px;
+    color: #ffffff;
+}
+
+.service-cta-text {
+    font-size: 15px;
+    color: rgba(228,243,255,0.9);
+}
+
+.service-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* слегка усилим кнопки внутри CTA */
+.service-cta .btn-primary {
+    padding-inline: 28px;
+    font-weight: 600;
+}
+
+.service-cta .btn-secondary {
+    border-radius: 999px;
+}
+
+/* АДАПТИВ */
+@media (max-width: 960px) {
+    .service-card--with-photo {
+        grid-template-columns: 1fr;
+        padding: 32px 28px;
+        gap: 24px;
+        margin-top: 8px;
+    }
+
+    .service-photo img {
+        border-radius: 18px;
+    }
+
+    .service-title {
+        font-size: 22px;
+    }
+
+    .service-cta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 28px 24px;
+        border-radius: 28px;
+    }
+
+    .service-cta-title {
+        font-size: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+
+        {# КНОПКА НАЗАД #}
+        <a href="{% url 'letsplay:home' %}" class="service-back">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor">
+                <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>На главную</span>
+        </a>
+
+        <div class="page-header">
+            <h1>Подбор приставки PlayStation под ваши задачи</h1>
+            <p>
+                Поможем выбрать между PS4 и PS5, Digital и дисковой версией, подобрать объём памяти
+                и комплектацию под ваш бюджет и любимые игры.
+            </p>
+        </div>
+
+        <section class="service-card service-card--with-photo">
+            <div class="service-photo">
+                <img src="{% static 'images/about_us.jpg' %}"
+                     alt="Консультант LetsPlay помогает выбрать приставку">
+            </div>
+
+            <div class="service-text">
+                <h2 class="service-title">Как мы подбираем приставку</h2>
+                <p class="service-sub">
+                    Мы не предлагаем «самую дорогую» модель — подбираем вариант, который действительно
+                    подходит именно вам.
+                </p>
+
+                <ul class="service-list">
+                    <li>Во что планируете играть: онлайн-проекты, сюжетные хиты, спорт;</li>
+                    <li>Нужны ли 4K, VR, стриминг и запись видео;</li>
+                    <li>Какой у вас телевизор или монитор;</li>
+                    <li>Какой бюджет вы готовы вложить в приставку.</li>
+                </ul>
+
+                <p class="service-note">
+                    Расскажем простым языком, какая модель и комплектация дадут максимум удовольствия
+                    именно вам — без переплат и лишних опций.
+                </p>
+            </div>
+        </section>
+
+        <div class="section-header">
+            <h2>Что вы получаете</h2>
+        </div>
+
+        <div class="advantages-grid">
+            <div class="advantage-card">
+                <h3>Честная консультация</h3>
+                <p>Объясняем плюсы и минусы каждой модели простым языком, без навязанных продаж.</p>
+            </div>
+            <div class="advantage-card">
+                <h3>Готовое решение</h3>
+                <p>Подбираем консоль, игры, аксессуары и подписки под один бюджет.</p>
+            </div>
+            <div class="advantage-card">
+                <h3>Возможность протестировать</h3>
+                <p>В шоуруме на Тургенева, 3 можно посмотреть и «пощупать» приставку перед покупкой.</p>
+            </div>
+        </div>
+
+        {# НОВАЯ ПРЕМИУМ-CTA #}
+        <div class="service-cta">
+            <div class="service-cta-main">
+                <h2 class="service-cta-title">Хотите подобрать приставку за 5–10 минут?</h2>
+                <p class="service-cta-text">
+                    Напишите нам в мессенджер или позвоните — зададим несколько вопросов о том,
+                    как вы играете, и предложим 1–2 оптимальных варианта под ваш бюджет.
+                </p>
+            </div>
+
+            <div class="service-cta-actions">
+                <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank"
+                   class="btn btn-primary">
+                    Написать в WhatsApp
+                </a>
+                <a href="tel:+79994993641" class="btn btn-secondary">
+                    Позвонить в магазин
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,5 +1,10 @@
 from django import forms
 from django.contrib import admin
+from django.contrib import admin
+from django.utils.html import format_html
+
+from .models import Order, OrderItem, Product, ProductImage, Category, Review
+# остальное как у тебя
 
 from .models import (
     Product, ProductImage, Category,
@@ -160,12 +165,46 @@ class OrderItemInline(admin.TabularInline):
 #                 ORDERS
 # ======================================
 
+
+# ====== действия для смены статуса заказа ======
+
+@admin.action(description='Статус: Ожидает обработки')
+def set_status_pending(modeladmin, request, queryset):
+    queryset.update(status='pending')
+
+
+@admin.action(description='Статус: Подтверждён')
+def set_status_confirmed(modeladmin, request, queryset):
+    queryset.update(status='confirmed')
+
+
+@admin.action(description='Статус: Обрабатывается')
+def set_status_processing(modeladmin, request, queryset):
+    queryset.update(status='processing')
+
+
+@admin.action(description='Статус: Отправлен')
+def set_status_shipped(modeladmin, request, queryset):
+    queryset.update(status='shipped')
+
+
+@admin.action(description='Статус: Доставлен')
+def set_status_delivered(modeladmin, request, queryset):
+    queryset.update(status='delivered')
+
+
+@admin.action(description='Статус: Отменён')
+def set_status_cancelled(modeladmin, request, queryset):
+    queryset.update(status='cancelled')
+
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'customer_name', 'customer_phone', 'customer_email',
         'delivery_method', 'payment_method', 'total_price',
-        'created_at', 'status'
+        'created_at', 'colored_status'
     ]
 
     list_filter = ['status', 'delivery_method', 'payment_method', 'created_at']
@@ -192,3 +231,32 @@ class OrderAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    actions = [
+        set_status_pending,
+        set_status_confirmed,
+        set_status_processing,
+        set_status_shipped,
+        set_status_delivered,
+        set_status_cancelled,
+    ]
+
+    @admin.display(description="Статус", ordering="status")
+    def colored_status(self, obj):
+        colors = {
+            'pending': '#ff9800',  # Ожидает
+            'confirmed': '#00bcd4',  # Подтверждён
+            'processing': '#3f51b5',  # Обрабатывается
+            'shipped': '#2196f3',  # Отправлен
+            'delivered': '#4caf50',  # Доставлен
+            'cancelled': '#f44336',  # Отменён
+        }
+
+        color = colors.get(obj.status, '#9e9e9e')
+        label = obj.get_status_display()
+
+        return format_html(
+            '<span style="color: white; background:{}; padding:4px 10px; border-radius:6px; font-size:12px;">{}</span>',
+            color,
+            label
+        )

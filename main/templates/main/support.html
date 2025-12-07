@@ -1,0 +1,87 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+
+{% block title %}Поддержка PlayStation в Екатеринбурге — LetsPlay{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+
+    <!-- Назад -->
+    <a href="{% url 'letsplay:home' %}" class="lp-back-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+      </svg>
+      На главную
+    </a>
+
+    <!-- Заголовок -->
+    <div class="page-header">
+      <h1>Поддержка PlayStation и помощь клиентам 24/7</h1>
+      <p>
+        Помогаем с приставками <strong>PS4</strong> и <strong>PS5</strong> в Екатеринбурге и по всей России:
+        подсказки по настройке, играм и подпискам — даже после покупки.
+      </p>
+    </div>
+
+    <!-- Блок 1 -->
+    <section class="info-card">
+      <h2>С чем помогаем</h2>
+      <ul class="lp-bullet-list mt-3">
+        <li>Не включается или пропало изображение с приставки.</li>
+        <li>Игры не устанавливаются, ошибки при запуске.</li>
+        <li>Вопросы по подпискам <strong>PlayStation Plus</strong>.</li>
+        <li>Подбор игр под ребёнка, семью или онлайн-игру с друзьями.</li>
+        <li>Подключение и базовая настройка PS4 / PS5 к телевизору и интернету.</li>
+      </ul>
+      <p class="info-note mt-4">
+        Обычно хватает одного звонка или пары сообщений в мессенджере — без поездок в сервис.
+      </p>
+    </section>
+
+    <!-- Блок 2 -->
+    <section class="info-card mt-8">
+      <h2>Для кого работает поддержка</h2>
+      <ul class="lp-bullet-list mt-3">
+        <li><strong>Клиенты из Екатеринбурга</strong> — помощь по телефону, в мессенджерах и в магазине на Тургенева, 3.</li>
+        <li><strong>Клиенты из других городов</strong> — консультируем онлайн, подскажем по доставке и настройке.</li>
+        <li>Если случай гарантийный, расскажем, что делать шаг за шагом.</li>
+      </ul>
+    </section>
+
+    <!-- Блок 3 -->
+    <section class="info-card mt-8">
+      <h2>Как связаться с нами</h2>
+      <p class="info-text">
+        Напишите или позвоните — ответим в рабочее время, обычно в течение нескольких минут.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-4">
+        <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank" class="btn btn-primary">
+          Написать в WhatsApp
+        </a>
+        <a href="https://t.me/letsplayekb_bot" target="_blank" class="btn btn-secondary">
+          Написать в Telegram
+        </a>
+        <a href="tel:+79994993641" class="btn btn-secondary">
+          Позвонить в магазин
+        </a>
+      </div>
+    </section>
+
+    <!-- Блок 4 (короткий SEO-подвал) -->
+    <section class="info-card mt-8">
+      <h2>Гарантия и сервис</h2>
+      <p class="info-text">
+        Все приставки и аксессуары продаём с официальной гарантией.
+        Подробнее о гарантийном обслуживании — на странице
+        <a href="{% url 'letsplay:warranty' %}" class="seo-link">«Гарантия на приставки»</a>.
+      </p>
+    </section>
+
+  </div>
+</section>
+{% endblock %}

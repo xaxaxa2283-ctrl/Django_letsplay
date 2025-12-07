@@ -1,0 +1,93 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+
+{% block title %}Гарантия на приставки и аксессуары — LetsPlay{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+
+    <!-- Кнопка назад -->
+    <a href="{% url 'letsplay:home' %}"
+       class="lp-back-btn"
+       onclick="if (document.referrer) { event.preventDefault(); window.history.back(); }">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+        </svg>
+        На главную
+    </a>
+
+    <header class="page-header">
+      <h1>Гарантия на приставки и аксессуары</h1>
+      <p>
+        Все приставки и аксессуары в LetsPlay — оригинальные и продаются
+        с официальной гарантией.
+      </p>
+    </header>
+
+    <div class="warranty-grid">
+      <!-- Карточка: сроки гарантии -->
+      <section class="warranty-card">
+        <h2>Сроки гарантии</h2>
+        <ul class="warranty-list">
+          <li><b>Приставки PlayStation</b> — от 6 месяцев.</li>
+          <li><b>Геймпады и аксессуары</b> — от 3 до 6 месяцев (в зависимости от модели).</li>
+          <li>На часть товаров действует расширенная гарантия производителя.</li>
+        </ul>
+        <p class="warranty-note">
+          Конкретный срок гарантии всегда указан в чеке и гарантийном талоне,
+          а также в карточке товара в каталоге.
+        </p>
+      </section>
+
+      <!-- Карточка: как проходит обслуживание -->
+      <section class="warranty-card">
+        <h2>Как проходит гарантийное обслуживание</h2>
+        <ol class="warranty-steps">
+          <li>
+            <span class="warranty-step-title">Свяжитесь с нами</span>
+            <p>Напишите в WhatsApp/Telegram или позвоните — расскажете, что случилось с приставкой или аксессуаром.</p>
+          </li>
+          <li>
+            <span class="warranty-step-title">Диагностика</span>
+            <p>Поможем с первичной диагностикой и подскажем, нужно ли везти приставку в наш сервис.</p>
+          </li>
+          <li>
+            <span class="warranty-step-title">Оформление обращения</span>
+            <p>Если поломка гарантийная, оформим обращение и отремонтируем устройство за свой счёт, либо вернём деньги.</p>
+          </li>
+          <li>
+            <span class="warranty-step-title">Ремонт или замена</span>
+            <p>Сервисный центр проводит ремонт или замену в зависимости от степени тяжести поломки и его характера.</p>
+          </li>
+        </ol>
+        <p class="warranty-note">
+          Мы остаёмся на связи на каждом этапе — от первичной диагностики
+          до получения отремонтированного устройства.
+        </p>
+      </section>
+    </div>
+
+    <!-- Низ страницы: призыв связаться -->
+    <section class="warranty-help-card">
+      <h2>Нужна помощь по гарантии?</h2>
+      <p>
+        Мы с радостью поможем и подскажем вам
+      </p>
+      <div class="warranty-help-actions">
+        <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank" class="btn btn-primary">
+          Написать в WhatsApp
+        </a>
+        <a href="tel:+79994993641" class="btn btn-secondary">
+          Позвонить в магазин
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+{% endblock %}

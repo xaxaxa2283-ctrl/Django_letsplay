@@ -1,0 +1,318 @@
+{% extends 'main/base_template.html' %}
+{% block title %}Политика конфиденциальности — LetsPlay{% endblock %}
+
+{% block extra_css %}
+<style>
+  .policy-wrapper {
+      padding-top: 7rem;
+      padding-bottom: 4rem;
+      min-height: 100vh;
+  }
+
+  .policy-card {
+      max-width: 900px;
+      margin: 0 auto;
+      background: radial-gradient(circle at top left, rgba(0,188,212,0.12), transparent 55%),
+                  rgba(15, 23, 42, 0.92);
+      border-radius: 1.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow:
+          0 24px 80px rgba(15, 23, 42, 0.9),
+          0 0 0 1px rgba(15, 23, 42, 0.6);
+      padding: 2.25rem 1.75rem;
+  }
+
+  @media (min-width: 768px) {
+      .policy-card {
+          padding: 2.75rem 3rem;
+      }
+  }
+
+  .policy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.5);
+      color: rgba(226,232,240,0.85);
+      font-size: 0.8rem;
+      margin-bottom: 1.1rem;
+  }
+
+  .policy-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22d3ee;
+      box-shadow: 0 0 0 4px rgba(34,211,238,0.25);
+  }
+
+  .policy-title {
+      font-size: clamp(1.8rem, 2.2vw + 1rem, 2.4rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.75rem;
+  }
+
+  .policy-subtitle {
+      color: rgba(226,232,240,0.8);
+      font-size: 0.95rem;
+      max-width: 580px;
+  }
+
+  .policy-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: rgba(148, 163, 184, 0.9);
+  }
+
+  .policy-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+  }
+
+  .policy-meta-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
+  }
+
+  .policy-body {
+      margin-top: 2rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.9);
+      padding-top: 1.8rem;
+      display: grid;
+      gap: 1.75rem;
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: rgba(226,232,240,0.9);
+  }
+
+  .policy-section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 0.4rem;
+  }
+
+  .policy-section-num {
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 999px;
+      background: rgba(34,211,238,0.12);
+      border: 1px solid rgba(34,211,238,0.5);
+      color: #22d3ee;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .policy-section p {
+      margin: 0.35rem 0 0.4rem;
+  }
+
+  .policy-list {
+      margin-top: 0.4rem;
+      padding-left: 1.1rem;
+  }
+
+  .policy-list li {
+      margin-bottom: 0.25rem;
+  }
+
+  .policy-highlight {
+      color: #22d3ee;
+      font-weight: 500;
+  }
+
+  .policy-contacts {
+      margin-top: 0.8rem;
+  }
+
+  .policy-contacts p {
+      margin: 0.15rem 0;
+  }
+
+  .policy-footer-note {
+      margin-top: 1.8rem;
+      font-size: 0.8rem;
+      color: rgba(148,163,184,0.85);
+      border-top: 1px dashed rgba(51,65,85,0.8);
+      padding-top: 1rem;
+  }
+
+  @media (max-width: 640px) {
+      .policy-wrapper {
+          padding-top: 6rem;
+      }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-wrapper">
+    <div class="container mx-auto px-4">
+        <div class="policy-card">
+            <div>
+                <div class="policy-badge">
+                    <span class="policy-badge-dot"></span>
+                    Политика обработки персональных данных
+                </div>
+
+                <h1 class="policy-title">
+                    Политика конфиденциальности интернет-магазина LetsPlay
+                </h1>
+
+                <p class="policy-subtitle">
+                    Этот документ объясняет, какие данные мы собираем на сайте
+                    <span class="policy-highlight">letsplayekb.shop</span>,
+                    зачем это делаем и как обеспечиваем их защиту.
+                </p>
+
+                <div class="policy-meta">
+                    <span>
+                        <span class="policy-meta-dot"></span>
+                        Оператор: магазин игровых консолей LetsPlay (Екатеринбург)
+                    </span>
+                    <span>
+                        <span class="policy-meta-dot"></span>
+                        Адрес магазина: г. Екатеринбург, ул. Тургенева, 3
+                    </span>
+                </div>
+            </div>
+
+            <div class="policy-body">
+                <!-- 1 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">1</span>
+                        Общие положения
+                    </div>
+                    <p>
+                        Настоящая политика конфиденциальности (далее — Политика) составлена в соответствии
+                        с Федеральным законом РФ № 152-ФЗ «О персональных данных» и регулирует порядок
+                        обработки и защиты персональных данных пользователей сайта
+                        <span class="policy-highlight">letsplayekb.shop</span>.
+                    </p>
+                    <p>
+                        Используя наш сайт и оформляя заказ, вы подтверждаете своё согласие на обработку
+                        персональных данных в соответствии с настоящей Политикой.
+                    </p>
+                </div>
+
+                <!-- 2 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">2</span>
+                        Какие данные мы собираем
+                    </div>
+                    <p>Мы можем обрабатывать следующие категории данных:</p>
+                    <ul class="policy-list list-disc">
+                        <li>Имя и фамилия;</li>
+                        <li>Номер телефона и адрес электронной почты;</li>
+                        <li>Адрес доставки (при оформлении заказа);</li>
+                        <li>Данные о заказанных товарах и способе оплаты;</li>
+                        <li>Технические данные: IP-адрес, файлы cookie, информация о браузере и устройстве;</li>
+                        <li>Данные, которые вы добровольно указываете при обращении в поддержку.</li>
+                    </ul>
+                </div>
+
+                <!-- 3 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">3</span>
+                        Цели обработки персональных данных
+                    </div>
+                    <p>Мы используем ваши данные только для:</p>
+                    <ul class="policy-list list-disc">
+                        <li>оформления, обработки и доставки заказов;</li>
+                        <li>связи с вами по вопросам заказа и консультации по товарам;</li>
+                        <li>улучшения работы сайта и сервиса;</li>
+                        <li>выполнения требований законодательства РФ;</li>
+                        <li>отправки информации об акциях и спецпредложениях (только с вашего согласия).</li>
+                    </ul>
+                </div>
+
+                <!-- 4 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">4</span>
+                        Передача и хранение данных
+                    </div>
+                    <p>
+                        Мы не продаём и не передаём персональные данные третьим лицам, за исключением случаев,
+                        предусмотренных законом, либо необходимых для исполнения вашего заказа
+                        (службы доставки, платёжные сервисы и т.п.).
+                    </p>
+                    <p>
+                        Доступ к данным имеют только уполномоченные сотрудники, которые обязаны соблюдать режим
+                        конфиденциальности.
+                    </p>
+                </div>
+
+                <!-- 5 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">5</span>
+                        Защита персональных данных
+                    </div>
+                    <p>
+                        Мы принимаем необходимые организационные и технические меры для защиты ваших
+                        персональных данных от несанкционированного доступа, изменения, блокирования,
+                        копирования, распространения, а также от иных неправомерных действий третьих лиц.
+                    </p>
+                </div>
+
+                <!-- 6 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">6</span>
+                        Права пользователя
+                    </div>
+                    <p>Вы имеете право:</p>
+                    <ul class="policy-list list-disc">
+                        <li>уточнять свои персональные данные, требовать их актуализации или исправления;</li>
+                        <li>отозвать согласие на обработку персональных данных;</li>
+                        <li>запросить удаление данных, если их дальнейшая обработка не требуется;</li>
+                        <li>получить информацию об обработке ваших персональных данных.</li>
+                    </ul>
+                </div>
+
+                <!-- 7 -->
+                <div class="policy-section">
+                    <div class="policy-section-title">
+                        <span class="policy-section-num">7</span>
+                        Контакты для обращений
+                    </div>
+                    <p class="policy-contacts">
+                        По вопросам, связанным с обработкой и защитой персональных данных, вы можете связаться
+                        с нами:
+                    </p>
+                    <div class="policy-contacts">
+                        <p><strong>Телефон:</strong> +7 999 499-36-41</p>
+                        <p><strong>E-mail:</strong> letsplay.ekb@yandex.ru</p>
+                        <p><strong>Адрес магазина:</strong> г. Екатеринбург, ул. Тургенева, д. 3</p>
+                    </div>
+                </div>
+
+                <div class="policy-footer-note">
+                    Настоящая Политика может обновляться. Актуальная версия всегда доступна на странице
+                    «Политика конфиденциальности» сайта letsplayekb.shop.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

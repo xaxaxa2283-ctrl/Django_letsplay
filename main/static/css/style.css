@@ -701,7 +701,7 @@ ul, ol {
 
 .page-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 64px;
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
@@ -715,6 +715,7 @@ ul, ol {
 @media (min-width: 768px) {
   .page-header h1 {
     font-size: 3rem;
+     margin-bottom: 32px;
   }
 }
 
@@ -1733,6 +1734,345 @@ ul, ol {
     background: #00acc1;
     transform: translateY(-1px);
 }
+.delivery-card {
+  margin-top: 48px;
+  padding: 32px 40px;
+  border-radius: 32px;
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  background: linear-gradient(135deg, rgba(3, 24, 52, 0.96), rgba(5, 39, 72, 0.96));
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+  color: #eaf5ff;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.delivery-card h2 {
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+.delivery-list {
+  margin: 0 0 16px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.delivery-list li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.delivery-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #00e5ff;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.18);
+}
+
+.delivery-note {
+  font-size: 14px;
+  color: rgba(234,245,255,0.8);
+  margin-top: 4px;
+}
+
+.delivery-map-section {
+  margin-top: 56px;
+}
+
+.delivery-map-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+  gap: 32px;
+  align-items: stretch;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.delivery-map-text h2 {
+  font-size: 26px;
+  margin-bottom: 14px;
+}
+
+.delivery-map-text p {
+  font-size: 15px;
+  color: rgba(234,245,255,0.85);
+  margin-bottom: 12px;
+}
+
+.delivery-legend {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 16px;
+}
+
+.delivery-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot--city {
+  background: #00e5ff;
+}
+
+.legend-dot--near {
+  background: #00ff88;
+}
+
+.legend-dot--far {
+  background: #ffcc00;
+}
+
+.delivery-map-wrap {
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+}
+
+#delivery-map {
+  width: 100%;
+  min-height: 360px;
+}
+
+/* адаптив */
+@media (max-width: 900px) {
+  .delivery-map-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-map-wrap {
+    order: -1; /* карта сверху на мобилке */
+  }
+}
+.legend-dot--rf {
+    background: linear-gradient(135deg, #00aaff, #66ddff);
+}
+/* Кнопка "назад" на сервисных страницах */
+.lp-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.lp-back-btn svg {
+   width: 18px;
+    height: 18px;
+}
+
+.lp-back-btn:hover {
+     color: #00bcd4;
+}
+/* ===== Гарантия ===== */
+
+.warranty-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 28px;
+}
+
+/* Основные карточки */
+.warranty-card {
+    padding: 28px 32px;
+    border-radius: 32px;
+
+    background: rgba(5, 28, 60, 0.78);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 18px 45px rgba(0,0,0,0.45);
+}
+
+.warranty-card h2 {
+    font-size: 24px;
+    margin-bottom: 18px;
+}
+
+/* Список сроков гарантии */
+.warranty-list {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.warranty-list li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: rgba(235,245,255,0.9);
+}
+
+.warranty-list li::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #00e5ff;
+    box-shadow: 0 0 0 4px rgba(0,229,255,0.18);
+    position: absolute;
+    left: 3px;
+    top: 8px;
+}
+
+/* Шаги обслуживания */
+.warranty-steps {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.warranty-steps li {
+    margin-bottom: 14px;
+    font-size: 15px;
+    color: rgba(235,245,255,0.9);
+}
+
+.warranty-step-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.warranty-note {
+    margin-top: 14px;
+    font-size: 14px;
+    color: rgba(230,240,255,0.75);
+}
+
+/* Нижняя карточка-помощник */
+.warranty-help-card {
+    margin-top: 32px;
+    padding: 24px 28px;
+    border-radius: 28px;
+
+    background:
+      radial-gradient(circle at top left,
+                      rgba(0, 229, 255, 0.15), transparent 60%)
+      rgba(4, 26, 55, 0.96);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+}
+
+.warranty-help-card h2 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.warranty-help-card p {
+    font-size: 14px;
+    color: rgba(235,245,255,0.86);
+}
+
+.warranty-help-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.warranty-grid,
+.warranty-help-card {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.warranty-grid,
+.warranty-first-card {
+    max-width: 980px;
+    margin: 0 auto;
+}
+.page-header {
+    margin-bottom: 28px; /* было меньше */
+}
+.warranty-steps li {
+    position: relative;
+    padding-left: 26px;
+}
+
+.warranty-steps li::before {
+    content: counter(step);
+    counter-increment: step;
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #00e5ff, #00bcd4);
+    color: #02101c;
+    font-weight: 700;
+}
+.warranty-card h2 {
+    font-size: 22px;
+}
+.page-header {
+    margin-bottom: 64px;
+}
+
+.warranty-steps {
+    counter-reset: step;
+}
+.warranty-help-card {
+    background:
+      radial-gradient(circle at top left,
+                      rgba(0, 229, 255, 0.18), transparent 60%)
+      rgba(4, 26, 55, 0.96);
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .warranty-card {
+        padding: 22px 18px;
+        border-radius: 24px;
+    }
+
+    .warranty-card h2 {
+        font-size: 20px;
+    }
+
+    .warranty-help-card {
+        padding: 20px 16px;
+        border-radius: 22px;
+    }
+}
+
+
+@media (max-width: 550px) {
+    .lp-back-btn {
+        margin-bottom: 18px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    .lp-back-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
 
 /* Адаптив */
 @media (max-width: 1024px) {
@@ -1751,3 +2091,10 @@ ul, ol {
     }
 }
 
+@media (max-width: 768px) {
+    .warranty-grid,
+    .warranty-help-card {
+        max-width: 100%;
+        margin-inline: 0;
+    }
+}

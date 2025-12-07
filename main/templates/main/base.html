@@ -104,7 +104,215 @@
       font-size: 0.8rem;
   }
 }
+
+
+
+
+/* ===== Floating contact widget (LetsPlay) ===== */
+
+/* === ПЛАВАЮЩИЙ ВИДЖЕТ С КОНТАКТАМИ LETSPLAY === */
+
+/* === ПЛАВАЮЩИЙ ВИДЖЕТ С КОНТАКТАМИ LETSPLAY === */
+
+.lp-contact-widget {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+
+    font-family: inherit;
+}
+
+/* Круглая неоновая кнопка */
+.lp-contact-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    border: none;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: radial-gradient(circle at 30% 0, #19e9ff, #00b7d4 70%);
+    box-shadow: 0 0 22px rgba(0, 245, 255, 0.5);
+
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.lp-contact-toggle svg {
+    width: 26px;
+    height: 26px;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.7));
+}
+
+/* hover / active */
+.lp-contact-toggle:hover {
+    transform: scale(1.1) translateY(-1px);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.85);
+}
+
+.lp-contact-toggle:active {
+    transform: scale(0.96);
+    box-shadow: 0 0 18px rgba(0, 255, 255, 0.6);
+}
+
+/* Можно добавить "дыхание" кнопки, если захочешь
+@keyframes lp-pulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(0,255,255,0.55); }
+    50%      { box-shadow: 0 0 28px rgba(0,255,255,0.9);  }
+}
+.lp-contact-toggle {
+    animation: lp-pulse 2.5s ease-in-out infinite;
+}
+*/
+
+/* Панель с контактами */
+.lp-contact-panel {
+    position: relative;
+    min-width: 320px;
+    max-width: 360px;
+
+    padding: 16px 18px 16px;
+    border-radius: 22px;
+
+    background:
+        radial-gradient(circle at top left, rgba(0, 220, 255, 0.18), transparent 55%)
+        rgba(7, 28, 60, 0.95);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.55);
+    backdrop-filter: blur(18px);
+
+    color: #e9f4ff;
+
+    /* выезжает над кнопкой */
+    transform: translateY(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* когда виджет открыт (класс можно вешать из JS) */
+.lp-contact-widget.is-open .lp-contact-panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Шапка панели */
+.lp-contact-header {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.lp-contact-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #29e370;
+    box-shadow: 0 0 0 4px rgba(41,227,112,0.18);
+    margin-top: 5px;
+}
+
+.lp-contact-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.lp-contact-sub {
+    font-size: 13px;
+    color: rgba(233,244,255,0.8);
+}
+
+/* Кнопки */
+.lp-contact-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lp-contact-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Основная (WhatsApp) */
+.lp-contact-btn--primary {
+    background: #00c853;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 200, 83, 0.45);
+}
+.lp-contact-btn--primary:hover {
+    background: #00b64b;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 200, 83, 0.55);
+}
+
+/* Обводка (звонок) */
+.lp-contact-btn--outline {
+    background: transparent;
+    color: #e9f4ff;
+    border: 1px solid rgba(233,244,255,0.3);
+}
+.lp-contact-btn--outline:hover {
+    background: rgba(233,244,255,0.06);
+}
+
+/* Ссылка "подобрать под задачи" */
+.lp-contact-link {
+    margin-top: 2px;
+    font-size: 13px;
+    color: #7ee7ff;
+    text-decoration: none;
+}
+.lp-contact-link:hover {
+    color: #b3f4ff;
+}
+
+/* Адаптив */
+@media (max-width: 550px) {
+    .lp-contact-widget {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .lp-contact-toggle {
+        width: 52px;
+        height: 52px;
+    }
+
+    .lp-contact-panel {
+        max-width: 320px;
+        padding: 14px 14px 14px;
+    }
+}
+
+
+
+
 </style>
+
 
 
 
@@ -315,9 +523,51 @@
                 <p>&copy; 2025 LetsPlay. Все права защищены.</p>
             </div>
         </div>
+
+        <div class="mt-4 text-center">
+    <a href="{% url 'letsplay:privacy_policy' %}"
+       class="text-white/60 hover:text-white transition">
+        Политика конфиденциальности
+    </a>
+</div>
     </footer>
 
-    <script src="{% static 'js/main.js' %}"></script>
+
+
+<!-- Floating contact widget -->
+<div class="lp-contact-widget" id="lp-contact-widget">
+    <!-- Кнопка-иконка -->
+    <button class="lp-contact-toggle" id="lp-contact-toggle" aria-label="Связаться с LetsPlay">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3C7.03 3 3 6.58 3 11c0 1.78.64 3.44 1.76 4.8L3 21l5.4-1.78C9.3 19.73 10.62 20 12 20c4.97 0 9-3.58 9-8s-4.03-9-9-9zm-1 5h2v2h-2V8zm0 3h2v5h-2v-5z"/>
+        </svg>
+    </button>
+
+    <!-- Панель -->
+    <div class="lp-contact-panel" id="lp-contact-panel" aria-hidden="true">
+        <div class="lp-contact-header">
+            <span class="lp-contact-dot"></span>
+            <div>
+                <div class="lp-contact-title">Нужна помощь с приставкой?</div>
+                <div class="lp-contact-sub">Ответим за 1–2 минуты, подскажем по моделям и комплектам.</div>
+            </div>
+        </div>
+
+        <div class="lp-contact-actions">
+            <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank"
+               class="lp-contact-btn lp-contact-btn--primary">
+                Написать в WhatsApp
+            </a>
+            <a href="tel:+79994993641" class="lp-contact-btn lp-contact-btn--outline">
+                Позвонить в магазин
+            </a>
+            <a href="{% url 'letsplay:service_console_selection' %}" class="lp-contact-link">
+                Подобрать приставку под задачи →
+            </a>
+        </div>
+    </div>
+</div>
+  <script src="{% static 'js/main.js' %}"></script>
 
     <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -345,9 +595,43 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const widget = document.getElementById('lp-contact-widget');
+    const toggle = document.getElementById('lp-contact-toggle');
+    const panel  = document.getElementById('lp-contact-panel');
+
+    if (!widget || !toggle || !panel) return;
+
+    // открыть/закрыть по клику на кнопку
+    toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        widget.classList.toggle('lp-contact-open');
+        panel.setAttribute('aria-hidden', widget.classList.contains('lp-contact-open') ? 'false' : 'true');
+    });
+
+    // закрытие по клику вне панели
+    document.addEventListener('click', function (e) {
+        if (!widget.classList.contains('lp-contact-open')) return;
+        if (!widget.contains(e.target)) {
+            widget.classList.remove('lp-contact-open');
+            panel.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    // ESC закрывает
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && widget.classList.contains('lp-contact-open')) {
+            widget.classList.remove('lp-contact-open');
+            panel.setAttribute('aria-hidden', 'true');
+        }
+    });
+});
+
+
 </script>
-
-
     {% block extra_js %}{% endblock %}
 </body>
 </html>

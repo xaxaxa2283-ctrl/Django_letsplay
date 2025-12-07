@@ -78,6 +78,13 @@ urlpatterns = [
     path("add-to-cart/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart-count/", views.cart_count, name="cart_count"),
 path("cart/item/<int:product_id>/", views.get_cart_item, name="get_cart_item"),
+path("privacy/", views.privacy_policy, name="privacy_policy"),
+    path("services/gifts/", views.service_gifts, name="service_gifts"),
+    path("services/console-selection/", views.service_console_selection, name="service_console_selection"),
+    path("services/setup/", views.service_setup, name="service_setup"),
+    path("delivery/", views.delivery_page, name="delivery"),
+    path("warranty/", views.warranty_page, name="warranty"),
+    path("support/", views.support_page, name="support"),
 
 ]
 

@@ -3,6 +3,7 @@
 
 {# SEO title #}
 {% block title %}Купить приставку PlayStation в Екатеринбурге — магазин LetsPlay{% endblock %}
+
 {% block meta %}
 <meta name="description"
       content="Магазин приставок PlayStation в Екатеринбурге. Продажа PS4 и PS5, геймпадов DualSense, игр и подписок PS Plus. Более 1900 реальных отзывов и магазин-шоурум на ул. Тургенева 3.">
@@ -10,7 +11,7 @@
       content="магазин playstation екатеринбург, купить ps5 екатеринбург, купить ps4 екатеринбург, приставки с играми, letsplay екатеринбург">
 <meta name="robots" content="index, follow">
 {% endblock %}
-{# SEO мета-теги для главной #}
+
 {% block extra_css %}
 <style>
 /* SEO-блок на главной */
@@ -171,7 +172,6 @@
                 <span>1900+ довольных клиентов</span>
             </div>
 
-            {# Главный H1 с ключом + городом #}
             <h1 class="hero-title">
                 <span class="title-highlight">Игровые приставки PlayStation</span>
                 <span class="title-white">в Екатеринбурге</span>
@@ -213,58 +213,66 @@
         </div>
     </div>
 
-    <!-- Decorative Elements -->
     <div class="hero-decoration decoration-1"></div>
     <div class="hero-decoration decoration-2"></div>
 </section>
 
 <!-- Stats Section -->
+<!-- Stats Section -->
 <section class="stats-section">
     <div class="container">
         <div class="stats-grid">
-            <div class="stat-card">
+
+            <a href="{% url 'letsplay:reviews' %}" class="stat-card">
                 <div class="stat-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
                 <div class="stat-value">5000+</div>
                 <div class="stat-label">Довольных клиентов</div>
-            </div>
+            </a>
 
-            <div class="stat-card">
+            <a href="{% url 'letsplay:service_gifts' %}" class="stat-card">
                 <div class="stat-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
                 <div class="stat-value">700+</div>
                 <div class="stat-label">Игр в подарок</div>
-            </div>
+            </a>
 
-            <div class="stat-card">
+            <a href="{% url 'letsplay:warranty' %}" class="stat-card">
                 <div class="stat-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
                 </div>
                 <div class="stat-value">100%</div>
                 <div class="stat-label">Официальная гарантия</div>
-            </div>
+            </a>
 
-            <div class="stat-card">
+            <a href="{% url 'letsplay:support' %}" class="stat-card">
                 <div class="stat-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
                 </div>
                 <div class="stat-value">24/7</div>
                 <div class="stat-label">Поддержка клиентов</div>
-            </div>
+            </a>
+
         </div>
     </div>
 </section>
+
 
 <!-- Features Section -->
 <section class="features-section">
@@ -275,7 +283,8 @@
         </div>
 
         <div class="features-grid">
-            <div class="feature-card">
+
+            <a href="{% url 'letsplay:service_gifts' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
@@ -283,9 +292,9 @@
                 </div>
                 <h3>Подарки к покупке</h3>
                 <p>Наушники, игры и аксессуары в подарок при покупке консоли</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="{% url 'letsplay:service_console_selection' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -293,9 +302,9 @@
                 </div>
                 <h3>Подбор консоли</h3>
                 <p>Поможем выбрать идеальную приставку под ваши задачи</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="{% url 'letsplay:service_setup' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -304,9 +313,9 @@
                 </div>
                 <h3>Бесплатная настройка</h3>
                 <p>Настроим консоль и установим все игры перед передачей</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="{% url 'letsplay:delivery' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -315,9 +324,9 @@
                 </div>
                 <h3>Доставка по городу</h3>
                 <p>Бесплатная доставка по Екатеринбургу при заказе от 20 000 ₽</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="{% url 'letsplay:warranty' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -325,9 +334,9 @@
                 </div>
                 <h3>Гарантия</h3>
                 <p>Официальная гарантия на все товары от 1 года</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="{% url 'letsplay:support' %}" class="feature-card">
                 <div class="feature-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -335,16 +344,16 @@
                 </div>
                 <h3>Поддержка 24/7</h3>
                 <p>Всегда на связи, чтобы помочь решить любой вопрос</p>
-            </div>
+            </a>
+
         </div>
     </div>
 </section>
 
 {# SEO-текстовый блок #}
-   <section class="seo-section">
+<section class="seo-section">
     <div class="container">
         <div class="seo-card">
-            <!-- Левая колонка: SEO-текст -->
             <div class="seo-main">
                 <p class="seo-kicker">Магазин приставок в Екатеринбурге</p>
                 <h2 class="seo-title">
@@ -364,11 +373,10 @@
                     Хотите узнать больше о компании, команде и нашем шоуруме?
                     <a href="{% url 'letsplay:about' %}" class="seo-link">
                         Почитайте раздел «О нас»
-                    </a>.
+                    </a>
                 </p>
             </div>
 
-            <!-- Правая колонка: мини-карточка магазина -->
             <aside class="seo-side">
                 <div class="seo-badge">
                     <span class="dot"></span>
@@ -395,8 +403,6 @@
     </div>
 </section>
 
-
-
 <!-- CTA Section -->
 <section class="cta-section">
     <div class="container">
@@ -409,25 +415,30 @@
 </section>
 
 <script>
-    let selectedCategory = "consoles";
-    let selectedFilter = "ps5";
+    document.addEventListener("DOMContentLoaded", () => {
+        let selectedCategory = "consoles";
+        let selectedFilter = "ps5";
 
-    document.querySelectorAll(".console-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            document.querySelectorAll(".console-btn")
-                .forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
+        document.querySelectorAll(".console-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".console-btn")
+                    .forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
 
-            selectedCategory = btn.dataset.category;
-            selectedFilter = btn.dataset.filter;
+                selectedCategory = btn.dataset.category;
+                selectedFilter = btn.dataset.filter;
+            });
         });
-    });
 
-    document.getElementById("choose-console-btn").addEventListener("click", function (e) {
-        e.preventDefault();
-        const base = this.getAttribute("href");
-        const url = `${base}?category=${selectedCategory}&filter=${selectedFilter}`;
-        window.location.href = url;
+        const chooseBtn = document.getElementById("choose-console-btn");
+        if (chooseBtn) {
+            chooseBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                const base = chooseBtn.getAttribute("href");
+                const url = `${base}?category=${selectedCategory}&filter=${selectedFilter}`;
+                window.location.href = url;
+            });
+        }
     });
 </script>
 

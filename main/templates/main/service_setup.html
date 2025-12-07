@@ -1,0 +1,149 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+/* Кнопка "Назад" (как на странице подарков) */
+.service-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.76);
+    text-decoration: none;
+    transition: color .18s ease, transform .12s ease;
+}
+
+.service-back svg {
+    width: 18px;
+    height: 18px;
+}
+
+.service-back:hover {
+    color: #00BCD4;
+    transform: translateX(-2px);
+}
+
+/* Верхняя карточка "Что входит в настройку" – премиум-стиль */
+.setup-card {
+    margin: 32px auto 64px;
+    max-width: 1180px;
+
+    padding: 40px 48px;
+    border-radius: 32px;
+
+    background: linear-gradient(135deg,
+        rgba(0, 90, 150, 0.35),
+        rgba(0, 150, 210, 0.25));
+    border: 1px solid rgba(0, 220, 255, 0.22);
+    backdrop-filter: blur(18px);
+
+    box-shadow: 0 14px 38px rgba(0,0,0,0.26);
+    color: #f4fbff;
+}
+
+.setup-card-title {
+    font-size: 26px;
+    margin-bottom: 18px;
+}
+
+.setup-card-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.setup-card-list li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 10px;
+    color: rgba(240,248,255,0.96);
+}
+
+.setup-card-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #45f0ff;
+    box-shadow: 0 0 0 3px rgba(69,240,255,0.2);
+}
+
+/* адаптив */
+@media (max-width: 960px) {
+    .setup-card {
+        padding: 28px 22px;
+        border-radius: 24px;
+        margin: 24px auto 48px;
+    }
+
+    .setup-card-title {
+        font-size: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block title %}Бесплатная настройка PS4 и PS5 в Екатеринбурге — LetsPlay{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+
+        <a href="{% url 'letsplay:home' %}" class="service-back">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>На главную</span>
+        </a>
+
+        <div class="page-header">
+            <h1>Бесплатная настройка приставки перед выдачей</h1>
+            <p>
+                Настраиваем консоль, устанавливаем игры и проверяем работу перед тем,
+                как вы заберёте заказ. Вам остаётся только подключить приставку к телевизору и играть.
+            </p>
+        </div>
+
+                <div class="setup-card">
+            <h2 class="setup-card-title">Что входит в настройку</h2>
+
+            <ul class="setup-card-list">
+                <li>Создание или подключение учётной записи</li>
+                <li>Обновление системы до актуальной версии</li>
+                <li>Установка игр и проверка запуска</li>
+                <li>Настройка изображения и звука под ваш телевизор</li>
+                <li>Базовое обучение: как включать, обновлять и запускать игры</li>
+            </ul>
+        </div>
+
+
+        <div class="section-header">
+            <h2>Почему это бесплатно</h2>
+        </div>
+
+        <div class="advantages-grid">
+            <div class="advantage-card">
+                <h3>Экономия времени</h3>
+                <p>Вам не нужно разбираться с настройками и ждать обновлений дома.</p>
+            </div>
+            <div class="advantage-card">
+                <h3>Гарантия работоспособности</h3>
+                <p>Мы проверяем консоль до выдачи, чтобы вы точно забрали рабочий комплект.</p>
+            </div>
+            <div class="advantage-card">
+                <h3>Поддержка после покупки</h3>
+                <p>Если что-то непонятно — всегда поможем по телефону или в мессенджере.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends 'main/base_template.html' %}
+{% load static %}
+
+{% block title %}Доставка приставок PlayStation по Екатеринбургу — LetsPlay{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+
+    <a href="{% url 'letsplay:home' %}"
+       class="lp-back-btn"
+       onclick="if (document.referrer) { event.preventDefault(); window.history.back(); }">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+        </svg>
+        На главную
+    </a>
+  <div class="container">
+
+    <header class="page-header">
+      <h1>Доставка приставок по Екатеринбургу и области</h1>
+      <p>Привезём приставку и аксессуары в удобное для вас время по Екатеринбургу и ближайшим районам.</p>
+    </header>
+
+    <section class="delivery-card">
+      <h2>Условия доставки</h2>
+      <ul class="delivery-list">
+        <li>Бесплатная доставка по Екатеринбургу при заказе от 20 000 ₽.</li>
+        <li>Доставка в день покупки при наличии товара на складе.</li>
+        <li>Оплата наличными или картой курьеру.</li>
+        <li>Перед выездом курьер обязательно связывается и уточняет время приезда.</li>
+      </ul>
+      <p class="delivery-note">
+        Если вы из пригорода — посмотрите зоны на карте ниже или напишите нам, подскажем точную стоимость.
+      </p>
+    </section>
+
+    <!-- сюда позже вставим блок с картой -->
+
+      <section class="delivery-map-section">
+  <div class="delivery-map-inner">
+    <div class="delivery-map-text">
+      <h2>Зоны доставки</h2>
+      <p>Мы доставляем приставки по Екатеринбургу и ближайшим районам. На карте отмечены зоны и ориентировочная стоимость.</p>
+      <ul class="delivery-legend">
+        <li><span class="legend-dot legend-dot--city"></span>Зона 1 — Екатеринбург: Доставка 500-800₽ от 5 000 ₽<br> бесплатно от 50 000 ₽</li>
+        <li><span class="legend-dot legend-dot--near"></span>Зона 2 — ближайшие пригороды: 800–1500 ₽</li>
+        <li><span class="legend-dot legend-dot--far"></span>Зона 3 — удалённые районы: по договорённости</li>
+         <li><span class="legend-dot legend-dot--rf"></span>Доставка по всей России — СДЭК / Почта, по тарифам ТК</li>
+      </ul>
+      <p class="delivery-note">
+        Точную стоимость доставки до вашего адреса можно уточнить по WhatsApp или телефону —
+        мы ответим за 1–2 минуты.
+      </p>
+    </div>
+
+    <div class="delivery-map-wrap">
+      <div id="delivery-map"></div>
+    </div>
+  </div>
+</section>
+
+  </div>
+</section>
+{% block extra_js %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=5b32b4d4-d933-4994-884e-45a5c3423e73&lang=ru_RU"></script>
+
+<script>
+  ymaps.ready(initDeliveryMap);
+
+  function initDeliveryMap() {
+    // Координаты магазина LetsPlay на Тургенева, 3 (пример)
+    const center = [56.840957, 60.614422];
+
+    const map = new ymaps.Map("delivery-map", {
+      center: center,
+      zoom: 11,
+      controls: ["zoomControl"]
+    });
+
+    // Точка магазина
+    const storePlacemark = new ymaps.Placemark(center, {
+      hintContent: 'Магазин LetsPlay, Тургенева, 3',
+      balloonContent: 'Забрать самовывозом можно здесь'
+    }, {
+      preset: 'islands#blueDotIcon'
+    });
+
+    map.geoObjects.add(storePlacemark);
+
+    // --- ЗОНЫ ДОСТАВКИ ---
+
+    // Зона 1: Екатеринбург — бесплатно от 20 000 ₽
+    const zone1 = new ymaps.Circle(
+      [center, 9000], // радиус 7 км
+      {
+        hintContent: 'Зона 1 — Екатеринбург',
+        balloonContent:
+          '<b>Зона 1 — Екатеринбург</b><br>' +
+          '• Доставка <b>500-800</b> от 5 000 ₽<br>' +
+          '• от 50 000 ₽ — <b>Доставка Бесплатно</b>'
+      },
+      {
+        fillColor: '00e5ff33',
+        strokeColor: '00e5ff',
+        strokeWidth: 2
+      }
+    );
+
+    // Зона 2: ближайшие пригороды
+    const zone2 = new ymaps.Circle(
+      [center, 22000], // радиус 15 км
+      {
+        hintContent: 'Зона 2 — пригороды',
+        balloonContent:
+          '<b>Зона 2 — пригороды</b><br>' +
+          'Доставка: <b>800–1500 ₽</b> в зависимости от адреса'
+      },
+      {
+        fillColor: '00ff8830',
+        strokeColor: '00ff88',
+        strokeWidth: 2
+      }
+    );
+
+    // Зона 3: дальше 15 км
+    const zone3 = new ymaps.Circle(
+      [center, 70000],
+      {
+        hintContent: 'Зона 3 — удалённые районы',
+        balloonContent:
+          '<b>Зона 3 — удалённые районы</b><br>' +
+          'Доставка по договорённости. Напишите нам в WhatsApp.'
+      },
+      {
+        fillColor: 'ffcc0030',
+        strokeColor: 'ffcc00',
+        strokeWidth: 2
+      }
+    );
+
+    map.geoObjects
+      .add(zone3)
+      .add(zone2)
+      .add(zone1);
+
+ ymaps.borders.load('RU', {
+    lang: 'ru',
+    quality: 1   // 0 — грубее, 1 — детальнее
+}).then(function (result) {
+    // result.features — массив гео-объектов (Россия может быть из нескольких полигонов)
+    result.features.forEach(function (feature) {
+        const polygon = new ymaps.GeoObject({
+            geometry: feature.geometry,
+            properties: {
+                hintContent: 'Доставка по всей России',
+                balloonContent: '<b>Доставляем по всей России</b><br>Отправка СДЭК / Почта России, стоимость по тарифам транспортной компании.'
+            }
+        }, {
+            fillColor: '0099ff22',       // мягкий полупрозрачный синий
+            strokeColor: '0099ff',
+            strokeWidth: 1,
+            zIndex: 10                   // чтобы не перекрывать локальные зоны
+        });
+
+        map.geoObjects.add(polygon);
+    });
+});
+
+
+  }
+  // Загружаем границы России и подсвечиваем их
+
+
+</script>
+{% endblock %}
+{% endblock %}

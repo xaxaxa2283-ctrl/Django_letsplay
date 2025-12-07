@@ -1059,7 +1059,50 @@ def get_cart_item(request, product_id):
     except CartItem.DoesNotExist:
         return JsonResponse({"exists": False})
 
+def privacy_policy(request):
+    return render(request, "main/privacy_policy.html")
 
+
+
+
+from django.shortcuts import render
+
+# ...
+
+def service_gifts(request):
+    return render(request, "main/service_gifts.html", {
+        "page": "home",
+    })
+
+
+def service_console_selection(request):
+    return render(request, "main/service_console_selection.html", {
+        "page": "home",
+    })
+
+
+def service_setup(request):
+    return render(request, "main/service_setup.html", {
+        "page": "home",
+    })
+
+
+def delivery_page(request):
+    return render(request, "main/delivery.html", {
+        "page": "home",
+    })
+
+
+def warranty_page(request):
+    return render(request, "main/warranty.html", {
+        "page": "home",
+    })
+
+
+def support_page(request):
+    return render(request, "main/support.html", {
+        "page": "home",
+    })
 
 
 
