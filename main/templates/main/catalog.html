@@ -1,13 +1,24 @@
 {% extends 'main/base_template.html' %}
 {% load static %}
 
-{% block title %}Каталог PlayStation PS4, PS5, аксессуаров — LetsPlay Екатеринбург{% endblock %}
+{% block title %}
+Купить PlayStation в Екатеринбурге — PS4 и PS5 | Каталог LetsPlay
+{% endblock %}
+
 
 {% block meta %}
+
+{% if request.GET %}
+    {# Фильтры: не индексируем #}
+    <meta name="robots" content="noindex, nofollow">
+{% else %}
+    {# Чистый каталог: индексируем #}
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://letsplayekb.shop/catalog/">
+{% endif %}
+
 <meta name="description"
       content="Каталог приставок PlayStation PS4 и PS5, геймпадов DualSense, гарнитур, игр и подписок PS Plus в Екатеринбурге. Доставка и самовывоз из магазина LetsPlay на Тургенева 3.">
-<meta name="keywords"
-      content="каталог ps5 екатеринбург, ps4 екатеринбург, купить dualsense, аксессуары playstation екатеринбург">
 <meta name="robots" content="index, follow">
 {% endblock %}
 
@@ -278,7 +289,7 @@
 
         <!-- Header -->
         <div class="text-center mb-12">
-            <h1 class="text-white mb-4">Каталог товаров</h1>
+            <h1>Купить PlayStation в Екатеринбурге</h1>
             <p class="text-white/70 text-lg max-w-2xl mx-auto">
                 Широкий выбор игровых консолей, аксессуаров и подписок PlayStation
             </p>
