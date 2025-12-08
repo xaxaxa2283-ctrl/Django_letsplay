@@ -1,12 +1,10 @@
 from django.conf import settings
-from django.core.mail import send_mail
-from django.urls import reverse
+from django.core.mail import send_mail, get_connection
 
 
 def send_order_created_email(order):
     subject = f"Новый заказ №{order.id} — LetsPlay"
 
-    # Формируем список товаров
     items_text = ""
     for item in order.items.all():
         items_text += (
@@ -18,22 +16,66 @@ def send_order_created_email(order):
 
     message = (
         f"🛒 НОВЫЙ ЗАКАЗ №{order.id}\n\n"
-        f"👤 Клиент: {order.customer_name}\n"
-        f"📞 Телефон: {order.customer_phone}\n"
-        f"📧 Email: {order.customer_email}\n\n"
-        f"🚚 Способ доставки: {order.get_delivery_method_display()}\n"
-        f"🏠 Адрес: {order.delivery_address or '—'}\n"
-        f"💳 Способ оплаты: {order.get_payment_method_display()}\n\n"
-        f"📦 Товары:\n{items_text}\n"
-        f"💰 Итого: {order.total_price} ₽\n\n"
-        f"💬 Комментарий: {order.comment or '—'}\n\n"
-        f"🔗 Открыть заказ в админке:\n{admin_link}"
+        f"Имя: {order.customer_name}\n"
+        f"Телефон: {order.customer_phone}\n"
+        f"Email: {order.customer_email}\n\n"
+        f"Доставка: {order.get_delivery_method_display()}\n"
+        f"Адрес: {order.delivery_address or '—'}\n"
+        f"Оплата: {order.get_payment_method_display()}\n\n"
+        f"Товары:\n{items_text}\n"
+        f"Итого: {order.total_price} ₽\n\n"
+        f"Комментарий: {order.comment or '—'}\n\n"
+        f"Админка: {admin_link}"
     )
+
+    # короткий таймаут, чтобы не висеть минуту
+    connection = get_connection(timeout=5)
 
     send_mail(
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
         [settings.ORDER_NOTIFICATION_EMAIL],
-        fail_silently=False,
+        fail_silently=True,  # чтобы не падать даже внутри try
+        connection=connection,
+    )
+
+
+
+def send_order_confirmation_email(order):
+    """Письмо клиенту: подтверждение оформления заказа."""
+    if not order.customer_email:
+        return  # на всякий случай
+
+    subject = f"Ваш заказ №{order.id} в LetsPlay принят"
+
+    items_text = ""
+    for item in order.items.all():
+        items_text += (
+            f"- {item.product_name} × {item.quantity} шт. "
+            f"= {item.get_total_price()} ₽\n"
+        )
+
+    message = (
+        f"{order.customer_name}, добрый день!\n\n"
+        f"Спасибо за заказ в магазине LetsPlay 🎮\n\n"
+        f"Номер вашего заказа: №{order.id}\n"
+        f"Сумма: {order.total_price} ₽\n\n"
+        f"Состав заказа:\n{items_text}\n"
+        f"Способ доставки: {order.get_delivery_method_display()}\n"
+        f"Адрес доставки: {order.delivery_address or 'самовывоз'}\n"
+        f"Способ оплаты: {order.get_payment_method_display()}\n\n"
+        f"Мы свяжемся с вами для уточнения деталей.\n\n"
+        f"Если вы не оформляли этот заказ, просто проигнорируйте это письмо."
+    )
+
+    connection = get_connection(timeout=5)
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [order.customer_email],
+        fail_silently=True,
+        connection=connection,
     )

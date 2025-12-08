@@ -130,8 +130,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = "smtp.yandex.ru"        # или любой другой SMTP
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "yourmail@yandex.ru"
-EMAIL_HOST_PASSWORD = "пароль_или_пароль_приложения"
+EMAIL_HOST_USER = "letsplay.ekb@yandex.ru"
+EMAIL_HOST_PASSWORD = "rufogoxmiicfasom"
 EMAIL_USE_TLS = True
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
