@@ -2,7 +2,18 @@
 {% load static %}
 
 {% block title %}Доставка игровых приставок по Екатеринбургу — LetsPlay{% endblock %}
+{% block extra_css %}
+    <style>
+#delivery-map {
+  width: 100%;
+  height: 320px;      /* или 350–400px, как удобно */
+  max-height: 60vh;   /* чтобы на маленьких экранах не занимала весь экран */
+  border-radius: 16px;
+  overflow: hidden;
+}
+</style>
 
+{% endblock %}
 {% block content %}
 <section class="page-section">
   <div class="container">
@@ -29,7 +40,7 @@
     <section class="delivery-card">
       <h2>Условия доставки</h2>
       <ul class="delivery-list">
-        <li>Бесплатная доставка по Екатеринбургу при заказе от 20 000 ₽.</li>
+        <li>Бесплатная доставка по Екатеринбургу при заказе от 50 000 ₽.</li>
         <li>Доставка в день покупки при наличии товара на складе.</li>
         <li>Оплата наличными или картой курьеру.</li>
         <li>Перед выездом курьер обязательно связывается и уточняет время приезда.</li>
@@ -72,108 +83,111 @@
 <script>
   ymaps.ready(initDeliveryMap);
 
-  function initDeliveryMap() {
-    // Координаты магазина LetsPlay на Тургенева, 3 (пример)
-    const center = [56.840957, 60.614422];
+function initDeliveryMap() {
+  const center = [56.840957, 60.614422];
 
-    const map = new ymaps.Map("delivery-map", {
-      center: center,
-      zoom: 11,
-      controls: ["zoomControl"]
-    });
+  const map = new ymaps.Map("delivery-map", {
+    center: center,
+    zoom: 11,
+    controls: ["zoomControl"]
+  });
 
-    // Точка магазина
-    const storePlacemark = new ymaps.Placemark(center, {
-      hintContent: 'Магазин LetsPlay, Тургенева, 3',
-      balloonContent: 'Забрать самовывозом можно здесь'
-    }, {
-      preset: 'islands#blueDotIcon'
-    });
+  // Всегда выключаем зум колесом/тач-зум
+  map.behaviors.disable('scrollZoom');
 
-    map.geoObjects.add(storePlacemark);
+  // Определяем мобильное устройство
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // --- ЗОНЫ ДОСТАВКИ ---
-
-    // Зона 1: Екатеринбург — бесплатно от 20 000 ₽
-    const zone1 = new ymaps.Circle(
-      [center, 9000], // радиус 7 км
-      {
-        hintContent: 'Зона 1 — Екатеринбург',
-        balloonContent:
-          '<b>Зона 1 — Екатеринбург</b><br>' +
-          '• Доставка <b>500-800</b> от 5 000 ₽<br>' +
-          '• от 50 000 ₽ — <b>Доставка Бесплатно</b>'
-      },
-      {
-        fillColor: '00e5ff33',
-        strokeColor: '00e5ff',
-        strokeWidth: 2
-      }
-    );
-
-    // Зона 2: ближайшие пригороды
-    const zone2 = new ymaps.Circle(
-      [center, 22000], // радиус 15 км
-      {
-        hintContent: 'Зона 2 — пригороды',
-        balloonContent:
-          '<b>Зона 2 — пригороды</b><br>' +
-          'Доставка: <b>800–1500 ₽</b> в зависимости от адреса'
-      },
-      {
-        fillColor: '00ff8830',
-        strokeColor: '00ff88',
-        strokeWidth: 2
-      }
-    );
-
-    // Зона 3: дальше 15 км
-    const zone3 = new ymaps.Circle(
-      [center, 70000],
-      {
-        hintContent: 'Зона 3 — удалённые районы',
-        balloonContent:
-          '<b>Зона 3 — удалённые районы</b><br>' +
-          'Доставка по договорённости. Напишите нам в WhatsApp.'
-      },
-      {
-        fillColor: 'ffcc0030',
-        strokeColor: 'ffcc00',
-        strokeWidth: 2
-      }
-    );
-
-    map.geoObjects
-      .add(zone3)
-      .add(zone2)
-      .add(zone1);
-
- ymaps.borders.load('RU', {
-    lang: 'ru',
-    quality: 1   // 0 — грубее, 1 — детальнее
-}).then(function (result) {
-    // result.features — массив гео-объектов (Россия может быть из нескольких полигонов)
-    result.features.forEach(function (feature) {
-        const polygon = new ymaps.GeoObject({
-            geometry: feature.geometry,
-            properties: {
-                hintContent: 'Доставка по всей России',
-                balloonContent: '<b>Доставляем по всей России</b><br>Отправка СДЭК / Почта России, стоимость по тарифам транспортной компании.'
-            }
-        }, {
-            fillColor: '0099ff22',       // мягкий полупрозрачный синий
-            strokeColor: '0099ff',
-            strokeWidth: 1,
-            zIndex: 10                   // чтобы не перекрывать локальные зоны
-        });
-
-        map.geoObjects.add(polygon);
-    });
-});
-
-
+  // На мобильных запрещаем перетаскивание и мультитач, чтобы страница нормально скроллилась
+  if (isMobile) {
+    map.behaviors.disable(['drag', 'multiTouch']);
   }
-  // Загружаем границы России и подсвечиваем их
+
+  const storePlacemark = new ymaps.Placemark(center, {
+    hintContent: 'Магазин LetsPlay, Тургенева, 3',
+    balloonContent: 'Забрать самовывозом можно здесь'
+  }, {
+    preset: 'islands#blueDotIcon'
+  });
+
+  map.geoObjects.add(storePlacemark);
+
+  const zone1 = new ymaps.Circle(
+    [center, 9000],
+    {
+      hintContent: 'Зона 1 — Екатеринбург',
+      balloonContent:
+        '<b>Зона 1 — Екатеринбург</b><br>' +
+        '• Доставка <b>500-800</b> от 5 000 ₽<br>' +
+        '• от 50 000 ₽ — <b>Доставка Бесплатно</b>'
+    },
+    {
+      fillColor: '00e5ff33',
+      strokeColor: '00e5ff',
+      strokeWidth: 2
+    }
+  );
+
+  const zone2 = new ymaps.Circle(
+    [center, 22000],
+    {
+      hintContent: 'Зона 2 — пригороды',
+      balloonContent:
+        '<b>Зона 2 — пригороды</b><br>' +
+        'Доставка: <b>800–1500 ₽</b> в зависимости от адреса'
+    },
+    {
+      fillColor: '00ff8830',
+      strokeColor: '00ff88',
+      strokeWidth: 2
+    }
+  );
+
+  const zone3 = new ymaps.Circle(
+    [center, 70000],
+    {
+      hintContent: 'Зона 3 — удалённые районы',
+      balloonContent:
+        '<b>Зона 3 — удалённые районы</b><br>' +
+        'Доставка по договорённости. Напишите нам в WhatsApp.'
+    },
+    {
+      fillColor: 'ffcc0030',
+      strokeColor: 'ffcc00',
+      strokeWidth: 2
+    }
+  );
+
+  map.geoObjects
+    .add(zone3)
+    .add(zone2)
+    .add(zone1);
+
+  ymaps.borders.load('RU', {
+    lang: 'ru',
+    quality: 1
+  }).then(function (result) {
+    result.features.forEach(function (feature) {
+      const polygon = new ymaps.GeoObject({
+        geometry: feature.geometry,
+        properties: {
+          hintContent: 'Доставка по всей России',
+          balloonContent:
+            '<b>Доставляем по всей России</b><br>' +
+            'Отправка СДЭК / Почта России, стоимость по тарифам ТК.'
+        }
+      }, {
+        fillColor: '0099ff22',
+        strokeColor: '0099ff',
+        strokeWidth: 1,
+        zIndex: 10
+      });
+
+      map.geoObjects.add(polygon);
+    });
+  });
+}
+
 
 
 </script>
