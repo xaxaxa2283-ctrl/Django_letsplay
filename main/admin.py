@@ -156,7 +156,9 @@ class OrderItemInline(admin.TabularInline):
     can_delete = False
 
     def get_total_price(self, obj):
-        return obj.product_price * obj.quantity
+        if not obj or obj.price is None or obj.quantity is None:
+            return 0
+        return obj.price * obj.quantity
 
     get_total_price.short_description = "Сумма"
 
