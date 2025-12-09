@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
 from main.models import Order  # путь подгони, если другой
+from main.services.telegram_notifications import send_telegram_order_notification
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,10 @@ def send_order_confirmation_email(order):
 
 def notify_about_new_order_async(order_id: int):
     """
-    Запускает отправку писем в отдельном потоке, чтобы не тормозить ответ пользователю.
+    Запускает в фоне:
+    - письмо продавцу
+    - письмо клиенту
+    - уведомление в Telegram
     """
 
     def _job():
@@ -98,15 +102,23 @@ def notify_about_new_order_async(order_id: int):
         except Order.DoesNotExist:
             return
 
+        # 1. Продавцу на email
         try:
             send_order_created_email(order)
         except Exception:
             logger.exception("Ошибка при отправке письма продавцу о новом заказе")
 
+        # 2. Клиенту
         try:
             send_order_confirmation_email(order)
         except Exception:
             logger.exception("Ошибка при отправке письма клиенту о новом заказе")
+
+        # 3. В Telegram
+        try:
+            send_telegram_order_notification(order)
+        except Exception:
+            logger.exception("Ошибка при отправке уведомления в Telegram о новом заказе")
 
     Thread(target=_job, daemon=True).start()
 

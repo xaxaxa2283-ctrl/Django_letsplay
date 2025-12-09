@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,12 +133,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = "smtp.yandex.ru"        # или любой другой SMTP
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "letsplay.ekb@yandex.ru"
-EMAIL_HOST_PASSWORD = "rufogoxmiicfasom"
+
 EMAIL_USE_TLS = True
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 # Куда присылать уведомления о заказах
 ORDER_NOTIFICATION_EMAIL = "letsplay.ekb@yandex.ru"
 
@@ -156,3 +155,7 @@ LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Asia/Yekaterinburg'
 USE_I18N = True
 USE_TZ = True
+
+
+TELEGRAM_BOT_TOKEN = "8514661940:AAE3zt0N_msrXlwkwITsTBAZgtEMJjNe8HE"      # токен от BotFather
+TELEGRAM_ADMIN_CHAT_ID = 7595889222          # твой chat_id (числом, без кавычек)
