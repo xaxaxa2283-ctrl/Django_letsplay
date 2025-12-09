@@ -1,6 +1,12 @@
+# main/services/notifications.py
+from threading import Thread
+import logging
+
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
+from main.models import Order  # путь подгони, если другой
 
+logger = logging.getLogger(__name__)
 
 def send_order_created_email(order):
     subject = f"Новый заказ №{order.id} — LetsPlay"
@@ -79,3 +85,40 @@ def send_order_confirmation_email(order):
         fail_silently=True,
         connection=connection,
     )
+
+
+def notify_about_new_order_async(order_id: int):
+    """
+    Запускает отправку писем в отдельном потоке, чтобы не тормозить ответ пользователю.
+    """
+
+    def _job():
+        try:
+            order = Order.objects.prefetch_related("items").get(pk=order_id)
+        except Order.DoesNotExist:
+            return
+
+        try:
+            send_order_created_email(order)
+        except Exception:
+            logger.exception("Ошибка при отправке письма продавцу о новом заказе")
+
+        try:
+            send_order_confirmation_email(order)
+        except Exception:
+            logger.exception("Ошибка при отправке письма клиенту о новом заказе")
+
+    Thread(target=_job, daemon=True).start()
+
+
+
+
+
+
+
+
+
+
+
+
+

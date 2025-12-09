@@ -57,7 +57,6 @@ urlpatterns = [
 
     # Оформление заказа
     path('checkout/', views.checkout_view, name='checkout'),
-    path('checkout/success/', views.checkout_success, name='checkout_success'),
     path('order/success/<int:order_id>/', views.order_success_view, name='order_success'),
 
     # Личный кабинет

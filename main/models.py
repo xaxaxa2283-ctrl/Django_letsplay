@@ -530,22 +530,6 @@ from .services.notifications import (
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=Order)
-def order_created_notification(sender, instance, created, **kwargs):
-    if not created:
-        return
-
-    # 1. Письмо продавцу
-    try:
-        send_order_created_email(instance)
-    except Exception:
-        logger.exception("Ошибка при отправке письма продавцу о новом заказе")
-
-    # 2. Письмо клиенту
-    try:
-        send_order_confirmation_email(instance)
-    except Exception:
-        logger.exception("Ошибка при отправке письма клиенту о новом заказе")
 
 
 

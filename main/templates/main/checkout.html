@@ -197,5 +197,15 @@ document.querySelectorAll('input[name="delivery_method"]').forEach(radio => {
         }
     });
 });
+
+
+
+  const form = document.getElementById('checkout-form');
+  const btn = document.getElementById('checkout-submit');
+
+  form.addEventListener('submit', function () {
+    btn.disabled = true;
+    btn.innerText = 'Оформляем заказ...';
+  });
 </script>
 {% endblock %}

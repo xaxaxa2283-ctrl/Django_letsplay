@@ -599,47 +599,7 @@ from django.contrib import messages
 from .models import Cart
 
 
-def checkout(request):
-    """Оформление заказа"""
-    cart_id = request.session.get('cart_id')
-    items = []
-    total = 0
 
-    if cart_id:
-        try:
-            cart = Cart.objects.get(id=cart_id)
-            items = cart.items.all()
-            total = sum(item.product.price * item.quantity for item in items)
-        except Cart.DoesNotExist:
-            messages.error(request, "Корзина не найдена.")
-            return redirect('letsplay:catalog')
-    else:
-        messages.error(request, "Корзина пуста.")
-        return redirect('letsplay:catalog')
-
-    if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        address = request.POST.get('address')
-        phone = request.POST.get('phone')
-
-        # 💾 Здесь позже добавим сохранение заказа в БД
-        messages.success(request, f"Спасибо, {full_name}! Ваш заказ принят.")
-
-        # Очистим корзину после оформления
-        cart.items.all().delete()
-        request.session.pop('cart_id', None)
-
-        return redirect('letsplay:checkout_success')
-
-    return render(request, 'main/checkout.html', {
-        'items': items,
-        'total': total
-    })
-
-
-def checkout_success(request):
-    """Страница успешного оформления заказа"""
-    return render(request, 'main/checkout_success.html')
 
 
 from django.views.decorators.csrf import csrf_exempt
@@ -760,6 +720,10 @@ def cart_data_api(request):
 
 # ==================== Оформление заказа ====================
 
+from django.db import transaction
+from .services.notifications import notify_about_new_order_async
+
+
 def checkout_view(request):
     """Страница оформления заказа"""
     cart = get_or_create_cart(request)
@@ -768,39 +732,45 @@ def checkout_view(request):
         messages.warning(request, 'Ваша корзина пуста')
         return redirect('letsplay:catalog')
 
-
-
-
-
-
     if request.method == 'POST':
-        # Обработка формы заказа
-        order = Order.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            customer_name=request.POST.get('name'),
-            customer_email=request.POST.get('email'),
-            customer_phone=request.POST.get('phone'),
-            delivery_method=request.POST.get('delivery_method'),
-            delivery_address=request.POST.get('address', ''),
-            payment_method=request.POST.get('payment_method'),
-            total_price=cart.get_total_price(),
-            comment=request.POST.get('comment', ''),
-        )
+        name = (request.POST.get('name') or '').strip()
+        email = (request.POST.get('email') or '').strip()
+        phone = (request.POST.get('phone') or '').strip()
+        delivery_method = request.POST.get('delivery_method') or 'pickup'
+        address = (request.POST.get('address') or '').strip()
+        payment_method = request.POST.get('payment_method') or 'cash'
+        comment = (request.POST.get('comment') or '').strip()
 
-        # Создаем товары заказа
-        for cart_item in cart.items.all():
-            OrderItem.objects.create(
-                order=order,
-                product=cart_item.product,
-                product_name=cart_item.product.name,
-                product_price=cart_item.product.price,
-                quantity=cart_item.quantity,
+        if not name or not phone:
+            messages.error(request, 'Пожалуйста, укажите имя и телефон.')
+            return redirect('letsplay:checkout')
+
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                customer_name=name,
+                customer_email=email,
+                customer_phone=phone,
+                delivery_method=delivery_method,
+                delivery_address=address,
+                payment_method=payment_method,
+                total_price=cart.get_total_price(),
+                comment=comment,
             )
-        #new block
 
+            for cart_item in cart.items.select_related('product').all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    product_name=cart_item.product.name,
+                    product_price=cart_item.product.price,
+                    quantity=cart_item.quantity,
+                )
 
-        # Очищаем корзину
-        cart.clear()
+            cart.clear()
+
+        # запускаем письма уже ПОСЛЕ успешной записи в БД
+        transaction.on_commit(lambda: notify_about_new_order_async(order.id))
 
         messages.success(request, f'Заказ №{order.id} успешно оформлен! Мы свяжемся с вами в ближайшее время.')
         return redirect('letsplay:order_success', order_id=order.id)
@@ -813,6 +783,7 @@ def checkout_view(request):
     }
 
     return render(request, 'main/checkout.html', context)
+
 
 
 def order_success_view(request, order_id):
