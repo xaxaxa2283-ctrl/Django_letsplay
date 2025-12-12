@@ -251,6 +251,10 @@ class Review(models.Model):
     avatar = models.CharField('Аватар', max_length=1, blank=True, null=True)
     likes = models.IntegerField('Лайки', default=0)
     is_approved = models.BooleanField('Одобрен', default=False)
+
+    # 👉 ВАЖНО: сначала поля
+    is_pinned = models.BooleanField('Закреплён', default=False)
+    is_generated = models.BooleanField('Сгенерирован', default=False)
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -258,6 +262,7 @@ class Review(models.Model):
         indexes = [
             models.Index(fields=["is_approved", "-date"]),
             models.Index(fields=["is_approved"]),
+            models.Index(fields=["is_pinned", "-date"]),
         ]
 
     def __str__(self):

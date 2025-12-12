@@ -137,14 +137,81 @@ class ProductImageAdmin(admin.ModelAdmin):
 # ======================================
 #              REVIEWS
 # ======================================
+from django.db.models import F
+from django.contrib import admin
+
+
+@admin.action(description="✅ Одобрить выбранные отзывы")
+def approve_reviews(modeladmin, request, queryset):
+    queryset.update(is_approved=True)
+
+
+@admin.action(description="⛔ Снять одобрение у выбранных отзывов")
+def unapprove_reviews(modeladmin, request, queryset):
+    queryset.update(is_approved=False)
+
+
+@admin.action(description="📌 Закрепить выбранные отзывы")
+def pin_reviews(modeladmin, request, queryset):
+    queryset.update(is_pinned=True)
+
+
+@admin.action(description="📍 Открепить выбранные отзывы")
+def unpin_reviews(modeladmin, request, queryset):
+    queryset.update(is_pinned=False)
+
+
+@admin.action(description="👍 Добавить +10 лайков")
+def add_10_likes(modeladmin, request, queryset):
+    queryset.update(likes=F("likes") + 10)
+
+
+@admin.action(description="🔄 Сбросить лайки")
+def reset_likes(modeladmin, request, queryset):
+    queryset.update(likes=0)
+
+
+@admin.action(description="🔤 Заполнить аватар первой буквой имени")
+def fill_avatar(modeladmin, request, queryset):
+    updated = 0
+    for r in queryset:
+        if not r.avatar and r.name:
+            r.avatar = r.name.strip()[:1].upper()
+            r.save(update_fields=["avatar"])
+            updated += 1
+    modeladmin.message_user(request, f"Обновлено аватаров: {updated}")
+
+from django.contrib import admin
+from .models import Review
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'rating', 'is_approved')
-    list_filter = ('is_approved', 'date')
+    list_display = ('id', 'name', 'rating', 'likes', 'is_approved', 'is_pinned', 'date')
+    list_filter = ('is_approved', 'is_pinned', 'rating')
     search_fields = ('name', 'text')
-
-
+    list_editable = ('is_approved', 'is_pinned')  # ✅ можно переключать прямо в списке
+    ordering = ('-is_pinned', '-date')
+    readonly_fields = ('date',)
+    actions = [
+        approve_reviews,
+        unapprove_reviews,
+        pin_reviews,
+        unpin_reviews,
+        add_10_likes,
+        reset_likes,
+        fill_avatar,
+    ]
+    fieldsets = (
+        ("Основное", {
+            "fields": ("name", "text", "rating", "avatar", "likes")
+        }),
+        ("Публикация", {
+            "fields": ("is_approved", "is_pinned")
+        }),
+        ("Служебное", {
+            "fields": ("date", "product")
+        }),
+    )
 # ======================================
 #            ORDER ITEMS INLINE
 # ======================================
