@@ -19,6 +19,9 @@ import json
 
 
 from .models import Cart, CartItem, Order, OrderItem
+from .services.reviews_stats import get_reviews_stats
+
+
 def home(request):
     #Главная страница
     context = {
@@ -504,13 +507,7 @@ def reviews(request):
 
     reviews = Review.objects.filter(is_approved=True).order_by('-date')[:limit]
 
-    stats = {
-        'total_clients': Review.objects.filter(is_approved=True).count(),
-        'rating': round(
-            Review.objects.filter(is_approved=True).aggregate(Avg('rating'))['rating__avg'] or 0, 1
-        ),
-        'recommendations': 98,  # Или то, что нужно
-    }
+    stats = get_reviews_stats()
 
     return render(request, 'main/reviews.html', {
         'reviews': reviews,
@@ -528,25 +525,38 @@ def load_more_products(request):
     return JsonResponse({'products': data})
 
 
+from django.http import JsonResponse
+from .models import Review
+
+LOAD_MORE_LIMIT = 8
+
 def load_more_reviews(request):
     offset = int(request.GET.get('offset', 0))
-    limit = 4
+    limit = int(request.GET.get('limit', LOAD_MORE_LIMIT))
 
-    qs = Review.objects.filter(is_approved=True).order_by('-date')[offset:offset + limit]
+    qs_all = Review.objects.filter(is_approved=True).order_by('-date')
+    qs = qs_all[offset:offset + limit]
 
     reviews = []
     for r in qs:
         reviews.append({
             'id': r.id,
             'name': r.name,
-            'avatar': r.avatar,
+            'avatar': r.avatar,  # если у тебя уже хранится буква
             'date': r.date.strftime("%d.%m.%Y"),
             'rating': r.rating,
             'text': r.text,
             'likes': r.likes,
         })
 
-    return JsonResponse({'reviews': reviews})
+    next_offset = offset + len(reviews)
+    has_more = next_offset < qs_all.count()
+
+    return JsonResponse({
+        'reviews': reviews,
+        'next_offset': next_offset,
+        'has_more': has_more,
+    })
 
 
 

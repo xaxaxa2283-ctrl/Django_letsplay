@@ -159,3 +159,10 @@ USE_TZ = True
 
 TELEGRAM_BOT_TOKEN = "8514661940:AAE3zt0N_msrXlwkwITsTBAZgtEMJjNe8HE"      # токен от BotFather
 TELEGRAM_ADMIN_CHAT_ID = 7595889222          # твой chat_id (числом, без кавычек)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "letsplay-cache",
+    }
+}

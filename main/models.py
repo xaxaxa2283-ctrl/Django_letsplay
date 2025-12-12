@@ -255,9 +255,20 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ['-date']
+        indexes = [
+            models.Index(fields=["is_approved", "-date"]),
+            models.Index(fields=["is_approved"]),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.date})"
+
+
+    def save(self, *args, **kwargs):
+        # если аватар пустой — берём первую букву имени
+        if not self.avatar and self.name:
+            self.avatar = self.name.strip()[0].upper()
+        super().save(*args, **kwargs)
 
 
 
