@@ -502,17 +502,54 @@ def catalog_detail_by_slug(request, slug):
 
 from django.db.models import Avg
 
+import json
+from django.utils import timezone
+from main.services.reviews_stats import get_reviews_stats
+
 def reviews(request):
     limit = 4
-
-    reviews = Review.objects.filter(is_approved=True).order_by('-date')[:limit]
+    qs = Review.objects.filter(is_approved=True).order_by('-date')
+    reviews = qs[:limit]
 
     stats = get_reviews_stats()
+
+    # возьмём чуть больше для микроразметки (например 10)
+    ld_reviews_qs = qs[:10]
+
+    json_ld = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "LetsPlay",
+        # можно добавить адрес/телефон если есть
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": stats["rating"],
+            "reviewCount": stats["total_clients"],
+            "bestRating": 5,
+            "worstRating": 1,
+        },
+        "review": [
+            {
+                "@type": "Review",
+                "author": {"@type": "Person", "name": r.name},
+                "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": r.rating,
+                    "bestRating": 5,
+                    "worstRating": 1,
+                },
+                "reviewBody": r.text,
+                "datePublished": r.date.date().isoformat() if hasattr(r.date, "date") else str(r.date),
+            }
+            for r in ld_reviews_qs
+        ]
+    }
 
     return render(request, 'main/reviews.html', {
         'reviews': reviews,
         'stats': stats,
-        'show_button': Review.objects.filter(is_approved=True).count() > limit,
+        'show_button': stats["total_clients"] > limit,
+        'json_ld': json.dumps(json_ld, ensure_ascii=False),
     })
 
 
