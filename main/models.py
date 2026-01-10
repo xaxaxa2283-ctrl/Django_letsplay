@@ -79,6 +79,7 @@ class Product(models.Model):
         ('essential', 'Plus Essential'),
         ('extra', 'Plus Extra'),
         ('deluxe', 'Plus Deluxe'),
+        ('ea play', 'EA Play'),
     ]
 
     name = models.CharField('Название', max_length=200)
