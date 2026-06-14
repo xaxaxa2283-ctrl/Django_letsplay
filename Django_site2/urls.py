@@ -1,23 +1,23 @@
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
-from sitemaps import StaticViewSitemap, ProductSitemap
+from django.urls import include, path
+
+from sitemaps import ProductSitemap, StaticViewSitemap
 
 sitemaps = {
-    'static': StaticViewSitemap,
-    'products': ProductSitemap,
+    "static": StaticViewSitemap,
+    "products": ProductSitemap,
 }
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('main.urls', namespace='main')),
-path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path("admin/", admin.site.urls),
+    path("legal/", include("legal.urls", namespace="legal")),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
+    path("", include("main.urls", namespace="main")),
 ]
 
-# Serve static and media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
