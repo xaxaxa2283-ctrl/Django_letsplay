@@ -101,13 +101,15 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_CHAT_ID = os.getenv("TELEGRAM_ADMIN_CHAT_ID", "")
 TELEGRAM_ORDER_NOTIFICATIONS_ENABLED = env_bool("TELEGRAM_ORDER_NOTIFICATIONS_ENABLED", False)
 
-LEGAL_SELLER_NAME = os.getenv("LEGAL_SELLER_NAME", "Укажите юридическое наименование продавца")
-LEGAL_SELLER_STATUS = os.getenv("LEGAL_SELLER_STATUS", "Укажите: ИП, ООО или самозанятый")
-LEGAL_SELLER_INN = os.getenv("LEGAL_SELLER_INN", "Укажите ИНН")
-LEGAL_SELLER_OGRN = os.getenv("LEGAL_SELLER_OGRN", "Укажите ОГРН/ОГРНИП")
-LEGAL_SELLER_ADDRESS = os.getenv("LEGAL_SELLER_ADDRESS", "г. Екатеринбург, ул. Луначарского, 134")
+LEGAL_TRADE_NAME = os.getenv("LEGAL_TRADE_NAME", "LetsPlay")
+LEGAL_SELLER_NAME = os.getenv("LEGAL_SELLER_NAME", "Индивидуальный предприниматель Шкребтанов Дмитрий Николаевич")
+LEGAL_SELLER_STATUS = os.getenv("LEGAL_SELLER_STATUS", "Индивидуальный предприниматель")
+LEGAL_SELLER_INN = os.getenv("LEGAL_SELLER_INN", "665899750193")
+LEGAL_SELLER_OGRN = os.getenv("LEGAL_SELLER_OGRN", "324665800061842")
+LEGAL_SELLER_ADDRESS = os.getenv("LEGAL_SELLER_ADDRESS", "623706, Россия, Свердловская область, г. Екатеринбург, ул. Луначарского, д. 134")
 LEGAL_CONTACT_EMAIL = os.getenv("LEGAL_CONTACT_EMAIL", "letsplay.ekb@yandex.ru")
 LEGAL_CONTACT_PHONE = os.getenv("LEGAL_CONTACT_PHONE", "+7 999 499-36-41")
+LEGAL_AVITO_URL = os.getenv("LEGAL_AVITO_URL", "https://www.avito.ru/user/442a48b41e784b317061408ea1f569fc/profile?src=sharing")
 
 CSRF_FAILURE_VIEW = "main.views.csrf_failure"
 SESSION_COOKIE_SECURE = not DEBUG
