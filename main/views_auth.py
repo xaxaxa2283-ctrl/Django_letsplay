@@ -65,7 +65,6 @@ def api_register(request):
     return JsonResponse({"success": True})
 
 
-@require_POST
 def api_logout(request):
     logout(request)
     return JsonResponse({"success": True})
