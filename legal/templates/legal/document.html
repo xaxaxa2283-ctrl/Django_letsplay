@@ -12,6 +12,7 @@
 .legal-card ul { margin: .5rem 0 0 1.25rem; list-style: disc; }
 .legal-meta { margin: 1.25rem 0; padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,.06); }
 .legal-meta div { margin: .2rem 0; }
+.legal-meta a { color: #67e8f9; text-decoration: underline; }
 .legal-warning { margin: 1rem 0; padding: 1rem; border: 1px solid #f59e0b; border-radius: 1rem; color: #fde68a; background: rgba(245,158,11,.12); }
 .legal-version { color: #94a3b8; font-size: .85rem; margin-top: 2rem; }
 .legal-links { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
@@ -30,11 +31,13 @@
     {% endif %}
 
     <div class="legal-meta">
+      <div><strong>Торговое наименование:</strong> {{ seller.trade_name }}</div>
       <div><strong>Продавец / оператор:</strong> {{ seller.name }}</div>
       <div><strong>Статус:</strong> {{ seller.status }}</div>
-      <div><strong>ИНН:</strong> {{ seller.inn }}; <strong>ОГРН/ОГРНИП:</strong> {{ seller.ogrn }}</div>
+      <div><strong>ИНН:</strong> {{ seller.inn }}; <strong>ОГРНИП:</strong> {{ seller.ogrn }}</div>
       <div><strong>Адрес:</strong> {{ seller.address }}</div>
       <div><strong>Email:</strong> {{ seller.email }}; <strong>Телефон:</strong> {{ seller.phone }}</div>
+      {% if seller.avito_url %}<div><strong>Профиль продавца на Avito:</strong> <a href="{{ seller.avito_url }}" target="_blank" rel="noopener noreferrer">открыть профиль</a></div>{% endif %}
     </div>
 
     {% for section in sections %}
