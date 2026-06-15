@@ -1,0 +1,62 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ title }} — LetsPlay{% endblock %}
+
+{% block extra_css %}
+<style>
+.legal-page { padding: 7rem 1rem 4rem; min-height: 100vh; color: #e2e8f0; }
+.legal-card { max-width: 920px; margin: 0 auto; padding: 2rem; border: 1px solid rgba(148,163,184,.35); border-radius: 1.5rem; background: rgba(15,23,42,.94); box-shadow: 0 24px 70px rgba(0,0,0,.35); }
+.legal-card h1 { color: #fff; margin-bottom: .75rem; }
+.legal-card h2 { color: #67e8f9; font-size: 1.2rem; margin: 2rem 0 .6rem; }
+.legal-card p, .legal-card li { line-height: 1.7; }
+.legal-card ul { margin: .5rem 0 0 1.25rem; list-style: disc; }
+.legal-meta { margin: 1.25rem 0; padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,.06); }
+.legal-meta div { margin: .2rem 0; }
+.legal-meta a { color: #67e8f9; text-decoration: underline; }
+.legal-warning { margin: 1rem 0; padding: 1rem; border: 1px solid #f59e0b; border-radius: 1rem; color: #fde68a; background: rgba(245,158,11,.12); }
+.legal-version { color: #94a3b8; font-size: .85rem; margin-top: 2rem; }
+.legal-links { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+.legal-links a { color: #67e8f9; text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+  <article class="legal-card">
+    <h1>{{ title }}</h1>
+    <p>{{ intro }}</p>
+
+    {% if 'Укажите' in seller.name or 'Укажите' in seller.inn or 'Укажите' in seller.ogrn %}
+      <div class="legal-warning"><strong>До публикации:</strong> заполните юридическое наименование, статус, ИНН и ОГРН/ОГРНИП в переменных окружения хостинга.</div>
+    {% endif %}
+
+    <div class="legal-meta">
+      <div><strong>Торговое наименование:</strong> {{ seller.trade_name }}</div>
+      <div><strong>Продавец / оператор:</strong> {{ seller.name }}</div>
+      <div><strong>Статус:</strong> {{ seller.status }}</div>
+      <div><strong>ИНН:</strong> {{ seller.inn }}; <strong>ОГРНИП:</strong> {{ seller.ogrn }}</div>
+      <div><strong>Адрес:</strong> {{ seller.address }}</div>
+      <div><strong>Email:</strong> {{ seller.email }}; <strong>Телефон:</strong> {{ seller.phone }}</div>
+      {% if seller.avito_url %}<div><strong>Профиль продавца на Avito:</strong> <a href="{{ seller.avito_url }}" target="_blank" rel="noopener noreferrer">открыть профиль</a></div>{% endif %}
+    </div>
+
+    {% for section in sections %}
+      <section>
+        <h2>{{ section.title }}</h2>
+        {% for paragraph in section.paragraphs %}<p>{{ paragraph }}</p>{% endfor %}
+        {% if section.items %}<ul>{% for item in section.items %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+      </section>
+    {% endfor %}
+
+    <nav class="legal-links" aria-label="Юридические документы">
+      <a href="{% url 'legal:privacy' %}">Персональные данные</a>
+      <a href="{% url 'legal:consent' %}">Согласие</a>
+      <a href="{% url 'legal:offer' %}">Оферта</a>
+      <a href="{% url 'legal:returns' %}">Возврат</a>
+      <a href="{% url 'legal:requisites' %}">Реквизиты</a>
+      <a href="{% url 'legal:cookies' %}">Cookies</a>
+    </nav>
+    <p class="legal-version">Версия документов: {{ version }}</p>
+  </article>
+</div>
+{% endblock %}

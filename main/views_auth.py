@@ -1,69 +1,70 @@
-# main/views_auth.py
 import json
-from django.contrib.auth.models import User
+
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
 from .models import UserProfile
 
-@csrf_exempt
+
+def _json_body(request):
+    try:
+        return json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
+
+@require_POST
 def api_login(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'invalid_json'}, status=400)
+    data = _json_body(request)
+    if data is None:
+        return JsonResponse({"success": False, "error": "invalid_json"}, status=400)
 
-        email = data.get('email')
-        password = data.get('password')
+    user = authenticate(request, username=data.get("email"), password=data.get("password"))
+    if user is None:
+        return JsonResponse({"success": False, "error": "invalid_credentials"}, status=401)
 
-        # Аутентификация по email
-        user = authenticate(request, username=email, password=password)
-
-        if user is not None:
-            login(request, user)
-            return JsonResponse({'success': True})
-        else:
-            # ⚠️ Возвращаем код ошибки, который твой JS ожидает:
-            return JsonResponse({'success': False, 'error': 'invalid_credentials'}, status=401)
-
-    return JsonResponse({'error': 'method_not_allowed'}, status=405)
+    login(request, user)
+    return JsonResponse({"success": True})
 
 
-@csrf_exempt
+@require_POST
 def api_register(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'invalid_json'}, status=400)
+    data = _json_body(request)
+    if data is None:
+        return JsonResponse({"success": False, "error": "invalid_json"}, status=400)
+    if data.get("personal_data_consent") is not True:
+        return JsonResponse({"success": False, "error": "personal_data_consent_required"}, status=400)
 
-        name = data.get('name')
-        email = data.get('email')
-        password = data.get('password')
-        phone = data.get('phone')
-        address = data.get('address')
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    phone = (data.get("phone") or "").strip()
+    address = (data.get("address") or "").strip()
+    password = data.get("password") or ""
 
-        # Проверка на существующего пользователя
-        if User.objects.filter(username=email).exists():
-            return JsonResponse({'success': False, 'error': 'user_exists'}, status=409)
+    if not name or not email or not phone or not password:
+        return JsonResponse({"success": False, "error": "required_fields_missing"}, status=400)
+    if User.objects.filter(username__iexact=email).exists():
+        return JsonResponse({"success": False, "error": "user_exists"}, status=409)
 
-        # Создаём нового пользователя
-        user = User.objects.create_user(username=email, email=email, password=password, first_name=name)
-        user.save()
+    try:
+        validate_password(password)
+    except ValidationError:
+        return JsonResponse({"success": False, "error": "weak_password"}, status=400)
 
-        # Если у тебя есть модель профиля — создаём профиль
-        profile = user.profile
-        profile.phone = phone
-        profile.address = address
-        profile.save()
+    user = User.objects.create_user(username=email, email=email, password=password, first_name=name)
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    profile.phone = phone
+    profile.address = address
+    profile.save(update_fields=["phone", "address"])
 
-        login(request, user)
-        return JsonResponse({'success': True})
-
-    return JsonResponse({'error': 'method_not_allowed'}, status=405)
+    login(request, user)
+    return JsonResponse({"success": True})
 
 
 def api_logout(request):
     logout(request)
-    return JsonResponse({'success': True})
+    return JsonResponse({"success": True})
