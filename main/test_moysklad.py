@@ -21,6 +21,7 @@ class MoySkladClientTests(SimpleTestCase):
         url = session.get.call_args.args[0]
         self.assertEqual(url, 'https://api.moysklad.ru/api/remap/1.2/entity/store')
         self.assertEqual(session.get.call_args.kwargs['headers']['Authorization'], 'Bearer test-token')
+        self.assertEqual(session.get.call_args.kwargs['headers']['Accept'], 'application/json;charset=utf-8')
         self.assertEqual(session.get.call_args.kwargs['params'], {'limit': 100, 'offset': 0})
 
     @override_settings(MOYSKLAD_ACCESS_TOKEN='')

@@ -46,7 +46,11 @@ class MoySkladClient:
             response = self.session.get(
                 f'{self.api_url}/{path.lstrip("/")}',
                 params=params,
-                headers={'Authorization': f'Bearer {self.access_token}', 'Accept': 'application/json'},
+                headers={
+                    'Authorization': f'Bearer {self.access_token}',
+                    # The MoySklad JSON API rejects plain application/json.
+                    'Accept': 'application/json;charset=utf-8',
+                },
                 timeout=self.timeout,
             )
             response.raise_for_status()
