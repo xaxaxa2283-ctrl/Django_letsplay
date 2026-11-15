@@ -5,6 +5,7 @@ from django.test import SimpleTestCase, override_settings
 
 from .moysklad import MoySkladClient, MoySkladError
 from .management.commands.moysklad_match_preview import normalized_tokens, score
+from .management.commands.moysklad_import_act_catalog import classify, display_name
 
 
 class MoySkladClientTests(SimpleTestCase):
@@ -126,4 +127,18 @@ class MoySkladMatchingTests(SimpleTestCase):
         self.assertGreater(
             score(target, 'PS5 SLIM DISC NEW ACT'),
             score(target, 'Кофемашина DeLonghi'),
+        )
+
+
+class MoySkladImportTests(SimpleTestCase):
+    def test_classifies_used_flashed_ps4(self):
+        self.assertEqual(
+            classify('PS 4 SLIM 1TB ПРОШИТАЯ USED ACT'),
+            ('consoles', 'ps4', 'used', 'modified'),
+        )
+
+    def test_makes_act_name_readable(self):
+        self.assertEqual(
+            display_name('PS5 SLIM BLU-RAY 1TB NEW ACT'),
+            'PlayStation 5 SLIM Blu-ray 1 ТБ новая',
         )
