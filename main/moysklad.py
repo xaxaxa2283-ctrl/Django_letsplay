@@ -29,6 +29,14 @@ class MoySkladAssortment:
     external_code: str
     prices: tuple[tuple[str, Decimal], ...]
 
+    def price_for(self, price_type_name: str) -> Decimal | None:
+        """Return an explicitly selected price type, never guessing a price."""
+        expected = price_type_name.strip().casefold()
+        for label, amount in self.prices:
+            if label.strip().casefold() == expected:
+                return amount
+        return None
+
 
 @dataclass(frozen=True)
 class MoySkladStock:

@@ -114,6 +114,7 @@ TELEGRAM_ORDER_NOTIFICATIONS_ENABLED = env_bool("TELEGRAM_ORDER_NOTIFICATIONS_EN
 MOYSKLAD_ACCESS_TOKEN = os.getenv("MOYSKLAD_ACCESS_TOKEN", "")
 MOYSKLAD_API_URL = os.getenv("MOYSKLAD_API_URL", "https://api.moysklad.ru/api/remap/1.2").rstrip("/")
 MOYSKLAD_REQUEST_TIMEOUT = int(os.getenv("MOYSKLAD_REQUEST_TIMEOUT", "15"))
+MOYSKLAD_SITE_PRICE_TYPE = os.getenv("MOYSKLAD_SITE_PRICE_TYPE", "Цена продажи")
 
 LEGAL_TRADE_NAME = os.getenv("LEGAL_TRADE_NAME", "LetsPlay")
 LEGAL_SELLER_NAME = os.getenv("LEGAL_SELLER_NAME", "Индивидуальный предприниматель Шкребтанов Дмитрий Николаевич")

@@ -69,6 +69,8 @@ class MoySkladClientTests(SimpleTestCase):
 
         self.assertEqual(assortment[0].name, 'PlayStation 5 Slim')
         self.assertEqual(str(assortment[0].prices[0][1]), '49990')
+        self.assertEqual(str(assortment[0].price_for('розница')), '49990')
+        self.assertIsNone(assortment[0].price_for('Неизвестный тип цены'))
         self.assertEqual(session.get.call_args.kwargs['params'], {'limit': 1000, 'offset': 0})
 
     @override_settings(MOYSKLAD_ACCESS_TOKEN='test-token')
