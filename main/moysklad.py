@@ -50,6 +50,31 @@ class MoySkladClient:
                 timeout=self.timeout,
             )
             response.raise_for_status()
+        except requests.HTTPError as exc:
+            # The API error body identifies configuration/permission problems.
+            # It never contains the sent access token, and is more useful than
+            # requests' URL-only exception when diagnosing a failed setup.
+            response = exc.response
+            detail = ''
+            if response is not None:
+                try:
+                    payload = response.json()
+                except ValueError:
+                    payload = None
+                if isinstance(payload, dict):
+                    errors = payload.get('errors')
+                    if isinstance(errors, list):
+                        parts = []
+                        for error in errors[:3]:
+                            if isinstance(error, dict):
+                                text = error.get('error') or error.get('message') or error.get('code')
+                                if text:
+                                    parts.append(str(text))
+                        detail = '; '.join(parts)
+                if not detail:
+                    detail = str(getattr(response, 'text', '')).strip().replace('\n', ' ')[:500]
+            suffix = f' Причина API: {detail}' if detail else ''
+            raise MoySkladError(f'МойСклад вернул HTTP {getattr(response, "status_code", "ошибку")}.{suffix}') from exc
         except requests.RequestException as exc:
             raise MoySkladError(f'Не удалось прочитать данные МоегоСклада: {exc}') from exc
         try:

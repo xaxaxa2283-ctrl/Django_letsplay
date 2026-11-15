@@ -1,5 +1,6 @@
 from unittest.mock import Mock
 
+import requests
 from django.test import SimpleTestCase, override_settings
 
 from .moysklad import MoySkladClient, MoySkladError
@@ -44,3 +45,14 @@ class MoySkladClientTests(SimpleTestCase):
 
         self.assertEqual(len(warehouses), 101)
         self.assertEqual(session.get.call_args_list[1].kwargs['params']['offset'], 100)
+
+    @override_settings(MOYSKLAD_ACCESS_TOKEN='test-token')
+    def test_includes_safe_api_error_detail(self):
+        response = Mock(status_code=400)
+        response.json.return_value = {'errors': [{'error': 'Недопустимый параметр'}]}
+        response.raise_for_status.side_effect = requests.HTTPError(response=response)
+        session = Mock()
+        session.get.return_value = response
+
+        with self.assertRaisesMessage(MoySkladError, 'Недопустимый параметр'):
+            MoySkladClient(session=session).list_warehouses()
