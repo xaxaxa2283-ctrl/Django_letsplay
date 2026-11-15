@@ -1,4 +1,5 @@
-from django.test import TestCase, override_settings
+from django.http import Http404
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from main.models import Category, Product, Cart, CartItem, Order, OrderItem
@@ -36,8 +37,9 @@ class CartBackendTests(TestCase):
         self.product.save()
         self.assertFalse(self.product.is_purchasable)
         self.assertEqual(self.update('{"delta":1}').status_code, 409)
-        response = self.client.post(reverse('main:add_to_cart', args=[self.product.pk]))
-        self.assertEqual(response.status_code, 404)
+        from main.views import add_to_cart
+        with self.assertRaises(Http404):
+            add_to_cart(RequestFactory().post('/cart/add/'), self.product.pk)
 
     def test_other_session_cannot_modify_item(self):
         from django.test import Client
