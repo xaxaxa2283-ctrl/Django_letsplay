@@ -32,7 +32,7 @@
           <p class="sf-eyebrow">{{ product.get_category_name }} · LETSPLAY</p>
           <h1>{{ product.name }}</h1>
           {% include 'main/includes/product_status.html' %}
-          <p class="sf-stock">{% if product.in_stock %}В наличии{% else %}Нет в наличии{% endif %}</p>
+          <p class="sf-stock">{% if product.in_stock %}В наличии{% else %}Раскупили эту позицию{% endif %}</p>
         </div>
         {% if variants|length > 1 %}<div class="sf-variants"><p>Выберите вариант</p>
           {% for variant in variants %}<a href="{% url 'main:catalog_detail_by_slug' variant.slug %}" {% if variant.pk == product.pk %}aria-current="page"{% endif %}>{{ variant.variant_name|default:variant.name }}{% if variant.condition %} · {{ variant.get_condition_display }}{% endif %}{% if variant.platform == 'ps4' and variant.firmware_status %} · {{ variant.get_firmware_status_display }}{% endif %}</a>{% endfor %}
@@ -42,7 +42,7 @@
           <p class="sf-price-label">{% if product.category.category_type == 'consoles' and product.platform != 'xbox' and product.firmware_status != 'modified' %}Приставка с подготовкой{% elif product.category.category_type == 'consoles' %}Цена приставки{% else %}Цена товара{% endif %}</p>
           <strong class="sf-price">{{ product.price|floatformat:0 }} ₽</strong>
           <form class="sf-cart-form" data-storefront-cart action="{% url 'main:add_to_cart' product.id %}" method="post">
-            {% csrf_token %}<button class="sf-button" type="submit" {% if not product.in_stock %}disabled{% endif %}>{% if product.in_stock %}Добавить в корзину <span>+</span>{% else %}Нет в наличии{% endif %}</button><p class="sf-cart-status" role="status" aria-live="polite"></p>
+            {% csrf_token %}<button class="sf-button" type="submit" {% if not product.in_stock %}disabled{% endif %}>{% if product.in_stock %}Добавить в корзину <span>+</span>{% else %}Раскупили{% endif %}</button><p class="sf-cart-status" role="status" aria-live="polite"></p>
           </form>
           <a class="sf-text-link" href="{% url 'main:cart_view' %}">Перейти в корзину ↗</a>
         </div>
@@ -71,7 +71,7 @@
     </section>
 
     {% if product.category.category_type == 'consoles' and product.platform != 'xbox' and product.firmware_status != 'modified' %}{% include 'main/includes/console_purchase.html' %}{% endif %}
-    {% if related_products %}<section class="sf-section"><div class="sf-section-heading"><h2>Сравните с другими</h2><a class="sf-text-link" href="{% url 'main:catalog' %}">Весь каталог ↗</a></div><div class="sf-products">{% for product in related_products %}<article class="sf-product"><a class="sf-product-image" href="{% url 'main:catalog_detail_by_slug' product.slug %}">{% if product.get_image_url %}<img src="{{ product.get_image_url }}" alt="{{ product.name }}" loading="lazy" width="480" height="400">{% else %}<span class="sf-image-empty">Фотографию уточним перед покупкой</span>{% endif %}</a><div class="sf-product-body"><span class="sf-product-category">{{ product.get_category_name }}</span><h3><a href="{% url 'main:catalog_detail_by_slug' product.slug %}">{{ product.name }}</a></h3><p class="sf-stock">{% if product.in_stock %}В наличии{% else %}Нет в наличии{% endif %}</p><div class="sf-product-bottom"><strong>{{ product.price|floatformat:0 }} ₽</strong><a class="sf-icon-link" href="{% url 'main:catalog_detail_by_slug' product.slug %}" aria-label="Подробнее о {{ product.name }}">↗</a></div></div></article>{% endfor %}</div></section>{% endif %}
+    {% if related_products %}<section class="sf-section"><div class="sf-section-heading"><h2>Сравните с другими</h2><a class="sf-text-link" href="{% url 'main:catalog' %}">Весь каталог ↗</a></div><div class="sf-products">{% for product in related_products %}<article class="sf-product"><a class="sf-product-image" href="{% url 'main:catalog_detail_by_slug' product.slug %}">{% if product.get_image_url %}<img src="{{ product.get_image_url }}" alt="{{ product.name }}" loading="lazy" width="480" height="400">{% else %}<span class="sf-image-empty">Фотографию уточним перед покупкой</span>{% endif %}</a><div class="sf-product-body"><span class="sf-product-category">{{ product.get_category_name }}</span><h3><a href="{% url 'main:catalog_detail_by_slug' product.slug %}">{{ product.name }}</a></h3><p class="sf-stock">{% if product.in_stock %}В наличии{% else %}Раскупили{% endif %}</p><div class="sf-product-bottom"><strong>{{ product.price|floatformat:0 }} ₽</strong><a class="sf-icon-link" href="{% url 'main:catalog_detail_by_slug' product.slug %}" aria-label="Подробнее о {{ product.name }}">↗</a></div></div></article>{% endfor %}</div></section>{% endif %}
   </div>
 </div>
 {% endblock %}

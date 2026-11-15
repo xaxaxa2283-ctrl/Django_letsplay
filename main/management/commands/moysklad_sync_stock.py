@@ -44,8 +44,12 @@ class Command(BaseCommand):
             current = stock.get(str(product.moysklad_assortment_id))
             if current is None:
                 missing.append(product)
-                continue
-            available = current.free_stock > 0
+                # A missing row means that the selected warehouse has no
+                # balance for this linked item. Do not leave a sold item on
+                # the storefront as available.
+                available = False
+            else:
+                available = current.free_stock >= 1
             if product.in_stock != available:
                 changes.append((product, available, current))
 
@@ -53,13 +57,17 @@ class Command(BaseCommand):
         self.stdout.write(f'{mode}: магазин «{store.name}», сопоставленных карточек: {len(products)}.')
         for product, available, current in changes:
             state = 'в наличии' if available else 'нет в наличии'
+            if current is None:
+                self.stdout.write(f'• {product.name}: {state} (в отчёте склада позиции нет).')
+                continue
             self.stdout.write(
                 f'• {product.name}: {state} '
                 f'(остаток {current.stock:f}, резерв {current.reserve:f}).'
             )
         if missing:
             self.stdout.write(self.style.WARNING(
-                f'В отчёте не найдены {len(missing)} карточек: ' + ', '.join(product.name for product in missing)
+                f'В отчёте не найдены {len(missing)} карточек; они будут отмечены как распроданные: '
+                + ', '.join(product.name for product in missing)
             ))
         if not changes:
             self.stdout.write(self.style.SUCCESS('Изменений наличия нет.'))

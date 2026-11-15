@@ -73,7 +73,7 @@
           <span class="sf-product-category">{{ product.get_category_name }}</span>
           <h2><a href="{% url 'main:catalog_detail_by_slug' product.slug %}">{{ product.name }}</a></h2>
           {% include 'main/includes/product_status.html' %}
-          <p class="sf-stock {% if not product.in_stock %}sf-out-of-stock{% endif %}">{% if product.in_stock %}В наличии{% else %}Нет в наличии{% endif %}</p>
+          <p class="sf-stock {% if not product.in_stock %}sf-out-of-stock{% endif %}">{% if product.in_stock %}В наличии{% else %}Раскупили{% endif %}</p>
           <div class="sf-product-bottom"><strong>{{ product.price|floatformat:0 }} ₽</strong><a class="sf-catalog-product-link" href="{% url 'main:catalog_detail_by_slug' product.slug %}" aria-label="Подробнее о {{ product.name }}">Подробнее <span aria-hidden="true">↗</span></a></div>
         </div>
       </article>
