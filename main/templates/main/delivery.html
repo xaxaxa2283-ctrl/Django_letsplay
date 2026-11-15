@@ -33,20 +33,19 @@
   <div class="container">
 
     <header class="page-header">
-      <h1>Доставка приставок по Екатеринбургу и области</h1>
-      <p>Привезём приставку и аксессуары в удобное для вас время по Екатеринбургу и ближайшим районам.</p>
+      <h1>Получение и доставка</h1>
+      <p>Заберите заказ в магазине или согласуйте доставку по Екатеринбургу и области.</p>
     </header>
 
     <section class="delivery-card">
       <h2>Условия доставки</h2>
       <ul class="delivery-list">
-        <li>Бесплатная доставка по Екатеринбургу при заказе от 50 000 ₽.</li>
-        <li>Доставка в день покупки при наличии товара на складе.</li>
-        <li>Оплата наличными или картой курьеру.</li>
-        <li>Перед выездом курьер обязательно связывается и уточняет время приезда.</li>
+        <li>Самовывоз доступен в магазине LetsPlay на Луначарского, 134.</li>
+        <li>Стоимость, срок и способ доставки согласуем до оформления заказа.</li>
+        <li>Перед выездом свяжемся с вами и подтвердим детали получения.</li>
       </ul>
       <p class="delivery-note">
-        Если вы из пригорода — посмотрите зоны на карте ниже или напишите нам, подскажем точную стоимость.
+        Если вы из пригорода или другого города — напишите нам, чтобы согласовать подходящий вариант получения.
       </p>
     </section>
 
@@ -55,17 +54,13 @@
       <section class="delivery-map-section">
   <div class="delivery-map-inner">
     <div class="delivery-map-text">
-      <h2>Зоны доставки</h2>
-      <p>Мы доставляем приставки по Екатеринбургу и ближайшим районам. На карте отмечены зоны и ориентировочная стоимость.</p>
+      <h2>Магазин и самовывоз</h2>
+      <p>На карте показан магазин LetsPlay. Возможность, стоимость и срок доставки подтвердим для вашего адреса.</p>
       <ul class="delivery-legend">
-        <li><span class="legend-dot legend-dot--city"></span>Зона 1 — Екатеринбург: Доставка 500-800₽ от 5 000 ₽<br> бесплатно от 50 000 ₽</li>
-        <li><span class="legend-dot legend-dot--near"></span>Зона 2 — ближайшие пригороды: 800–1500 ₽</li>
-        <li><span class="legend-dot legend-dot--far"></span>Зона 3 — удалённые районы: по договорённости</li>
-         <li><span class="legend-dot legend-dot--rf"></span>Доставка по всей России — СДЭК / Почта, по тарифам ТК</li>
+        <li><span class="legend-dot legend-dot--city"></span>Самовывоз: Екатеринбург, Луначарского, 134</li>
       </ul>
       <p class="delivery-note">
-        Точную стоимость доставки до вашего адреса можно уточнить по WhatsApp или телефону —
-        мы ответим за 1–2 минуты.
+        Уточнить условия доставки до вашего адреса можно по телефону или в сообщении магазину.
       </p>
     </div>
 
@@ -112,80 +107,6 @@ function initDeliveryMap() {
 
   map.geoObjects.add(storePlacemark);
 
-  const zone1 = new ymaps.Circle(
-    [center, 9000],
-    {
-      hintContent: 'Зона 1 — Екатеринбург',
-      balloonContent:
-        '<b>Зона 1 — Екатеринбург</b><br>' +
-        '• Доставка <b>500-800</b> от 5 000 ₽<br>' +
-        '• от 50 000 ₽ — <b>Доставка Бесплатно</b>'
-    },
-    {
-      fillColor: '00e5ff33',
-      strokeColor: '00e5ff',
-      strokeWidth: 2
-    }
-  );
-
-  const zone2 = new ymaps.Circle(
-    [center, 22000],
-    {
-      hintContent: 'Зона 2 — пригороды',
-      balloonContent:
-        '<b>Зона 2 — пригороды</b><br>' +
-        'Доставка: <b>800–1500 ₽</b> в зависимости от адреса'
-    },
-    {
-      fillColor: '00ff8830',
-      strokeColor: '00ff88',
-      strokeWidth: 2
-    }
-  );
-
-  const zone3 = new ymaps.Circle(
-    [center, 70000],
-    {
-      hintContent: 'Зона 3 — удалённые районы',
-      balloonContent:
-        '<b>Зона 3 — удалённые районы</b><br>' +
-        'Доставка по договорённости. Напишите нам в WhatsApp.'
-    },
-    {
-      fillColor: 'ffcc0030',
-      strokeColor: 'ffcc00',
-      strokeWidth: 2
-    }
-  );
-
-  map.geoObjects
-    .add(zone3)
-    .add(zone2)
-    .add(zone1);
-
-  ymaps.borders.load('RU', {
-    lang: 'ru',
-    quality: 1
-  }).then(function (result) {
-    result.features.forEach(function (feature) {
-      const polygon = new ymaps.GeoObject({
-        geometry: feature.geometry,
-        properties: {
-          hintContent: 'Доставка по всей России',
-          balloonContent:
-            '<b>Доставляем по всей России</b><br>' +
-            'Отправка СДЭК / Почта России, стоимость по тарифам ТК.'
-        }
-      }, {
-        fillColor: '0099ff22',
-        strokeColor: '0099ff',
-        strokeWidth: 1,
-        zIndex: 10
-      });
-
-      map.geoObjects.add(polygon);
-    });
-  });
 }
 
 

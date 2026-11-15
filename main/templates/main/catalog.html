@@ -1,482 +1,106 @@
 {% extends 'main/base_template.html' %}
-{% load static %}
-
-{% block title %}
-Купить PlayStation в Екатеринбурге — PS4 и PS5 | Каталог LetsPlay
-{% endblock %}
-
-
+{% load static asset_version %}
+{% block legacy_utilities %}{% endblock %}
+{% block title %}Каталог PlayStation и аксессуаров в Екатеринбурге — LetsPlay{% endblock %}
 {% block meta %}
-
-{% if request.GET %}
-    {# Фильтры: не индексируем #}
-    <meta name="robots" content="noindex, nofollow">
-{% else %}
-    {# Чистый каталог: индексируем #}
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://letsplayekb.shop/catalog/">
-{% endif %}
-
-<meta name="description"
-      content="Каталог приставок PlayStation PS4 и PS5, геймпадов DualSense, гарнитур, игр и подписок PS Plus в Екатеринбурге. Доставка и самовывоз из магазина LetsPlay на Луначарского 134.">
-<meta name="robots" content="index, follow">
+<meta name="description" content="Приставки PS5 и PS4, геймпады и подписки в LetsPlay. Выберите модель и согласуйте настройку. Магазин в Екатеринбурге, Луначарского, 134.">
+{% if request.GET %}<meta name="robots" content="noindex, follow">{% endif %}
 {% endblock %}
-
-{% block extra_css %}
-<style>
-    .catalog-page {
-        padding-top: 6rem;
-        padding-bottom: 4rem;
-        min-height: 100vh;
-    }
-
-    .category-filter {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 3rem;
-    }
-
-    .category-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        transition: all 0.3s;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .category-btn.active {
-        background: #00BCD4;
-        color: white;
-        box-shadow: 0 10px 15px -3px rgba(0, 188, 212, 0.3);
-        transform: scale(1.05);
-    }
-
-    .category-btn:not(.active) {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .category-btn:not(.active):hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .product-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 1.5rem;
-        overflow: hidden;
-        transition: all 0.3s;
-        text-decoration: none;
-        display: block;
-    }
-
-    .product-card:hover {
-        border-color: #00BCD4;
-        transform: scale(1.05);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .product-image {
-        aspect-ratio: 1;
-        object-fit: cover;
-        width: 100%;
-        transition: transform 0.5s;
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .product-card:hover .product-image {
-        transform: scale(1.1);
-    }
-
-    .product-badge {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        background: #00BCD4;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-    }
-
-    .product-content {
-        padding: 1.5rem;
-    }
-
-    .rating-stars {
-        display: flex;
-        gap: 0.25rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .star {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    .star.filled {
-        color: #fbbf24;
-        fill: #fbbf24;
-    }
-
-    .star.empty {
-        color: rgba(255, 255, 255, 0.2);
-    }
-
-    .product-name {
-        color: white;
-        margin-bottom: 0.75rem;
-        transition: color 0.3s;
-    }
-
-    .product-card:hover .product-name {
-        color: #00BCD4;
-    }
-
-    .features-list {
-        list-style: none;
-        padding: 0;
-        margin: 1rem 0;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.875rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .feature-dot {
-        width: 0.25rem;
-        height: 0.25rem;
-        background: #00BCD4;
-        border-radius: 50%;
-    }
-
-    .product-price {
-        display: flex;
-        align-items: baseline;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .price-current {
-        color: #00BCD4;
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    .old-price {
-        color: rgba(255, 255, 255, 0.4);
-        text-decoration: line-through;
-        font-size: 0.875rem;
-    }
-.product-price-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin: 0.75rem 0 1rem;
-}
-
-.product-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.qty-control-mini {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.6rem;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.6);
-}
-
-.qty-label {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-}
-
-.qty-btn-mini {
-    border: none;
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.qty-btn-mini:hover {
-    background: rgba(255, 255, 255, 0.18);
-}
-
-.qty-value-mini {
-    min-width: 20px;
-    text-align: center;
-    color: white;
-    font-weight: 600;
-}
-
-.btn-cart {
-    flex: 1;
-    text-align: center;
-    padding: 0.7rem 1rem;
-    border-radius: 999px;
-    background: #00BCD4;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.btn-cart:hover {
-    background: #00ACC1;
-    transform: translateY(-1px);
-}
-
-.btn-detail-link {
-    display: block;
-    text-align: center;
-    padding: 0.6rem 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    color: white;
-    text-decoration: none;
-    font-size: 0.9rem;
-    background: rgba(255, 255, 255, 0.04);
-    transition: 0.2s;
-}
-
-.btn-detail-link:hover {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-
-</style>
-{% endblock %}
-
+{% block extra_css %}<link rel="stylesheet" href="{% versioned_static 'css/catalog.css' %}">{% endblock %}
 {% block content %}
-<div class="catalog-page">
-    <div class="container mx-auto px-4">
-
-        <!-- Header -->
-        <div class="text-center mb-12">
-            <h1>Купить PlayStation в Екатеринбурге</h1>
-            <p class="text-white/70 text-lg max-w-2xl mx-auto">
-                Широкий выбор игровых консолей, аксессуаров и подписок PlayStation
-            </p>
-        </div>
-
-        <!-- Category Filters -->
-        {% if active_category == 'all' %}
-        <div class="category-filter">
-
-            <a href="?category=all"
-               class="category-btn {% if active_category == 'all' %}active{% endif %}">
-                Все товары
-            </a>
-
-            {% for key, title in categories.items %}
-            <a href="?category={{ key }}"
-               class="category-btn {% if active_category == key %}active{% endif %}">
-                {{ title }}
-            </a>
-            {% endfor %}
-
-        </div>
-
-        {% else %}
-        <div class="category-filter mt-10">
-
-            <a href="?category=all" class="category-btn">← Назад</a>
-
-            {% for f in filters %}
-            <a href="?category={{ active_category }}&filter={{ f }}"
-               class="category-btn {% if active_filter == f %}active{% endif %}">
-                {{ f|title }}
-            </a>
-            {% endfor %}
-
-        </div>
-        {% endif %}
-
-        <!-- Products Grid -->
-        <div class="products-grid">
-            {% for product in products %}
-            <div class="product-card" id="product-{{ product.id }}">
-    <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}">
-        <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
-    </a>
-
-    <div class="product-content">
-        <h3 class="product-name">{{ product.name }}</h3>
-
-        <div class="product-price-row">
-            <span class="price-current">{{ product.price|floatformat:0 }} ₽</span>
-            {% if product.old_price %}
-                <span class="old-price">{{ product.old_price|floatformat:0 }} ₽</span>
-            {% endif %}
-        </div>
-
-        <!-- ВАЖНО: именно такой id, по нему JS будет менять HTML -->
-        <div class="product-bottom" id="controls-{{ product.id }}">
-            <button type="button"
-        class="btn-cart"
-        onclick="catalogAddToCart({{ product.id }})">
-    Купить
-</button>
-        </div>
-
-        <a href="{% url 'letsplay:catalog_detail_by_slug' product.slug %}"
-           class="btn-detail-link">
-            Подробнее
+<div class="sf-storefront sf-catalog">
+  <div class="sf-wrap sf-page">
+    <nav class="sf-breadcrumbs" aria-label="Хлебные крошки">
+      <a href="{% url 'main:home' %}">Главная</a><span aria-hidden="true">/</span><span aria-current="page">Каталог</span>
+    </nav>
+    <div class="sf-page-heading">
+      <div><p class="sf-eyebrow">LET’S PLAY</p><h1>Приставки, диски<br><em>и всё для игры.</em></h1></div>
+      <p>Приставки, аксессуары и подписки.<br>Поможем собрать комплект для вашей игры.</p>
+    </div>
+    <div class="sf-catalog-navigation" id="catalog-navigation">
+      <nav class="sf-tabs" aria-label="Категории товаров">
+        <a href="{% url 'main:catalog' %}#catalog-navigation" {% if active_category == 'all' %}aria-current="page"{% endif %}>Все товары</a>
+        {% for key, label in categories.items %}
+        <a href="?category={{ key|urlencode }}&amp;max_price={{ max_price }}#catalog-navigation" {% if active_category == key %}aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+      {% if filters %}
+      <nav class="sf-subfilters" aria-label="{% if active_category != 'subscriptions' %}Платформа{% else %}Тип подписки{% endif %}">
+        <span class="sf-filter-caption">{% if active_category != 'subscriptions' %}Платформа{% else %}Подписка{% endif %}</span>
+        <a href="?category={{ active_category|urlencode }}&amp;condition={{ active_condition }}&amp;max_price={{ max_price }}#catalog-navigation" {% if not active_filter %}aria-current="page"{% endif %}>Все</a>
+        {% for filter in filters %}
+        <a href="?category={{ active_category|urlencode }}&amp;filter={{ filter|urlencode }}&amp;condition={{ active_condition }}&amp;max_price={{ max_price }}#catalog-navigation" {% if active_filter == filter %}aria-current="page"{% endif %}>{{ filter|upper }}</a>
+        {% endfor %}
+      </nav>
+      {% endif %}
+    </div>
+    {% if active_category == 'consoles' or active_category == 'disks' %}
+    <div class="sf-refinements">
+      <nav class="sf-segments" aria-label="Состояние товара"><span>Состояние</span>
+        <a href="?category={{ active_category }}&amp;filter={{ active_filter|urlencode }}&amp;firmware={{ active_firmware }}&amp;max_price={{ max_price }}#catalog-navigation" {% if not active_condition %}aria-current="true"{% endif %}>Любое</a>
+        <a href="?category={{ active_category }}&amp;filter={{ active_filter|urlencode }}&amp;condition=new&amp;firmware={{ active_firmware }}&amp;max_price={{ max_price }}#catalog-navigation" {% if active_condition == 'new' %}aria-current="true"{% endif %}>Новые</a>
+        <a href="?category={{ active_category }}&amp;filter={{ active_filter|urlencode }}&amp;condition=used&amp;firmware={{ active_firmware }}&amp;max_price={{ max_price }}#catalog-navigation" {% if active_condition == 'used' %}aria-current="true"{% endif %}>Б/у</a>
+      </nav>
+      {% if active_filter == 'ps4' and active_category == 'consoles' %}<nav class="sf-segments" aria-label="Прошивка PS4"><span>Прошивка</span>
+        <a href="?category=consoles&amp;filter=ps4&amp;condition={{ active_condition }}&amp;max_price={{ max_price }}#catalog-navigation" {% if not active_firmware %}aria-current="true"{% endif %}>Любая</a>
+        <a href="?category=consoles&amp;filter=ps4&amp;condition={{ active_condition }}&amp;firmware=stock&amp;max_price={{ max_price }}#catalog-navigation" {% if active_firmware == 'stock' %}aria-current="true"{% endif %}>Без прошивки</a>
+        <a href="?category=consoles&amp;filter=ps4&amp;condition={{ active_condition }}&amp;firmware=modified&amp;max_price={{ max_price }}#catalog-navigation" {% if active_firmware == 'modified' %}aria-current="true"{% endif %}>С прошивкой</a>
+      </nav>{% endif %}
+    </div>{% endif %}
+    {% if products %}
+    <div class="sf-catalog-tools" data-catalog-tools hidden>
+      <div class="sf-catalog-search">
+        <label for="catalog-search">Поиск товаров</label>
+        <div class="sf-search-field"><input id="catalog-search" type="search" placeholder="Найти в этом разделе" autocomplete="off" maxlength="100" aria-controls="catalog-products"><button type="button" data-catalog-clear aria-label="Очистить поиск" hidden>×</button></div>
+      </div>
+      <div class="sf-catalog-sort"><label for="catalog-sort">Сортировка</label><select id="catalog-sort" aria-controls="catalog-products"><option value="default">Рекомендуемые</option><option value="price-asc">Сначала дешевле</option><option value="price-desc">Сначала дороже</option><option value="name">По названию</option></select></div>
+      <label class="sf-stock-filter"><input type="checkbox" id="catalog-stock" aria-controls="catalog-products"><span>Только в наличии</span></label>
+    </div>
+    {% endif %}
+    {% if max_price %}<p class="sf-budget-note">Бюджет: до {{ max_price }} ₽ · <a href="?category={{ active_category }}&amp;filter={{ active_filter|urlencode }}&amp;condition={{ active_condition }}&amp;firmware={{ active_firmware }}#catalog-navigation">Убрать ограничение</a></p>{% endif %}
+    <div class="sf-catalog-top">
+      <p id="catalog-count" role="status" aria-live="polite" aria-atomic="true">Найдено: {{ products|length }}</p>
+      {% if active_category != 'all' or active_filter %}<a class="sf-reset-link" href="{% url 'main:catalog' %}#catalog-navigation">Все разделы</a>{% endif %}
+      <a class="sf-catalog-help" href="{% url 'main:service_console_selection' %}">Помочь с выбором ↗</a>
+    </div>
+    <div class="sf-products" id="catalog-products">
+      {% for product in products %}
+      <article class="sf-product" data-catalog-product data-name="{{ product.name }}" data-price="{{ product.price|stringformat:'s' }}" data-stock="{% if product.in_stock %}1{% else %}0{% endif %}">
+        <a class="sf-product-image" href="{% url 'main:catalog_detail_by_slug' product.slug %}" aria-label="Посмотреть {{ product.name }}">
+          {% if product.get_image_url %}<img src="{{ product.get_image_url }}" alt="{{ product.name }}" loading="lazy" width="480" height="400">{% else %}<span class="sf-image-empty">Фотографию уточним перед покупкой</span>{% endif %}
         </a>
-    </div>
-</div>
-
-
-
-            {% endfor %}
+        <div class="sf-product-body">
+          <span class="sf-product-category">{{ product.get_category_name }}</span>
+          <h2><a href="{% url 'main:catalog_detail_by_slug' product.slug %}">{{ product.name }}</a></h2>
+          {% include 'main/includes/product_status.html' %}
+          <p class="sf-stock {% if not product.in_stock %}sf-out-of-stock{% endif %}">{% if product.in_stock %}В наличии{% else %}Нет в наличии{% endif %}</p>
+          <div class="sf-product-bottom"><strong>{{ product.price|floatformat:0 }} ₽</strong><a class="sf-catalog-product-link" href="{% url 'main:catalog_detail_by_slug' product.slug %}" aria-label="Подробнее о {{ product.name }}">Подробнее <span aria-hidden="true">↗</span></a></div>
         </div>
-
-    </div>
-</div>
-<script>
-function catalogAddToCart(productId) {
-    console.log('click catalogAddToCart', productId);
-
-    fetch(`/add-to-cart/${productId}/`, {
-        method: 'POST',
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('catalogAddToCart response:', data);
-        if (data.ok) {
-            renderQtyControls(productId, data.item_id, data.quantity);
-            updateCartCounter();
-        }
-    })
-    .catch(err => console.error('catalogAddToCart error:', err));
-}
-
-function renderQtyControls(productId, itemId, quantity) {
-    const container = document.getElementById(`controls-${productId}`);
-    if (!container) return;
-
-    container.innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;">
-            <div class="qty-control-mini">
-                <span class="qty-label">шт</span>
-                <button type="button"
-                        class="qty-btn-mini"
-                        onclick="changeQty(${itemId}, -1, ${productId})">−</button>
-                <span class="qty-value-mini" id="qty-${productId}">${quantity}</span>
-                <button type="button"
-                        class="qty-btn-mini"
-                        onclick="changeQty(${itemId}, 1, ${productId})">+</button>
-            </div>
-            <button type="button"
-                    class="btn-cart"
-                    onclick="window.location.href='/cart/'">
-                В корзину
-            </button>
+      </article>
+      {% empty %}
+      <div class="sf-empty">
+        <p class="sf-eyebrow">ПОКА НЕТ ПОДХОДЯЩИХ ТОВАРОВ</p>
+        <h2>{% if active_filter %}Для этого выбора ничего не нашлось{% else %}В этом разделе пока нет товаров{% endif %}</h2>
+        <p>{% if active_filter %}Попробуйте посмотреть все товары категории или расскажите нам, какую модель ищете.{% else %}Посмотрите другие разделы или уточните нужную модель у нас.{% endif %}</p>
+        <div class="sf-actions">
+          {% if active_filter %}<a class="sf-button" href="?category={{ active_category|urlencode }}#catalog-navigation">Убрать фильтр</a>{% else %}<a class="sf-button" href="{% url 'main:catalog' %}#catalog-navigation">Показать все товары</a>{% endif %}
+          <a class="sf-text-link" href="{% url 'main:service_console_selection' %}">Помощь с выбором ↗</a>
         </div>
-    `;
-}
-
-function changeQty(itemId, delta, productId) {
-    fetch(`/cart/update/${itemId}/`, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-        body: JSON.stringify({ delta: delta })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log('update qty response:', data);
-        if (data.quantity > 0) {
-            const span = document.getElementById(`qty-${productId}`);
-            if (span) span.innerText = data.quantity;
-        } else {
-            // если количество стало 0, возвращаем кнопку "Купить"
-            const container = document.getElementById(`controls-${productId}`);
-            if (container) {
-                container.innerHTML = `
-                    <button type="button"
-                            class="btn-cart"
-                            onclick="addToCart(${productId})">
-                        Купить
-                    </button>
-                `;
-            }
-        }
-        updateCartCounter();
-    })
-    .catch(err => console.error('changeQty error:', err));
-}
-
-function updateCartCounter() {
-    fetch("/cart-count/")
-        .then(res => res.json())
-        .then(data => {
-            const el = document.getElementById("cart-counter");
-            if (el) el.innerText = data.count;
-        });
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    const cookies = document.cookie ? document.cookie.split(';') : [];
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-        }
-    }
-    return cookieValue;
-}
-</script>
-
-
-
-
-
-
-
-
+      </div>
+      {% endfor %}
+    </div>
+    {% if products %}
+    <div class="sf-empty sf-search-empty" data-catalog-empty hidden>
+      <h2>Подходящих товаров не нашлось</h2>
+      <p>Попробуйте другое название или отключите фильтр наличия. Поиск работает внутри выбранного раздела.</p>
+      <div class="sf-actions"><button class="sf-button" type="button" data-catalog-reset>Очистить поиск и наличие</button><a class="sf-text-link" href="{% url 'main:catalog' %}#catalog-navigation">Все категории ↗</a></div>
+    </div>
+    {% endif %}
+    <aside class="sf-catalog-note">
+      <div><p class="sf-eyebrow">БОЛЬШЕ, ЧЕМ КОРОБКА</p><h2>Приставка с понятным стартом.</h2><p>Обновление, помощь с аккаунтом, обучение и поддержка. Состав настройки и подарок согласуем для вашей покупки.</p></div>
+      <a class="sf-button sf-button-secondary" href="{% url 'main:service_setup' %}">О настройке ↗</a>
+    </aside>
+  </div>
+</div>
 {% endblock %}
+{% block extra_js %}<script src="{% versioned_static 'js/catalog.js' %}" defer></script>{% endblock %}

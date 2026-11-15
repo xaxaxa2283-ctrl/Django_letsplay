@@ -20,6 +20,7 @@ def env_list(name, default):
 
 
 DEBUG = env_bool("DJANGO_DEBUG", False)
+PUBLIC_SITE_URL = os.getenv("PUBLIC_SITE_URL", "https://letsplayekb.shop")
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG:
@@ -65,6 +66,7 @@ TEMPLATES = [{
         "django.contrib.auth.context_processors.auth",
         "django.contrib.messages.context_processors.messages",
         "main.context_processors.cart_counter",
+        "main.context_processors.search_metadata",
     ]},
 }]
 WSGI_APPLICATION = "Django_site2.wsgi.application"
@@ -99,7 +101,6 @@ ORDER_NOTIFICATION_EMAIL = os.getenv("ORDER_NOTIFICATION_EMAIL", "letsplay.ekb@y
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "main" / "static"]
-# Serve source assets on App Platform without a separate collectstatic step.
 WHITENOISE_USE_FINDERS = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -108,6 +109,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_CHAT_ID = os.getenv("TELEGRAM_ADMIN_CHAT_ID", "")
 TELEGRAM_ORDER_NOTIFICATIONS_ENABLED = env_bool("TELEGRAM_ORDER_NOTIFICATIONS_ENABLED", False)
+
+# Токен хранится только в переменных окружения хостинга, не в БД и не в Git.
+MOYSKLAD_ACCESS_TOKEN = os.getenv("MOYSKLAD_ACCESS_TOKEN", "")
+MOYSKLAD_API_URL = os.getenv("MOYSKLAD_API_URL", "https://api.moysklad.ru/api/remap/1.2").rstrip("/")
+MOYSKLAD_REQUEST_TIMEOUT = int(os.getenv("MOYSKLAD_REQUEST_TIMEOUT", "15"))
 
 LEGAL_TRADE_NAME = os.getenv("LEGAL_TRADE_NAME", "LetsPlay")
 LEGAL_SELLER_NAME = os.getenv("LEGAL_SELLER_NAME", "Индивидуальный предприниматель Шкребтанов Дмитрий Николаевич")

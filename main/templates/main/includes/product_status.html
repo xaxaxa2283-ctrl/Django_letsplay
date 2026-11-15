@@ -1,0 +1,5 @@
+<div class="sf-product-status">
+{% if product.condition %}<span>{{ product.get_condition_display }}</span>{% endif %}
+{% if product.category.category_type == 'consoles' and product.platform == 'ps4' and product.firmware_status %}<span>{{ product.get_firmware_status_display }}</span>{% endif %}
+{% if product.warranty_months %}<span>Гарантия {{ product.warranty_months }} мес.</span>{% endif %}
+</div>

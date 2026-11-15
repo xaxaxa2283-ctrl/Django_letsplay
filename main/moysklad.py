@@ -1,0 +1,79 @@
+"""Read-only client for the first phase of the MoySklad integration."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+import requests
+from django.conf import settings
+
+
+class MoySkladError(RuntimeError):
+    """A safe error suitable for the management command output."""
+
+
+@dataclass(frozen=True)
+class MoySkladWarehouse:
+    id: str
+    name: str
+
+
+class MoySkladClient:
+    """A deliberately read-only JSON API client.
+
+    It contains no POST, PUT or DELETE methods. Creating customer orders is a
+    later, separate rollout after stock synchronization has been verified.
+    """
+
+    def __init__(
+        self,
+        *,
+        access_token: str | None = None,
+        api_url: str | None = None,
+        timeout: int | None = None,
+        session: requests.Session | None = None,
+    ) -> None:
+        self.access_token = (access_token if access_token is not None else settings.MOYSKLAD_ACCESS_TOKEN).strip()
+        self.api_url = (api_url or settings.MOYSKLAD_API_URL).rstrip('/')
+        self.timeout = timeout if timeout is not None else settings.MOYSKLAD_REQUEST_TIMEOUT
+        self.session = session or requests.Session()
+
+    def _get(self, path: str, *, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        if not self.access_token:
+            raise MoySkladError('Не задана переменная окружения MOYSKLAD_ACCESS_TOKEN.')
+        try:
+            response = self.session.get(
+                f'{self.api_url}/{path.lstrip("/")}',
+                params=params,
+                headers={'Authorization': f'Bearer {self.access_token}', 'Accept': 'application/json'},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            raise MoySkladError(f'Не удалось прочитать данные МоегоСклада: {exc}') from exc
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise MoySkladError('МойСклад вернул ответ не в формате JSON.') from exc
+        if not isinstance(data, dict):
+            raise MoySkladError('МойСклад вернул неожиданный формат ответа.')
+        return data
+
+    def list_warehouses(self) -> list[MoySkladWarehouse]:
+        """Return all warehouses, following the API collection pagination."""
+        warehouses: list[MoySkladWarehouse] = []
+        offset = 0
+        limit = 100
+        while True:
+            data = self._get('entity/store', params={'limit': limit, 'offset': offset})
+            rows = data.get('rows')
+            if not isinstance(rows, list):
+                raise MoySkladError('В ответе МоегоСклада отсутствует список складов.')
+            for row in rows:
+                if not isinstance(row, dict) or not row.get('id') or not row.get('name'):
+                    continue
+                warehouses.append(MoySkladWarehouse(id=str(row['id']), name=str(row['name'])))
+            if len(rows) < limit:
+                return warehouses
+            offset += limit

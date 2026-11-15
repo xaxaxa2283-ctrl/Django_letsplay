@@ -39,6 +39,46 @@ class Review(models.Model):
 
 from django.db import models
 from django.utils.text import slugify
+from django.core.validators import MinValueValidator
+
+
+class Store(models.Model):
+    name = models.CharField('Название магазина', max_length=120)
+    slug = models.SlugField('Код города', unique=True)
+    city = models.CharField('Город', max_length=100)
+    address = models.CharField('Адрес', max_length=250, blank=True)
+    phone = models.CharField('Телефон', max_length=40, blank=True)
+    opening_hours = models.CharField('Время работы', max_length=150, blank=True)
+    moysklad_warehouse_id = models.UUIDField('ID склада МоегоСклада', null=True, blank=True)
+    moysklad_price_type_id = models.UUIDField('ID типа цены МоегоСклада', null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Магазин'
+        verbose_name_plural = 'Магазины'
+        ordering = ['city']
+
+    def __str__(self):
+        return self.name
+
+
+class StoreOffer(models.Model):
+    """Prepared city offers; storefront activation is a separate rollout."""
+    store = models.ForeignKey(Store, on_delete=models.PROTECT, related_name='offers', verbose_name='Магазин')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='store_offers', verbose_name='Товар')
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    availability = models.CharField('Наличие', max_length=12, default='unknown', choices=[('unknown', 'Не подтверждено'), ('available', 'В наличии'), ('unavailable', 'Нет в наличии')])
+    updated_at = models.DateTimeField('Обновлено', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Предложение магазина (подготовка)'
+        verbose_name_plural = 'Предложения магазинов (подготовка)'
+        constraints = [
+            models.UniqueConstraint(fields=['store', 'product'], name='unique_store_product_offer'),
+            models.CheckConstraint(check=models.Q(price__gte=0), name='store_offer_price_nonnegative'),
+        ]
+
+    def __str__(self):
+        return f'{self.store}: {self.product}'
 
 
 class Category(models.Model):
@@ -47,6 +87,7 @@ class Category(models.Model):
         ('consoles', 'Приставки'),
         ('accessories', 'Аксессуары'),
         ('subscriptions', 'Подписки'),
+        ('disks', 'Диски'),
     ]
 
     name = models.CharField('Название', max_length=100)
@@ -68,6 +109,19 @@ class Category(models.Model):
 
 class Product(models.Model):
     """Модель товара (объединённая версия)"""
+    CONDITION_CHOICES = [
+        ('', 'Не указано'),
+        ('new', 'Новый'),
+        ('used', 'Б/у'),
+    ]
+    FIRMWARE_STATUS_CHOICES = [
+        ('', 'Не указано'),
+        ('stock', 'Штатная'),
+        ('modified', 'Модифицированная'),
+    ]
+    condition = models.CharField('Состояние', max_length=10, choices=CONDITION_CHOICES, blank=True, default='')
+    firmware_status = models.CharField('Прошивка', max_length=10, choices=FIRMWARE_STATUS_CHOICES, blank=True, default='')
+
     PLATFORM_CHOICES = [
         ('ps4', 'PlayStation 4'),
         ('ps5', 'PlayStation 5'),
@@ -104,6 +158,13 @@ class Product(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлен', auto_now=True)
     is_active = models.BooleanField('Активен', default=True)
+    moysklad_assortment_id = models.UUIDField(
+        'ID товара или модификации в МоемСкладе',
+        null=True,
+        blank=True,
+        unique=True,
+        help_text='Идентификатор товара или модификации из МоегоСклада. Нужен для синхронизации цены и остатка.',
+    )
 
     variant_group = models.CharField(
         'Группа вариантов',
@@ -164,8 +225,29 @@ class Product(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    @property
+    def warranty_months(self):
+        """Only return the confirmed warranty for explicitly used consoles."""
+        if self.condition != 'used' or not self.category_id or self.category.category_type != 'consoles':
+            return None
+        return {'ps4': 6, 'ps5': 3, 'xbox': 3}.get(self.platform)
+
+    def get_selection_summary(self):
+        """Human-readable selected configuration, suitable for an order snapshot."""
+        parts = []
+        if self.variant_name and self.variant_name.strip().casefold() not in self.name.casefold():
+            parts.append(self.variant_name.strip())
+        if self.condition:
+            parts.append(self.get_condition_display())
+        if self.category.category_type == 'consoles' and self.platform == 'ps4' and self.firmware_status:
+            parts.append('Прошивка: ' + self.get_firmware_status_display())
+        if self.warranty_months:
+            parts.append(f'Гарантия: {self.warranty_months} мес.')
+        return ' · '.join(parts)[:300]
+
     def get_absolute_url(self):
-        return f'/catalog/product/{self.slug}/'
+        from django.urls import reverse
+        return reverse('main:catalog_detail_by_slug', kwargs={'slug': self.slug})
 
     def get_image_url(self):
         """Возвращает URL изображения"""
@@ -183,30 +265,15 @@ class Product(models.Model):
 
     def get_default_description(self):
         descriptions = {
-            'consoles': 'Современная игровая консоль нового поколения с улучшенной графикой, высокой производительностью и обширной библиотекой игр. В комплекте уже более 700 игр!',
-            'accessories': 'Качественный аксессуар для PlayStation, который улучшает игровой опыт. Совместим со всеми моделями PlayStation.',
-            'subscriptions': 'Подписка PlayStation Plus открывает доступ к онлайн-мультиплееру, каталогам игр и бонусам.',
+            'consoles': 'Поможем подобрать приставку, согласовать комплектацию и подготовить её к первому запуску.',
+            'accessories': 'Перед покупкой уточним совместимость аксессуара с вашей моделью приставки.',
+            'subscriptions': 'Тип, срок, регион и способ подключения подписки уточняются перед покупкой.',
         }
-        return descriptions.get(self.category.category_type,
-                                'Качественный товар от PlayStation с официальной гарантией.')
+        return descriptions.get(self.category.category_type, 'Комплектацию и условия покупки уточним перед оформлением.')
 
     def get_default_specifications(self):
-        specs = {
-            'consoles': [
-                {'label': 'Производитель', 'value': 'Sony'},
-                {'label': 'Гарантия', 'value': '1 год'},
-                {'label': 'Страна производства', 'value': 'Япония'},
-            ],
-            'accessories': [
-                {'label': 'Производитель', 'value': 'Sony'},
-                {'label': 'Совместимость', 'value': 'PS4/PS5'},
-            ],
-            'subscriptions': [
-                {'label': 'Тип', 'value': 'Цифровой код'},
-                {'label': 'Срок действия', 'value': '12 месяцев'},
-            ],
-        }
-        return specs.get(self.category.category_type, [])
+        # Unknown specifications must not become invented promises to customers.
+        return []
 
     def get_enriched_data(self):
         return {
@@ -289,6 +356,7 @@ from django.utils import timezone
 
 class Cart(models.Model):
     """Корзина покупок"""
+    store = models.ForeignKey(Store, on_delete=models.PROTECT, null=True, blank=True, verbose_name='Магазин')
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -396,6 +464,8 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     """Заказ"""
+    store = models.ForeignKey(Store, on_delete=models.PROTECT, null=True, blank=True, verbose_name='Магазин')
+    store_name = models.CharField('Магазин на момент заказа', max_length=120, blank=True, default='')
     STATUS_CHOICES = [
         ('pending', 'Ожидает обработки'),
         ('confirmed', 'Подтверждён'),
@@ -490,6 +560,7 @@ class OrderItem(models.Model):
 
     # Сохраняем данные на момент заказа
     product_name = models.CharField('Название товара', max_length=200)
+    selection_summary = models.CharField('Выбранная конфигурация', max_length=300, blank=True, default='')
     product_price = models.DecimalField('Цена товара', max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField('Количество')
 

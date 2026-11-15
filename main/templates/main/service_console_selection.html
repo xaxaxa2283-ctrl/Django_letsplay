@@ -1,280 +1,31 @@
 {% extends 'main/base_template.html' %}
-{% load static %}
-
-{% block title %}Подбор игровой приставки PlayStation в Екатеринбурге — LetsPlay{% endblock %}
-
-{% block extra_css %}
-<style>
-/* ===== КНОПКА НАЗАД (как на gifts) ===== */
-.service-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-
-    font-size: 14px;
-    color: rgba(255,255,255,0.6);
-    text-decoration: none;
-
-    padding: 6px 10px;
-    border-radius: 999px;
-    transition: color .2s ease, background .2s ease, transform .15s ease;
-}
-
-.service-back svg {
-    width: 18px;
-    height: 18px;
-    stroke-width: 2.2;
-    transition: transform .15s ease;
-}
-
-.service-back:hover {
-    color: #00BCD4;
-    transform: translateX(-1px);
-}
-
-.service-back:hover svg {
-    transform: translateX(-2px);
-}
-
-/* ===== КАРТОЧКА С ФОТО ===== */
-.service-card--with-photo {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 40px;
-
-    padding: 40px 48px;
-    border-radius: 32px;
-
-    background: rgba(5, 28, 60, 0.55);
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(16px);
-
-    margin: 16px auto 72px;
-    max-width: 1150px;
-}
-
-.service-photo img {
-    width: 100%;
-    height: auto;
-    border-radius: 22px;
-    object-fit: cover;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-}
-
-.service-text {
-    color: #e8f4ff;
-}
-
-.service-title {
-    font-size: 26px;
-    margin-bottom: 10px;
-}
-
-.service-sub {
-    font-size: 15px;
-    color: rgba(255,255,255,0.82);
-    margin-bottom: 20px;
-}
-
-.service-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 22px;
-}
-
-.service-list li {
-    position: relative;
-    padding-left: 26px;
-    margin-bottom: 10px;
-    font-size: 15px;
-    color: rgba(255,255,255,0.9);
-}
-
-.service-list li::before {
-    content: "";
-    width: 10px;
-    height: 10px;
-    border: 2px solid #30eaff;
-    border-radius: 50%;
-    position: absolute;
-    left: 0;
-    top: 7px;
-    box-shadow: 0 0 0 3px rgba(48,234,255,0.18);
-}
-
-.service-note {
-    font-size: 14px;
-    color: rgba(255,255,255,0.7);
-}
-
-/* ===== ПРЕМИУМ-CTA ВНИЗУ ===== */
-.service-cta {
-    margin-top: 80px;
-    padding: 32px 40px;
-    border-radius: 32px;
-
-    background: linear-gradient(135deg,
-        rgba(0, 40, 80, 0.96),
-        rgba(0, 120, 170, 0.9));
-    border: 1px solid rgba(0, 240, 255, 0.18);
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-}
-
-.service-cta-main {
-    max-width: 720px;
-}
-
-.service-cta-title {
-    font-size: 26px;
-    margin-bottom: 6px;
-    color: #ffffff;
-}
-
-.service-cta-text {
-    font-size: 15px;
-    color: rgba(228,243,255,0.9);
-}
-
-.service-cta-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-/* слегка усилим кнопки внутри CTA */
-.service-cta .btn-primary {
-    padding-inline: 28px;
-    font-weight: 600;
-}
-
-.service-cta .btn-secondary {
-    border-radius: 999px;
-}
-
-/* АДАПТИВ */
-@media (max-width: 960px) {
-    .service-card--with-photo {
-        grid-template-columns: 1fr;
-        padding: 32px 28px;
-        gap: 24px;
-        margin-top: 8px;
-    }
-
-    .service-photo img {
-        border-radius: 18px;
-    }
-
-    .service-title {
-        font-size: 22px;
-    }
-
-    .service-cta {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 28px 24px;
-        border-radius: 28px;
-    }
-
-    .service-cta-title {
-        font-size: 22px;
-    }
-}
-</style>
-{% endblock %}
-
+{% load static asset_version %}
+{% block title %}Подобрать PlayStation по бюджету в Екатеринбурге — LetsPlay{% endblock %}
+{% block meta %}<meta name="description" content="Подберите PlayStation по бюджету и предпочтениям. Новая или б/у, PS4 или PS5 — подготовьте запрос консультанту LetsPlay и посмотрите варианты в каталоге.">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% versioned_static 'css/console-selection.css' %}">{% endblock %}
 {% block content %}
-<section class="page-section">
-    <div class="container">
+<div class="sf-storefront sf-selector"><div class="sf-wrap sf-page">
+  <nav class="sf-breadcrumbs" aria-label="Хлебные крошки"><a href="{% url 'main:home' %}">Главная</a><span aria-hidden="true">/</span><span aria-current="page">Помощь с выбором</span></nav>
+  <header class="sf-selector-heading"><p class="sf-eyebrow">ВАША ИГРА НАЧИНАЕТСЯ ЗДЕСЬ</p><h1>Не знаете, какую?<br><em>Начнём с вас.</em></h1><p class="sf-lead">Расскажите об играх и бюджете. Покажем раздел каталога с вашими параметрами и поможем подготовить вопросы консультанту.</p></header>
+  <div class="sf-selector-layout">
+    <form class="sf-selector-form" id="console-selection" action="{% url 'main:catalog' %}" method="get">
+      <input type="hidden" name="category" value="consoles">
+      <fieldset><legend><span>01</span> Во что хотите играть?</legend><p id="games-help">Можно назвать игры или жанры. Если это подарок — расскажите об интересах получателя.</p><label class="sf-selector-label" for="selection-games">Игры и пожелания <span>необязательно</span></label><textarea id="selection-games" rows="3" maxlength="400" placeholder="Например, футбол вдвоём, гонки и сюжетные игры" aria-describedby="games-help"></textarea></fieldset>
+      <fieldset><legend><span>02</span> Какой бюджет на приставку?</legend><p id="budget-help">Укажите верхнюю границу стоимости самой консоли. Игры и дополнительные аксессуары обсудим отдельно.</p><label class="sf-selector-label" for="selection-budget">До какой суммы, ₽ <span>необязательно</span></label><input id="selection-budget" name="max_price" type="number" min="1" max="10000000" step="1" inputmode="numeric" placeholder="Например, 50000" aria-describedby="budget-help"></fieldset>
+      <fieldset><legend><span>03</span> Есть предпочтения?</legend><div class="sf-selector-preferences"><div><label class="sf-selector-label" for="selection-condition">Состояние</label><select id="selection-condition" name="condition"><option value="">Рассмотрю любое</option><option value="new">Новая</option><option value="used">Б/у</option></select></div><div><label class="sf-selector-label" for="selection-platform">Платформа</label><select id="selection-platform" name="filter"><option value="">Помогите выбрать</option><option value="ps5">PlayStation 5</option><option value="ps4">PlayStation 4</option><option value="xbox">Xbox</option></select></div></div><p>Если пока не определились, оставьте «любое» — сравним варианты вместе.</p></fieldset>
+      <button class="sf-button" type="submit">Показать варианты <span aria-hidden="true">↗</span></button>
+      <p class="sf-selector-local">Пожелания не отправляются автоматически. Вы сами решаете, передавать ли их консультанту.</p>
+      <noscript><p class="sf-selector-local">Откроется каталог с выбранными параметрами. Пожелания об играх можно обсудить по телефону.</p></noscript>
+    </form>
+    <aside class="sf-selector-aside"><p class="sf-eyebrow">ЧЕЛОВЕК ПОМОЖЕТ РАЗОБРАТЬСЯ</p><h2>Не просто модель.<br>Ваша приставка.</h2><p>Перед покупкой проверим доступность нужных игр, комплектацию, память и наличие дисковода у конкретной версии.</p><ul><li>Сравним новые и б/у варианты</li><li>Объясним разницу между версиями</li><li>Согласуем настройку и подарок</li></ul><a class="sf-text-link" href="tel:+79994993641">Обсудить по телефону ↗</a><p class="sf-selector-address">Екатеринбург<br>Луначарского, 134</p></aside>
+  </div>
+  <section class="sf-selector-result" id="selection-result" tabindex="-1" aria-labelledby="selection-result-title" hidden>
+    <div class="sf-selector-result-header"><p class="sf-eyebrow">ВАШИ ОРИЕНТИРЫ</p><h2 id="selection-result-title">Теперь есть с чего начать.</h2><p>Каталог отфильтруем по выбранным параметрам. Доступность игр и подходящую версию проверим с консультантом — форма не определяет совместимость.</p></div>
+    <dl id="selection-summary" class="sf-selector-summary"></dl>
+    <div class="sf-actions"><a class="sf-button" id="selection-catalog" href="{% url 'main:catalog' %}?category=consoles">Посмотреть варианты в каталоге ↗</a><a class="sf-text-link" href="#console-selection">Изменить пожелания</a></div>
+    <div class="sf-selector-message"><h3>Уже подготовили сообщение</h3><p id="selection-message-help">Скопируйте и отправьте удобным способом или прочитайте консультанту по телефону.</p><label class="sf-selector-label" for="selection-message">Ваш запрос</label><textarea id="selection-message" rows="7" readonly aria-describedby="selection-message-help"></textarea><div class="sf-selector-copy"><button type="button" class="sf-button sf-button-secondary" id="selection-copy">Скопировать сообщение</button><p id="selection-copy-status" role="status" aria-live="polite"></p></div></div>
+  </section>
 
-        {# КНОПКА НАЗАД #}
-        <a href="{% url 'letsplay:home' %}" class="service-back">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor">
-                <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>На главную</span>
-        </a>
-
-        <div class="page-header">
-            <h1>Подбор приставки PlayStation под ваши задачи</h1>
-            <p>
-                Поможем выбрать между PS4 и PS5, Digital и дисковой версией, подобрать объём памяти
-                и комплектацию под ваш бюджет и любимые игры.
-            </p>
-        </div>
-
-        <section class="service-card service-card--with-photo">
-            <div class="service-photo">
-                <img src="{% static 'images/setup_ivan.jpg' %}"
-                     alt="Консультант LetsPlay помогает выбрать приставку">
-            </div>
-
-            <div class="service-text">
-                <h2 class="service-title">Как мы подбираем приставку</h2>
-                <p class="service-sub">
-                    Мы не предлагаем «самую дорогую» модель — подбираем вариант, который действительно
-                    подходит именно вам.
-                </p>
-
-                <ul class="service-list">
-                    <li>Во что планируете играть: онлайн-проекты, сюжетные хиты, спорт;</li>
-                    <li>Нужны ли 4K, VR, стриминг и запись видео;</li>
-                    <li>Какой у вас телевизор или монитор;</li>
-                    <li>Какой бюджет вы готовы вложить в приставку.</li>
-                </ul>
-
-                <p class="service-note">
-                    Расскажем простым языком, какая модель и комплектация дадут максимум удовольствия
-                    именно вам — без переплат и лишних опций.
-                </p>
-            </div>
-        </section>
-
-        <div class="section-header">
-            <h2>Что вы получаете</h2>
-        </div>
-
-        <div class="advantages-grid">
-            <div class="advantage-card">
-                <h3>Честная консультация</h3>
-                <p>Объясняем плюсы и минусы каждой модели простым языком, без навязанных продаж.</p>
-            </div>
-            <div class="advantage-card">
-                <h3>Готовое решение</h3>
-                <p>Подбираем консоль, игры, аксессуары и подписки под один бюджет.</p>
-            </div>
-            <div class="advantage-card">
-                <h3>Возможность протестировать</h3>
-                <p>В шоуруме на Луначарского, 134 можно посмотреть и «пощупать» приставку перед покупкой.</p>
-            </div>
-        </div>
-
-        {# НОВАЯ ПРЕМИУМ-CTA #}
-        <div class="service-cta">
-            <div class="service-cta-main">
-                <h2 class="service-cta-title">Хотите подобрать приставку за 5–10 минут?</h2>
-                <p class="service-cta-text">
-                    Напишите нам в мессенджер или позвоните — зададим несколько вопросов о том,
-                    как вы играете, и предложим 1–2 оптимальных варианта под ваш бюджет.
-                </p>
-            </div>
-
-            <div class="service-cta-actions">
-                <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank"
-                   class="btn btn-primary">
-                    Написать в WhatsApp
-                </a>
-                <a href="tel:+79994993641" class="btn btn-secondary">
-                    Позвонить в магазин
-                </a>
-            </div>
-        </div>
-
-    </div>
-</section>
+</div></div>
 {% endblock %}
+{% block extra_js %}<script src="{% versioned_static 'js/console-selection.js' %}" defer></script>{% endblock %}

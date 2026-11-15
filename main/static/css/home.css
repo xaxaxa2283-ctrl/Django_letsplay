@@ -1,0 +1,22 @@
+/* Homepage composition; shared product and catalog styles remain independent. */
+.sf-home .home-hero{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:64px;padding-top:36px;padding-bottom:48px}
+.sf-home .home-hero h1{font-size:clamp(40px,4.8vw,68px);line-height:1.08;letter-spacing:-.055em}
+.sf-home .home-intro{max-width:490px;font-size:19px;line-height:1.65;color:#b9c6d6;margin-top:24px}
+.home-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:30px}
+.home-gift{display:flex;gap:14px;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid #293d50;max-width:490px}
+.home-gift>span{display:grid;place-items:center;flex:0 0 38px;height:38px;background:#143755;color:#8bd6ff;border-radius:12px;font-size:26px}
+.home-gift strong{font-size:16px}.sf-home .home-gift p{font-size:13px;color:#aebdcd;margin-top:3px}
+.home-hero-photo{position:relative;height:510px;margin:0;border-radius:24px;overflow:hidden;background:#182b3e}
+.home-hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 32%}
+.home-hero-photo figcaption{position:absolute;bottom:0;left:0;right:0;padding:70px 26px 26px;background:linear-gradient(transparent,#06111be8);color:#fff}
+.home-hero-photo figcaption span{display:block;font-size:9px;letter-spacing:.13em;margin-bottom:10px;color:#b9e4ff}
+.home-hero-photo figcaption strong{font-size:20px;line-height:1.35;display:block}
+.home-categories{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:38px}
+.home-categories a{display:block;padding:20px 16px;border:1px solid #2c3c4f;border-radius:14px;background:#111d2a;transition:background .15s,border-color .15s}
+.home-categories a:hover{background:#18324a;border-color:#74c9ff}
+.home-categories small{font-size:9px;letter-spacing:.09em;color:#9fb6cc;display:block;margin-bottom:14px}
+.home-categories strong{font-size:16px;display:flex;justify-content:space-between;gap:8px}.home-categories strong span{color:#74c9ff}
+.sf-home .sf-preparation .sf-included{border-top:1px solid #2b3542}.sf-home .sf-icon-link{min-width:44px;min-height:44px}
+@media(max-width:1000px){.sf-home .home-hero{gap:28px}.home-hero-photo{height:470px}.home-categories{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.sf-home .home-hero{grid-template-columns:minmax(0,1fr);gap:28px;padding-top:20px;padding-bottom:28px}.sf-home .home-hero h1{font-size:clamp(36px,9.6vw,52px)}.sf-home .home-intro{font-size:16px;margin-top:18px}.home-actions{gap:20px;margin-top:24px}.home-actions .sf-button{padding:14px 18px}.home-gift{margin-top:24px;padding-top:18px}.home-gift strong{font-size:14px}.sf-home .home-gift p{font-size:12px}.home-hero-photo{height:340px}.home-hero-photo img{object-position:50% 30%}.home-hero-photo figcaption{padding:65px 20px 20px}.home-hero-photo figcaption strong{font-size:18px}.home-categories{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}.home-categories a{padding:16px 13px}.home-categories small{font-size:12px;line-height:1.5;letter-spacing:.04em}.home-categories strong{font-size:15px}.home-categories a:last-child{grid-column:1/-1}.sf-home .sf-included{padding-top:16px}}
+@media(max-width:760px){.home-actions .sf-text-link{display:inline-flex;align-items:center;min-height:44px}}

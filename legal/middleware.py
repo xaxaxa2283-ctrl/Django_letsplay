@@ -60,7 +60,7 @@ LEGAL_FOOTER = """
 
 COOKIE_BANNER = """
 <div id="legal-cookie-banner" style="position:fixed;left:1rem;right:1rem;bottom:1rem;z-index:10000;max-width:760px;margin:auto;padding:1rem 1.2rem;border:1px solid rgba(255,255,255,.25);border-radius:1rem;background:#0f172a;color:#e2e8f0;box-shadow:0 15px 50px rgba(0,0,0,.55)">
-  <div style="margin-bottom:.75rem">Сайт использует обязательные cookies. Яндекс.Метрика будет подключена только с вашего разрешения. <a href="/legal/cookies/" target="_blank" style="color:#67e8f9;text-decoration:underline">Подробнее</a></div>
+  <div style="margin-bottom:.75rem">Cookies нужны для работы сайта. Аналитика — только с вашего согласия. <a href="/legal/cookies/" target="_blank" style="color:#67e8f9;text-decoration:underline">Подробнее</a></div>
   <div style="display:flex;flex-wrap:wrap;gap:.6rem">
     <button type="button" onclick="legalCookieChoice('granted')" style="padding:.55rem 1rem;border:0;border-radius:.7rem;background:#06b6d4;color:white;cursor:pointer">Разрешить аналитику</button>
     <button type="button" onclick="legalCookieChoice('denied')" style="padding:.55rem 1rem;border:1px solid #64748b;border-radius:.7rem;background:transparent;color:white;cursor:pointer">Только обязательные</button>

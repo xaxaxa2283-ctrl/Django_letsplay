@@ -14,19 +14,22 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.db.models import Sum, F, Q
 import json
 
 
-from .models import Cart, CartItem, Order, OrderItem
+from .models import Cart, CartItem, Order, OrderItem, Store
 from .services.reviews_stats import get_reviews_stats
+from .seo import product_schema
 
 
 def home(request):
     #Главная страница
     context = {
         'page': 'home',
-        'title': 'LetsPlay — Магазин PlayStation в Екатеринбурге'
+        'title': 'LetsPlay — Магазин PlayStation в Екатеринбурге',
+        'featured_products': Product.objects.filter(is_active=True, category__category_type='consoles').exclude(slug__isnull=True).exclude(slug='').select_related('category').order_by('-in_stock', 'id')[:4]
     }
     return render(request, 'main/home.html', context)
 
@@ -311,7 +314,7 @@ def catalog(request):
 def load_more_products(request):
 
     #AJAX-запрос для кнопки 'Показать ещё'
-    offset = int(request.GET.get('offset', 0))
+    offset = bounded_int(request.GET.get('offset'), 0, 100000)
     print("🔍 load_more_products вызван, offset =", offset)
     limit = 6
     products = PRODUCTS[offset:offset + limit]
@@ -347,7 +350,7 @@ def reviews(request):
 
 def load_more_reviews(request):
     #AJAX-запрос для кнопки 'Показать ещё отзывы'
-    offset = int(request.GET.get('offset', 0))
+    offset = bounded_int(request.GET.get('offset'), 0, 100000)
     print("🔍 load_more_products вызван, offset =", offset)
     limit = 4
     next_reviews = reviews_list[offset:offset + limit]
@@ -372,8 +375,8 @@ def catalog(request):
     products = Product.objects.all()
     return render(request, 'main/catalog.html', {'products': products})
 def catalog_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    return render(request, 'main/catalog_detail.html', {'product': product})
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    return redirect(product.get_absolute_url(), permanent=True)
 """
 
 from django.shortcuts import render, get_object_or_404
@@ -392,30 +395,55 @@ def catalog(request):
         'consoles': 'Приставки',
         'accessories': 'Аксессуары',
         'subscriptions': 'Подписки',
+        'disks': 'Диски',
     }
 
     filter_map = {
         'consoles': ['ps5', 'ps4', 'xbox'],
-        'accessories': ['Геймпады', 'Зарядки', 'Другое'],
-        'subscriptions': ['deluxe', 'extra', 'essential', 'Ea play'],
+        'accessories': [],
+        'disks': ['ps5', 'ps4', 'xbox'],
+        'subscriptions': ['deluxe', 'extra', 'essential', 'ea play'],
     }
 
     active_category = category if category else 'all'
 
     # Берём только активные товары
-    qs = Product.objects.filter(is_active=True)
+    qs = Product.objects.filter(is_active=True).exclude(slug__isnull=True).exclude(slug='').select_related('category')
 
     # Фильтр по категории
     if active_category != 'all':
         qs = qs.filter(category__category_type=active_category)
 
     # Подфильтр (платформа / тип подписки)
-    active_filter = request.GET.get('filter')
+    active_filter = (request.GET.get('filter') or '').lower()
+    if active_filter not in filter_map.get(active_category, []):
+        active_filter = ''
     if active_filter:
         qs = qs.filter(
             Q(platform=active_filter) |
             Q(subscription_type=active_filter)
         )
+
+    active_condition = request.GET.get('condition', '')
+    if active_condition not in ('new', 'used') or active_category not in ('consoles', 'disks'):
+        active_condition = ''
+    active_firmware = request.GET.get('firmware', '')
+    if active_firmware not in ('stock', 'modified') or active_category != 'consoles' or active_filter != 'ps4':
+        active_firmware = ''
+    if active_condition:
+        qs = qs.filter(condition=active_condition)
+    if active_firmware:
+        qs = qs.filter(firmware_status=active_firmware)
+
+    from decimal import Decimal, InvalidOperation
+    max_price = ''
+    try:
+        candidate = Decimal(request.GET.get('max_price', ''))
+        if candidate.is_finite() and 0 < candidate <= 10000000:
+            max_price = format(candidate, 'f')
+            qs = qs.filter(price__lte=candidate)
+    except (InvalidOperation, ValueError):
+        pass
 
     # Сначала сортируем так, чтобы "главный" вариант группы был первым
     qs = qs.order_by('variant_group', 'variant_order', 'id')
@@ -428,9 +456,10 @@ def catalog(request):
 
     for p in qs:
         if p.variant_group:
-            if p.variant_group in seen_groups:
+            group_key = (p.variant_group, p.condition, p.firmware_status, p.platform)
+            if group_key in seen_groups:
                 continue
-            seen_groups.add(p.variant_group)
+            seen_groups.add(group_key)
             unique_products.append(p)
         else:
             unique_products.append(p)
@@ -440,6 +469,9 @@ def catalog(request):
         "active_category": active_category,
         "filters": filter_map.get(active_category, []) if active_category != 'all' else [],
         "active_filter": active_filter,
+        "active_condition": active_condition,
+        "max_price": max_price,
+        "active_firmware": active_firmware,
         "categories": categories_map,
     }
 
@@ -451,8 +483,8 @@ def catalog(request):
 
 def catalog_detail(request, product_id):
     """Детальная страница по старому ID (оставляем для обратной совместимости)"""
-    product = get_object_or_404(Product, id=product_id)
-    return render(request, 'main/catalog_detail.html', {'product': product})
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    return redirect(product.get_absolute_url(), permanent=True)
 
 from django.shortcuts import render, get_object_or_404
 from .models import Product, Review
@@ -466,14 +498,14 @@ from .models import Product, Review
 def catalog_detail_by_slug(request, slug):
     """Детальная страница товара по slug"""
 
-    product = get_object_or_404(Product, slug=slug)
+    product = get_object_or_404(Product.objects.select_related('category'), slug=slug, is_active=True)
 
     enriched_product = product.get_enriched_data()
     gallery = product.images.all()
 
     # Похожие товары
     related_products = Product.objects.filter(
-        category=product.category
+        category=product.category, is_active=True
     ).exclude(id=product.id)[:4]
 
     # Отзывы
@@ -490,6 +522,7 @@ def catalog_detail_by_slug(request, slug):
     return render(request, 'main/catalog_detail.html', {
         'product': product,
         'enriched_product': enriched_product,
+        'product_json_ld': product_schema(product),
         'gallery': gallery,
         'related_products': related_products,
         'reviews': reviews,
@@ -506,58 +539,39 @@ import json
 from django.utils import timezone
 from main.services.reviews_stats import get_reviews_stats
 
+def review_count_label(count):
+    last_two = count % 100
+    if 11 <= last_two <= 14:
+        word = 'отзывов'
+    elif count % 10 == 1:
+        word = 'отзыв'
+    elif 2 <= count % 10 <= 4:
+        word = 'отзыва'
+    else:
+        word = 'отзывов'
+    return f'{count} {word}'
+
 def reviews(request):
     limit = 4
-    qs = Review.objects.filter(is_approved=True).order_by('-date')
-    reviews = qs[:limit]
-
+    qs = Review.objects.filter(is_approved=True, is_generated=False).order_by('-date', '-id')
     stats = get_reviews_stats()
-
-    # возьмём чуть больше для микроразметки (например 10)
-    ld_reviews_qs = qs[:10]
-
-    json_ld = {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "LetsPlay",
-        # можно добавить адрес/телефон если есть
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": stats["rating"],
-            "reviewCount": stats["total_clients"],
-            "bestRating": 5,
-            "worstRating": 1,
-        },
-        "review": [
-            {
-                "@type": "Review",
-                "author": {"@type": "Person", "name": r.name},
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": r.rating,
-                    "bestRating": 5,
-                    "worstRating": 1,
-                },
-                "reviewBody": r.text,
-                "datePublished": r.date.date().isoformat() if hasattr(r.date, "date") else str(r.date),
-            }
-            for r in ld_reviews_qs
-        ]
-    }
-
     return render(request, 'main/reviews.html', {
-        'reviews': reviews,
-        'stats': stats,
-        'show_button': stats["total_clients"] > limit,
-        'json_ld': json.dumps(json_ld, ensure_ascii=False),
+        'reviews': qs[:limit], 'stats': stats,
+        'review_count_label': review_count_label(stats['total_clients']),
+        'show_button': qs.count() > limit, 'page': 'reviews',
     })
 
+def bounded_int(value, default, maximum):
+    try:
+        return max(0, min(int(value), maximum))
+    except (ValueError, TypeError):
+        return default
 
 
 def load_more_products(request):
-    offset = int(request.GET.get('offset', 0))
+    offset = bounded_int(request.GET.get('offset'), 0, 100000)
     limit = 6
-    products = Product.objects.all()[offset:offset + limit]
+    products = Product.objects.filter(is_active=True).select_related('category').order_by('id')[offset:offset + limit]
     data = [p.get_enriched_data() for p in products]
     return JsonResponse({'products': data})
 
@@ -568,10 +582,10 @@ from .models import Review
 LOAD_MORE_LIMIT = 8
 
 def load_more_reviews(request):
-    offset = int(request.GET.get('offset', 0))
-    limit = int(request.GET.get('limit', LOAD_MORE_LIMIT))
+    offset = bounded_int(request.GET.get('offset'), 0, 100000)
+    limit = max(1, bounded_int(request.GET.get('limit'), LOAD_MORE_LIMIT, 24))
 
-    qs_all = Review.objects.filter(is_approved=True).order_by('-date')
+    qs_all = Review.objects.filter(is_approved=True, is_generated=False).order_by('-date', '-id')
     qs = qs_all[offset:offset + limit]
 
     reviews = []
@@ -655,7 +669,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 import json
 
-@csrf_exempt
 @require_POST
 def update_cart_item(request, item_id):
     """
@@ -669,47 +682,41 @@ def update_cart_item(request, item_id):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if is_ajax:
-        # === ВЕТКА ДЛЯ КАТАЛОГА (fetch + JSON) ===
         try:
-            raw_body = request.body.decode('utf-8').strip()
-            data = json.loads(raw_body) if raw_body else {}
-        except json.JSONDecodeError:
-            data = {}
-
-        delta = int(data.get("delta", 0))
-
-        cart_item.quantity += delta
-
-        if cart_item.quantity <= 0:
-            cart_item.delete()
-            return JsonResponse({"quantity": 0})
-
-        cart_item.save()
-        return JsonResponse({"quantity": cart_item.quantity})
-
-    # === ВЕТКА ДЛЯ СТРАНИЦЫ КОРЗИНЫ (обычная POST-форма) ===
-    action = request.POST.get('action')
-
-    if action == 'increase':
-        cart_item.quantity += 1
-        cart_item.save()
-    elif action == 'decrease':
-        cart_item.quantity -= 1
-        if cart_item.quantity <= 0:
-            cart_item.delete()
+            data = json.loads(request.body.decode('utf-8'))
+            delta = data.get('delta') if isinstance(data, dict) else None
+            if type(delta) is not int or delta not in (-1, 1):
+                raise ValueError
+        except (ValueError, UnicodeDecodeError):
+            return JsonResponse({'error': 'Передайте delta: 1 или -1.'}, status=400)
+        quantity = cart_item.quantity + delta
+    else:
+        action = request.POST.get('action')
+        if action in ('increase', 'decrease'):
+            quantity = cart_item.quantity + (1 if action == 'increase' else -1)
+        elif action == 'set':
+            try:
+                quantity = int(request.POST.get('quantity', ''))
+            except (TypeError, ValueError):
+                return JsonResponse({'error': 'Некорректное количество.'}, status=400)
         else:
-            cart_item.save()
-    elif action == 'set':
-        try:
-            quantity = int(request.POST.get('quantity', 1))
-        except (TypeError, ValueError):
-            quantity = 1
+            return JsonResponse({'error': 'Неизвестное действие.'}, status=400)
 
-        if quantity <= 0:
-            cart_item.delete()
-        else:
-            cart_item.quantity = quantity
-            cart_item.save()
+    if quantity > 999:
+        return JsonResponse({'error': 'Максимальное количество — 999.'}, status=400)
+    if quantity > cart_item.quantity and (not cart_item.product.is_active or not cart_item.product.in_stock):
+        if is_ajax:
+            return JsonResponse({'error': 'Товар недоступен для заказа.'}, status=409)
+        messages.error(request, 'Товар недоступен для заказа. Его можно удалить из корзины.')
+        return redirect('main:cart_view')
+    if quantity <= 0:
+        cart_item.delete()
+        quantity = 0
+    else:
+        cart_item.quantity = quantity
+        cart_item.save(update_fields=['quantity'])
+    if is_ajax:
+        return JsonResponse({'quantity': quantity})
 
     return redirect('letsplay:cart_view')
 
@@ -775,25 +782,37 @@ def checkout_view(request):
     """Страница оформления заказа"""
     cart = get_or_create_cart(request)
 
+    # City pricing is not activated yet: never price another store's order
+    # using the legacy Ekaterinburg Product.price values.
+    if not cart.store_id or cart.store.slug != 'ekaterinburg':
+        messages.error(request, 'Онлайн-заказы этого магазина пока недоступны. Свяжитесь с магазином для оформления.')
+        return redirect('main:cart_view')
+
     if cart.get_total_items() == 0:
         messages.warning(request, 'Ваша корзина пуста')
         return redirect('letsplay:catalog')
 
-    if request.method == 'POST':
-        name = (request.POST.get('name') or '').strip()
-        email = (request.POST.get('email') or '').strip()
-        phone = (request.POST.get('phone') or '').strip()
-        delivery_method = request.POST.get('delivery_method') or 'pickup'
-        address = (request.POST.get('address') or '').strip()
-        payment_method = request.POST.get('payment_method') or 'cash'
-        comment = (request.POST.get('comment') or '').strip()
-
-        if not name or not phone:
-            messages.error(request, 'Пожалуйста, укажите имя и телефон.')
-            return redirect('letsplay:checkout')
+    from .checkout_forms import CheckoutForm
+    checkout_form = CheckoutForm(request.POST if request.method == 'POST' else None)
+    if request.method == 'POST' and checkout_form.is_valid():
+        data = checkout_form.cleaned_data
+        name, email, phone = data['name'], data['email'], data['phone']
+        delivery_method, address = data['delivery_method'], data['address']
+        payment_method, comment = data['payment_method'], data['comment']
 
         with transaction.atomic():
+            # Use one snapshot for validation, totals and saved order rows.
+            Cart.objects.select_for_update().get(pk=cart.pk)
+            cart_items = list(cart.items.select_for_update().select_related('product', 'product__category'))
+            if not cart_items:
+                messages.warning(request, 'Ваша корзина пуста')
+                return redirect('main:catalog')
+            if any(not item.product.is_active or not item.product.in_stock or item.quantity < 1 for item in cart_items):
+                messages.error(request, 'Наличие одного из товаров изменилось. Проверьте корзину.')
+                return redirect('main:cart_view')
             order = Order.objects.create(
+                store=cart.store,
+                store_name=cart.store.name,
                 user=request.user if request.user.is_authenticated else None,
                 customer_name=name,
                 customer_email=email,
@@ -801,20 +820,25 @@ def checkout_view(request):
                 delivery_method=delivery_method,
                 delivery_address=address,
                 payment_method=payment_method,
-                total_price=cart.get_total_price(),
+                total_price=sum(item.product.price * item.quantity for item in cart_items),
                 comment=comment,
             )
 
-            for cart_item in cart.items.select_related('product').all():
+            for cart_item in cart_items:
                 OrderItem.objects.create(
                     order=order,
                     product=cart_item.product,
                     product_name=cart_item.product.name,
+                    selection_summary=cart_item.product.get_selection_summary(),
                     product_price=cart_item.product.price,
                     quantity=cart_item.quantity,
                 )
 
             cart.clear()
+
+        if not request.user.is_authenticated:
+            guest_order_ids = request.session.get('guest_order_ids', [])
+            request.session['guest_order_ids'] = [*guest_order_ids, order.pk]
 
         # запускаем письма уже ПОСЛЕ успешной записи в БД
         transaction.on_commit(lambda: notify_about_new_order_async(order.id))
@@ -823,6 +847,8 @@ def checkout_view(request):
         return redirect('letsplay:order_success', order_id=order.id)
 
     context = {
+        'checkout_form': checkout_form,
+        'entered': request.POST if request.method == 'POST' else {},
         'cart': cart,
         'cart_items': cart.items.select_related('product').all(),
         'total_price': cart.get_total_price(),
@@ -833,9 +859,18 @@ def checkout_view(request):
 
 
 
+def _get_accessible_order(request, order_id):
+    """A numeric order ID is not authorization to read customer details."""
+    allowed = Q(user__isnull=True, pk__in=request.session.get('guest_order_ids', []))
+    if request.user.is_authenticated:
+        allowed |= Q(user_id=request.user.pk)
+    return get_object_or_404(Order.objects.filter(allowed), pk=order_id)
+
+
+@never_cache
 def order_success_view(request, order_id):
     """Страница успешного оформления заказа"""
-    order = get_object_or_404(Order, id=order_id)
+    order = _get_accessible_order(request, order_id)
 
     context = {
         'order': order,
@@ -859,14 +894,10 @@ def my_orders_view(request):
     return render(request, 'main/my_orders.html', context)
 
 
+@never_cache
 def order_detail_view(request, order_id):
-    """Детальная информация о заказе"""
-    order = get_object_or_404(Order, id=order_id)
-
-    # Проверка доступа
-    if not request.user.is_authenticated or (order.user and order.user != request.user):
-        messages.error(request, 'У вас нет доступа к этому заказу')
-        return redirect('catalog')
+    """Order details belong to the account owner or checkout session."""
+    order = _get_accessible_order(request, order_id)
 
     context = {
         'order': order,
@@ -888,6 +919,10 @@ def get_or_create_cart(request):
         session_key = request.session.session_key
         cart, created = Cart.objects.get_or_create(session_key=session_key)
 
+    if not cart.store_id:
+        store = Store.objects.get(slug='ekaterinburg')
+        Cart.objects.filter(pk=cart.pk, store__isnull=True).update(store=store)
+        cart.refresh_from_db(fields=['store'])
     return cart
 def cart_view(request):
     """Страница корзины"""
@@ -909,7 +944,7 @@ from django.shortcuts import render
 
 
 def csrf_failure(request, reason=""):
-    return render(request, "main/csrf_error.html", {"reason": reason})
+    return render(request, "main/csrf_error.html", {"reason": reason}, status=403)
 
 
 from django.shortcuts import render, redirect
@@ -994,10 +1029,9 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import Product, Cart, CartItem
 import json
 
-@csrf_exempt          # ← добавили
 @require_POST
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id, is_active=True, in_stock=True)
 
     # корзина по юзеру или по сессии
     if request.user.is_authenticated:
@@ -1018,6 +1052,8 @@ def add_to_cart(request, product_id):
     )
 
     if not created:
+        if cart_item.quantity >= 999:
+            return JsonResponse({'error': 'Максимальное количество — 999.'}, status=400)
         cart_item.quantity += quantity
         cart_item.save()
 

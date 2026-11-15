@@ -1,7 +1,48 @@
+from .admin_readiness import product_readiness, store_readiness, offer_readiness
+from .admin_fields import FeatureLinesField, SpecificationField, CategoryTypeSelect
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib import admin
 from django.utils.html import format_html
+from .models import Store, StoreOffer
+
+
+@admin.register(Store)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ['name', 'city', 'address', 'phone', 'readiness']
+    readonly_fields = ['readiness']
+
+    @admin.display(description='Проверка данных')
+    def readiness(self, obj):
+        return store_readiness(obj)
+    search_fields = ['name', 'city', 'address']
+    prepopulated_fields = {'slug': ('city',)}
+    fieldsets = (
+        ('Магазин', {'fields': ('name', 'slug', 'city', 'address', 'phone', 'opening_hours', 'readiness')}),
+        ('Будущее подключение МоегоСклада', {
+            'description': 'Сопоставление для будущей интеграции. Синхронизация пока не выполняется. Пароли и токены здесь не сохраняются.',
+            'fields': ('moysklad_warehouse_id', 'moysklad_price_type_id'),
+        }),
+    )
+
+
+@admin.register(StoreOffer)
+class StoreOfferAdmin(admin.ModelAdmin):
+    list_display = ['product', 'store', 'price', 'availability', 'updated_at', 'readiness']
+    list_select_related = ['product', 'store']
+
+    @admin.display(description='Проверка предложения')
+    def readiness(self, obj):
+        return offer_readiness(obj)
+    list_filter = ['store', 'availability']
+    search_fields = ['product__name', 'store__city']
+    autocomplete_fields = ['product', 'store']
+    readonly_fields = ['updated_at', 'readiness']
+    fieldsets = (('Подготовка предложений по городам', {
+        'description': 'Эти данные пока не подключены к витрине и корзине. Действующие цены сайта меняются в разделе «Товары». Предложения Екатеринбурга скопированы один раз; автоматической синхронизации пока нет.',
+        'fields': ('store', 'product', 'price', 'availability', 'updated_at', 'readiness'),
+    }),)
 
 from .models import Order, OrderItem, Product, ProductImage, Category, Review
 # остальное как у тебя
@@ -38,17 +79,53 @@ class ProductImageInline(admin.TabularInline):
 # ======================================
 
 class ProductAdminForm(forms.ModelForm):
-    features = forms.JSONField(
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 4, 'style': 'font-family: monospace;'}),
-        help_text='Введите список особенностей: ["HDR", "Ray tracing"]'
-    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        category_widget = CategoryTypeSelect(choices=self.fields['category'].choices)
+        if hasattr(self.fields['category'].widget, 'widget'):
+            self.fields['category'].widget.widget = category_widget
+        else:
+            self.fields['category'].widget = category_widget
+        self.fields['variant_group'].help_text = 'Одинаковый код связывает версии одной модели. Например: ps5-slim. Для самостоятельного товара оставьте пустым.'
+        self.fields['variant_name'].help_text = 'Краткое отличие версии: «1 ТБ, с дисководом». Состояние и прошивка указываются отдельно.'
+        self.fields['condition'].help_text = 'Для приставок и дисков. Неизвестное состояние оставьте пустым.'
+        self.fields['firmware_status'].help_text = 'Только для приставок PS4. Если данных нет, оставьте пустым.'
 
-    specifications = forms.JSONField(
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 6, 'style': 'font-family: monospace;'}),
-        help_text='Введите характеристики: [{"label": "Память", "value": "1 ТБ"}]'
-    )
+    def clean(self):
+        data = super().clean()
+        category = data.get('category')
+        if category:
+            if category.category_type not in ('consoles', 'disks'):
+                data['condition'] = ''
+            if category.category_type != 'consoles' or data.get('platform') != 'ps4':
+                data['firmware_status'] = ''
+            if category.category_type != 'subscriptions':
+                data['subscription_type'] = ''
+        return data
+
+    # Recovered catalog images use local static URLs. Normalize these existing
+    # paths to the storefront URL before ModelForm runs URLField validation.
+    image_url = forms.CharField(required=False, label='URL изображения')
+
+    def clean_image_url(self):
+        value = self.cleaned_data.get('image_url', '').strip()
+        if value.startswith(('/static/', '/media/')) and not any(c in value for c in ('\\', '?', '#')):
+            from urllib.parse import urlsplit
+            if '..' not in urlsplit(value).path.split('/'):
+                value = settings.PUBLIC_SITE_URL.rstrip('/') + value
+        if value:
+            from django.core.validators import URLValidator
+            URLValidator(schemes=['http', 'https'])(value)
+        return value
+
+    def clean_price(self):
+        price = self.cleaned_data['price']
+        if price < 0:
+            raise forms.ValidationError('Цена не может быть отрицательной.')
+        return price
+
+    features = FeatureLinesField(required=False, label='Особенности', help_text='Одна особенность на строку. Например: второй контроллер в комплекте.')
+    specifications = SpecificationField(required=False, label='Характеристики', help_text='Добавьте пары названия и значения. Комплектацию можно указать отдельной характеристикой.')
 
     class Meta:
         model = Product
@@ -62,11 +139,16 @@ class ProductAdminForm(forms.ModelForm):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
+    list_select_related = ['category']
+
+    @admin.display(description='Проверка карточки')
+    def readiness(self, obj):
+        return product_readiness(obj)
 
     list_display = [
         'name', 'category', 'platform', 'subscription_type',
-        'price', 'old_price',
-        'rating', 'in_stock', 'is_active', 'badge',
+        'condition', 'firmware_status', 'price', 'old_price',
+        'rating', 'in_stock', 'is_active', 'badge', 'readiness',
         'variant_group', 'variant_name', 'variant_order',
     ]
 
@@ -74,6 +156,8 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'platform',
         'subscription_type',
+        'condition',
+        'firmware_status',
         'rating',
         'in_stock',
         'is_active',
@@ -84,18 +168,21 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'in_stock', 'is_active']
 
     inlines = [ProductImageInline]
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'readiness']
 
     fieldsets = (
         ('Основная информация', {
+            'description': 'Сначала выберите категорию и платформу. При сохранении неприменимые состояние, прошивка и тип подписки очищаются.',
             'fields': (
                 'name', 'slug', 'category',
                 'platform', 'subscription_type',
+                'condition', 'firmware_status',
                 'badge'
             )
         }),
         # 👇 НОВЫЙ БЛОК ДЛЯ ВАРИАНТОВ
         ('Варианты товара', {
+            'description': 'Одна позиция — одна конфигурация с собственной ценой и наличием. Не создавайте позиции для каждого экземпляра б/у. Свяжите версии общим кодом группы.',
             'fields': ('variant_group', 'variant_name', 'variant_order', 'variant_color'),
         }),
         ('Цены', {
@@ -108,7 +195,11 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('description', 'features', 'specifications')
         }),
         ('Статус', {
-            'fields': ('rating', 'in_stock', 'is_active')
+            'fields': ('rating', 'in_stock', 'is_active', 'readiness')
+        }),
+        ('Связь с МоимСкладом', {
+            'description': 'Укажите ID товара или модификации после пробной проверки подключения. Токен API здесь не хранится.',
+            'fields': ('moysklad_assortment_id',),
         }),
         ('Служебная информация', {
             'fields': ('created_at', 'updated_at'),
@@ -117,6 +208,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
     class Media:
+        js = ('admin/js/product_context.js',)
         css = {
             'all': ('admin/css/custom_admin.css',)
         }
@@ -219,15 +311,18 @@ class ReviewAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ['product', 'product_name', 'product_price', 'quantity', 'get_total_price']
+    readonly_fields = ['product', 'product_name', 'selection_summary', 'product_price', 'quantity', 'get_total_price']
     can_delete = False
 
     def get_total_price(self, obj):
-        if not obj or obj.price is None or obj.quantity is None:
+        if not obj or obj.product_price is None or obj.quantity is None:
             return 0
-        return obj.price * obj.quantity
+        return obj.product_price * obj.quantity
 
     get_total_price.short_description = "Сумма"
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 # ======================================
@@ -268,18 +363,28 @@ def set_status_cancelled(modeladmin, request, queryset):
 
 
 
+class OrderAdminForm(forms.ModelForm):
+    customer_email = forms.EmailField(required=False, label='Email')
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    form = OrderAdminForm
+
     list_display = [
-        'id', 'customer_name', 'customer_phone', 'customer_email',
+        'id', 'store', 'customer_name', 'customer_phone', 'customer_email',
         'delivery_method', 'payment_method', 'total_price',
         'created_at', 'colored_status'
     ]
 
-    list_filter = ['status', 'delivery_method', 'payment_method', 'created_at']
+    list_filter = ['store', 'status', 'delivery_method', 'payment_method', 'created_at']
     search_fields = ['id', 'customer_name', 'customer_email', 'customer_phone']
 
-    readonly_fields = ['total_price', 'created_at', 'updated_at']
+    readonly_fields = ['store', 'store_name', 'total_price', 'created_at', 'updated_at']
     inlines = [OrderItemInline]
 
     fieldsets = (
@@ -287,7 +392,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('customer_name', 'customer_email', 'customer_phone')
         }),
         ('Доставка и оплата', {
-            'fields': ('delivery_method', 'delivery_address', 'payment_method')
+            'fields': ('store', 'store_name', 'delivery_method', 'delivery_address', 'payment_method')
         }),
         ('Состав заказа', {
             'fields': ('total_price',)

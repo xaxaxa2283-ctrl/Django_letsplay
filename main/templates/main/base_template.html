@@ -1,4 +1,4 @@
-{% load static %}
+{% load static asset_version %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico?v=2' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% versioned_static 'css/style.css' %}">
     <title>{% block title %}LetsPlay — магазин приставок PlayStation в Екатеринбурге{% endblock %}</title>
 
 {% block meta %}
 <meta name="description"
-      content="Магазин приставок PlayStation, XBOX в центре Екатеринбурга. Продажа PS4 и PS5, геймпадов DualSense, игр и подписок PS Plus. Самовывоз на Луначарского, 134. Гарантия.">
+      content="Магазин PlayStation и Xbox в Екатеринбурге: PS4, PS5, аксессуары, диски и подписки. Самовывоз на Луначарского, 134. Условия гарантии уточняем для выбранного товара.">
 
-<meta name="robots" content="index, follow">
+{% if not private_page %}<meta name="robots" content="index, follow">{% endif %}
 {% endblock %}
 {% block extra_css %}{% endblock %}
 
@@ -405,38 +405,20 @@
 
     ym(105346552, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105346552&quot;" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript><div><img src="https://mc.yandex.ru/watch/105346552" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
 
 
 {% block structured_data %}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "VideoGameStore",
-  "name": "LetsPlay",
-  "url": "{% if request.is_secure %}https{% else %}http{% endif %}://{{ request.get_host }}/",
-  "telephone": "+7 999 499 36 41",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "ул. Луначарского, 134",
-    "addressLocality": "Екатеринбург",
-    "addressRegion": "Свердловская область",
-    "postalCode": "",
-    "addressCountry": "RU"
-  },
-  "priceRange": "₽₽",
-  "image": "{% static 'images/about_us.jpg' %}",
-  "sameAs": [
-    "https://vk.com/letsplayekb",
-    "https://t.me/letsplayekb_bot"
-  ]
-}
-</script>
+{% if local_business_json_ld %}<script type="application/ld+json">{{ local_business_json_ld|safe }}</script>{% endif %}
 {% endblock %}
+<link rel="stylesheet" href="{% versioned_static 'css/storefront.css' %}">
+<link rel="stylesheet" href="{% versioned_static 'css/purchase.css' %}">
+{% if private_page %}<meta name="robots" content="noindex, nofollow">{% else %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
 </head>
-<body>
+<body class="lp-site">
+<a class="lp-skip-link" href="#main-content">Перейти к содержимому</a>
 
     <!-- Фон с анимацией -->
     <div class="gradient-bg">
@@ -445,31 +427,31 @@
     </div>
 
     <!-- Шапка -->
-    <header class="header">
+        <header class="header">
         <div class="container header-content">
 
-            <a href="{% url 'letsplay:home' %}" class="logo">
+            <a href="{% url 'main:home' %}" class="logo">
                 <div class="logo-box">LetsPlay</div>
             </a>
 
             <!-- Навигация -->
-            <nav class="nav-desktop">
-                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
-                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
-                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
-                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+            <nav class="nav-desktop" aria-label="Основное меню">
+                <a href="{% url 'main:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'main:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'main:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'main:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
 
             </nav>
 
             <div class="header-actions">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'letsplay:my_orders_page' %}" class="btn btn-secondary">Профиль</a>
+                    <a href="{% url 'main:my_orders_page' %}" class="btn btn-secondary">Профиль</a>
                 {% else %}
-                    <a href="{% url 'letsplay:login' %}" class="btn btn-primary">Войти</a>
+                    <a href="{% url 'main:login' %}" class="btn btn-primary">Войти</a>
                 {% endif %}
 
                 <!-- Корзина -->
-                <a href="{% url 'letsplay:cart_view' %}" class="cart-icon">
+                <a href="{% url 'main:cart_view' %}" class="cart-icon" aria-label="Корзина">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 2.25l1.5 1.5m0 0L6 12.75h12.75L21 6H5.25m-1.5-2.25L5.25 6m0 0l.75 3M6 12.75h12.75M9 21a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm9 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
@@ -479,7 +461,7 @@
                 </a>
 
                 <!-- Кнопка меню для мобилы -->
-                <button class="mobile-menu-btn" id="menu-toggle">
+                <button class="mobile-menu-btn" id="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Открыть меню">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
@@ -489,24 +471,24 @@
 
         <!-- Мобильное меню -->
         <div class="mobile-menu" id="mobile-menu">
-            <nav class="mobile-nav">
-                <a href="{% url 'letsplay:home' %}" class="nav-link {% if page == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
-                <a href="{% url 'letsplay:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
-                <a href="{% url 'letsplay:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
-                <a href="{% url 'letsplay:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
+            <nav class="mobile-nav" aria-label="Мобильное меню">
+                <a href="{% url 'main:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">ГЛАВНАЯ</a>
+                <a href="{% url 'main:about' %}" class="nav-link {% if page == 'about' %}active{% endif %}">О НАС</a>
+                <a href="{% url 'main:catalog' %}" class="nav-link {% if page == 'catalog' %}active{% endif %}">КАТАЛОГ</a>
+                <a href="{% url 'main:reviews' %}" class="nav-link {% if page == 'reviews' %}active{% endif %}">ОТЗЫВЫ</a>
             </nav>
 
             <div class="mobile-phone">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h2l3 7-1.5 4.5L9 19l3-2 5.5 2L21 7H7" />
                 </svg>
-                <span>+7 999 499 36 41</span>
+                <a href="tel:+79994993641">+7 999 499 36 41</a>
             </div>
         </div>
     </header>
 
     <!-- Основной контент -->
-    <main>
+    <main id="main-content">
         {% block content %}
         {% endblock %}
     </main>
@@ -521,17 +503,17 @@
                     </div>
                     <p class="footer-text">
                         Магазин игровых консолей нового поколения.  
-                        Лучшие цены, быстрая доставка и забота о клиентах.
+                        Подбор, настройка и поддержка после покупки.
                     </p>
                 </div>
 
                 <div class="footer-section">
                     <h4 class="footer-title">Меню</h4>
                     <nav class="footer-nav">
-                        <a href="{% url 'letsplay:home' %}">Главная</a>
-                        <a href="{% url 'letsplay:about' %}">О нас</a>
-                        <a href="{% url 'letsplay:catalog' %}">Каталог</a>
-                        <a href="{% url 'letsplay:reviews' %}">Отзывы</a>
+                        <a href="{% url 'main:home' %}">Главная</a>
+                        <a href="{% url 'main:about' %}">О нас</a>
+                        <a href="{% url 'main:catalog' %}">Каталог</a>
+                        <a href="{% url 'main:reviews' %}">Отзывы</a>
                     </nav>
                 </div>
 
@@ -555,13 +537,13 @@
             </div>
 
             <div class="footer-bottom">
-                <p>© 2025 LetsPlay. Все права защищены.</p>
+                <p>© {% now "Y" %} LetsPlay. Все права защищены.</p>
             </div>
         </div>
 
 
         <div class="mt-4 text-center">
-    <a href="{% url 'letsplay:privacy_policy' %}"
+    <a href="{% url 'main:privacy_policy' %}"
        class="text-white/60 hover:text-white transition">
         Политика конфиденциальности
     </a>
@@ -583,7 +565,7 @@
         <div>
             <div class="lp-contact-title">Нужна помощь с приставкой?</div>
             <div class="lp-contact-sub">
-                Ответим за 1–2 минуты и поможем выбрать приставку,
+                Поможем выбрать приставку,
                 комплектацию и игры под ваш бюджет.
             </div>
         </div>
@@ -597,7 +579,7 @@
         <a href="tel:+79994993641" class="lp-contact-btn lp-contact-btn--outline">
             Позвонить в магазин
         </a>
-        <a href="{% url 'letsplay:service_console_selection' %}" class="lp-contact-link">
+        <a href="{% url 'main:service_console_selection' %}" class="lp-contact-link">
             Подобрать приставку под задачи →
         </a>
     </div>
@@ -606,16 +588,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const btn  = document.getElementById('menu-toggle');
-    const menu = document.getElementById('mobile-menu');
 
-    if (!btn || !menu) return;
-
-    btn.addEventListener('click', function () {
-        menu.classList.toggle('open');
-    });
-});
 
 function getCookie(name) {
     let cookieValue = null;
@@ -712,6 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 {% block extra_js %}{% endblock %}
+<script src="{% versioned_static 'js/storefront.js' %}" defer></script>
 </body>
 </html>
 

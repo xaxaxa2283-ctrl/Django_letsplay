@@ -2,30 +2,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   
-  // ==================== Mobile Menu Toggle ====================
-  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuIcon = mobileMenuBtn?.querySelector('.menu-icon');
-  const closeIcon = mobileMenuBtn?.querySelector('.close-icon');
-
-  if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', function() {
-      mobileMenu.classList.toggle('active');
-      menuIcon?.classList.toggle('hidden');
-      closeIcon?.classList.toggle('hidden');
-    });
-
-    // Close mobile menu when clicking on a link
-    const mobileNavLinks = mobileMenu.querySelectorAll('.nav-link');
-    mobileNavLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        mobileMenu.classList.remove('active');
-        menuIcon?.classList.remove('hidden');
-        closeIcon?.classList.add('hidden');
-      });
-    });
-  }
-
   // ==================== Console Selector (Home Page) ====================
   const consoleBtns = document.querySelectorAll('.console-btn');
   
@@ -157,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ==================== Form Validation (if you add forms later) ====================
-  const forms = document.querySelectorAll('form');
+  const forms = document.querySelectorAll('form:not([data-storefront-cart])');
   
   forms.forEach(form => {
     form.addEventListener('submit', function(e) {

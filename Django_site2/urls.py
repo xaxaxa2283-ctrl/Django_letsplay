@@ -6,6 +6,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 from sitemaps import ProductSitemap, StaticViewSitemap
+from main.seo import robots
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -13,6 +14,7 @@ sitemaps = {
 }
 
 urlpatterns = [
+    path("robots.txt", robots, name="robots"),
     path("admin/", admin.site.urls),
     path("legal/", include("legal.urls", namespace="legal")),
     path("privacy/", RedirectView.as_view(url="/legal/privacy/", permanent=False)),

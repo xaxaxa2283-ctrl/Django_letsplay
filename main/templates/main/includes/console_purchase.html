@@ -1,0 +1,21 @@
+{% load static %}
+<section class="sf-section sf-console-preparation" id="preparation" aria-labelledby="preparation-title">
+  <div class="sf-preparation-intro">
+    <p class="sf-eyebrow">Ваша приставка · наш магазин</p>
+    <h2 id="preparation-title">Купил. Подключил.<br><em>Играешь.</em></h2>
+    <p class="sf-lead">Подготовим консоль в зоне настройки LetsPlay и покажем, как начать играть дома.</p>
+    <figure class="sf-store-photo"><img src="{% static 'images/about_us.jpg' %}" alt="Магазин LetsPlay на Луначарского, 134" width="1280" height="960" loading="lazy"><figcaption>Екатеринбург · Луначарского, 134</figcaption></figure>
+  </div>
+  <div class="sf-preparation-list">
+    <article><span>01 / ВХОДИТ В СТОИМОСТЬ</span><h3>Обновим и настроим</h3><p>Установим обновления и поможем с зарубежным аккаунтом — он остаётся у вас.</p></article>
+    <article><span>02 / ПОДАРОК К КОНСОЛИ</span><h3>Месяц подписки</h3><p>Тип и регион согласуем перед покупкой. Установку отдельных игр обсудим по вашему запросу.</p></article>
+    <article><span>03 / ПОКАЖЕМ НА МЕСТЕ</span><h3>Разберёмся вместе</h3><p>Объясним управление приставкой, работу с аккаунтом и запуск игр. Можно задать вопросы прямо в зоне настройки.</p></article>
+    <article><span>04 / ПОСЛЕ ПОКУПКИ</span><h3>Останемся на связи</h3><p>Если появятся вопросы по использованию, обратитесь в магазин — поможем разобраться.</p></article>
+  </div>
+</section>
+<section class="sf-section sf-faq" aria-labelledby="purchase-questions"><div><p class="sf-eyebrow">Перед покупкой</p><h2 id="purchase-questions">Разберём важное<br>заранее.</h2></div><div>
+  <details><summary>Что входит в комплект приставки?</summary><p>Комплект зависит от конкретного товара. До оформления подтвердим состояние консоли, количество контроллеров, кабели и дополнительные аксессуары. Подготовка в LetsPlay описана выше.</p></details>
+  <details><summary>Будут ли на приставке мои любимые игры?</summary><p>Расскажите, во что хотите играть. Проверим совместимость и обсудим покупку или установку игр отдельно. Подарочная подписка не означает наличие в ней любой игры.</p></details>
+  <details><summary>Как получить заказ и уточнить гарантию?</summary><p>Можно забрать приставку в магазине на Луначарского, 134. Способ, стоимость и сроки доставки, а также условия гарантии подтвердим для выбранного товара перед покупкой.</p></details>
+  <details><summary>Покупаю в подарок. Поможете с выбором?</summary><p>Да. Расскажите о любимых играх получателя и бюджете — обсудим подходящую модель, комплект и подготовку.</p><a class="sf-text-link" href="{% url 'main:service_console_selection' %}">Помощь с выбором ↗</a></details>
+</div></section>

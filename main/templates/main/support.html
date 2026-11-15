@@ -1,87 +1,14 @@
 {% extends 'main/base_template.html' %}
 {% load static %}
-
 {% block title %}Поддержка PlayStation в Екатеринбурге — LetsPlay{% endblock %}
+{% block meta %}<meta name="description" content="Помощь клиентам LetsPlay с настройкой PlayStation, аккаунтом, играми и подпиской. Обратитесь в WhatsApp или по телефону +7 (999) 499-36-41."><meta name="robots" content="index, follow">{% endblock %}
 
 {% block content %}
-<section class="page-section">
-  <div class="container">
+<div class="sf-storefront"><div class="sf-wrap sf-page">
+<nav class="sf-breadcrumbs" aria-label="Навигация"><a href="{% url 'main:home' %}">Главная</a> / Поддержка</nav>
 
-    <!-- Назад -->
-    <a href="{% url 'letsplay:home' %}" class="lp-back-btn">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M15 5l-7 7 7 7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round" />
-      </svg>
-      На главную
-    </a>
-
-    <!-- Заголовок -->
-    <div class="page-header">
-      <h1>Поддержка PlayStation и помощь клиентам 24/7</h1>
-      <p>
-        Помогаем с приставками <strong>PS4</strong> и <strong>PS5</strong> в Екатеринбурге и по всей России:
-        подсказки по настройке, играм и подпискам — даже после покупки.
-      </p>
-    </div>
-
-    <!-- Блок 1 -->
-    <section class="info-card">
-      <h2>С чем помогаем</h2>
-      <ul class="lp-bullet-list mt-3">
-        <li>Не включается или пропало изображение с приставки.</li>
-        <li>Игры не устанавливаются, ошибки при запуске.</li>
-        <li>Вопросы по подпискам <strong>PlayStation Plus</strong>.</li>
-        <li>Подбор игр под ребёнка, семью или онлайн-игру с друзьями.</li>
-        <li>Подключение и базовая настройка PS4 / PS5 к телевизору и интернету.</li>
-      </ul>
-      <p class="info-note mt-4">
-        Обычно хватает одного звонка или пары сообщений в мессенджере — без поездок в сервис.
-      </p>
-    </section>
-
-    <!-- Блок 2 -->
-    <section class="info-card mt-8">
-      <h2>Для кого работает поддержка</h2>
-      <ul class="lp-bullet-list mt-3">
-        <li><strong>Клиенты из Екатеринбурга</strong> — помощь по телефону, в мессенджерах и в магазине на Луначарского, 134.</li>
-        <li><strong>Клиенты из других городов</strong> — консультируем онлайн, подскажем по доставке и настройке.</li>
-        <li>Если случай гарантийный, расскажем, что делать шаг за шагом.</li>
-      </ul>
-    </section>
-
-    <!-- Блок 3 -->
-    <section class="info-card mt-8">
-      <h2>Как связаться с нами</h2>
-      <p class="info-text">
-        Напишите или позвоните — ответим в рабочее время, обычно в течение нескольких минут.
-      </p>
-      <div class="flex flex-wrap gap-3 mt-4">
-        <a href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank" class="btn btn-primary">
-          Написать в WhatsApp
-        </a>
-        <a href="https://t.me/letsplayekb_bot" target="_blank" class="btn btn-secondary">
-          Написать в Telegram
-        </a>
-        <a href="tel:+79994993641" class="btn btn-secondary">
-          Позвонить в магазин
-        </a>
-      </div>
-    </section>
-
-    <!-- Блок 4 (короткий SEO-подвал) -->
-    <section class="info-card mt-8">
-      <h2>Гарантия и сервис</h2>
-      <p class="info-text">
-        Все приставки и аксессуары продаём с официальной гарантией.
-        Подробнее о гарантийном обслуживании — на странице
-        <a href="{% url 'letsplay:warranty' %}" class="seo-link">«Гарантия на приставки»</a>.
-      </p>
-    </section>
-
-  </div>
-</section>
-{% endblock %}
+<header class="sf-section"><p class="sf-eyebrow">Помощь после покупки</p><h1>Поможем разобраться<br><em>с вашей PlayStation</em></h1><p class="sf-lead">Если возник вопрос по приставке, аккаунту или подписке — напишите нам. Разберемся в ситуации и подскажем следующий шаг.</p><div class="sf-actions"><a class="sf-button" href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank" rel="noopener noreferrer">Задать вопрос</a></div></header>
+<section class="sf-section"><div class="sf-section-heading"><h2>С чем можно обратиться</h2></div><div class="sf-steps"><article><span>ПРИСТАВКА</span><h3>Подключение и настройки</h3><p>Подключение к телевизору и сети, обновления, управление и основные функции PS4 и PS5.</p></article><article><span>ИГРЫ</span><h3>Библиотека и подписка</h3><p>Поможем разобраться с загрузкой игр, сроком подписки и настройками аккаунта.</p></article><article><span>ПОКУПКА</span><h3>Вопрос по заказу</h3><p>Уточним информацию о купленном товаре и порядке обращения по гарантии.</p><div class="sf-actions"><a class="sf-text-link" href="{% url 'main:warranty' %}">Условия гарантии →</a></div></article></div></section>
+<section class="sf-section sf-choice"><div><h2>Чтобы быстрее разобраться</h2><p class="sf-muted">Укажите модель приставки, что произошло и когда появилась проблема. Приложите фотографию сообщения об ошибке и номер заказа, если он есть.</p></div><div class="sf-setup-box"><h3>Пароли отправлять не нужно</h3><p class="sf-lead">Не присылайте пароль аккаунта, одноразовые коды или данные банковской карты. Для первого обращения достаточно описания проблемы.</p></div></section>
+<section class="sf-section sf-faq"><div><p class="sf-eyebrow">Перед обращением</p><h2>Что поможет нам помочь</h2></div><div><details><summary>Где найти сообщение об ошибке?</summary><p>Сфотографируйте экран, на котором возникла проблема. Проверьте, что на снимке нет паролей, платежных данных или кодов подтверждения.</p></details><details><summary>Нужно сразу приносить приставку?</summary><p>Сначала свяжитесь с нами и опишите проблему. Уточним, что можно проверить дома и требуется ли визит в магазин.</p></details><details><summary>Вопрос о гарантии — тоже сюда?</summary><p>Да. Назовите товар и номер заказа, если он есть. Уточним условия вашей покупки и порядок обращения.</p></details></div></section><section class="sf-section sf-visit"><div><p class="sf-eyebrow">Екатеринбург · Луначарского, 134</p><h2>Начнем с ваших игр</h2><p>Расскажите, во что хотите играть и какую приставку рассматриваете. Обсудим модель, подготовку и условия покупки.</p><div class="sf-actions"><a class="sf-button" href="https://wa.me/message/WTMGO5P7SVUYM1" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a><a class="sf-button sf-button-secondary" href="tel:+79994993641">+7 (999) 499-36-41</a></div></div><div class="sf-visit-mark" aria-hidden="true">LET’S<br>PLAY.</div></section>
+</div></div>{% endblock %}
