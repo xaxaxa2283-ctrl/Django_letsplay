@@ -113,6 +113,12 @@ class MoySkladMatchingTests(SimpleTestCase):
         tokens = normalized_tokens('PlayStation 5 Slim с дисководом, новая')
         self.assertTrue({'ps', '5', 'slim', 'disc', 'new'} <= tokens)
 
+    def test_recognizes_ps5_and_blu_ray_spelling(self):
+        self.assertGreater(
+            score('PlayStation 5 Slim Blu-ray', 'PS5 SLIM DISK NEW ACT'),
+            score('PlayStation 5 Slim Blu-ray', 'PS4 SLIM 1TB USED ACT'),
+        )
+
     def test_related_names_rank_above_unrelated_names(self):
         target = 'PlayStation 5 Slim с дисководом'
         self.assertGreater(

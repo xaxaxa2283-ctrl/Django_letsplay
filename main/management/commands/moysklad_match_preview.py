@@ -19,6 +19,9 @@ REPLACEMENTS = (
     ('дисководом', 'disc'),
     ('дисковода', 'disc'),
     ('дисковый', 'disc'),
+    ('blu-ray', 'disc'),
+    ('blu ray', 'disc'),
+    ('digital', 'de'),
     ('бездисковая', 'nodisc'),
     ('без дисковода', 'nodisc'),
     ('б/у', 'used'),
@@ -32,6 +35,7 @@ def normalized_tokens(value: str) -> set[str]:
     normalized = value.casefold()
     for source, replacement in REPLACEMENTS:
         normalized = normalized.replace(source, replacement)
+    normalized = re.sub(r'\bps\s*(\d)\b', r'ps \1', normalized)
     return set(re.findall(r'[a-zа-я0-9]+', normalized))
 
 
@@ -39,6 +43,8 @@ def score(product_name: str, assortment_name: str) -> int:
     """A conservative ranking score; it never creates a mapping itself."""
     left = normalized_tokens(product_name)
     right = normalized_tokens(assortment_name)
+    if 'заглушка' in right:
+        return 0
     if not left or not right:
         return 0
     overlap = len(left & right) / len(left | right)
