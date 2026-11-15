@@ -4,6 +4,7 @@ import requests
 from django.test import SimpleTestCase, override_settings
 
 from .moysklad import MoySkladClient, MoySkladError
+from .management.commands.moysklad_match_preview import normalized_tokens, score
 
 
 class MoySkladClientTests(SimpleTestCase):
@@ -104,4 +105,17 @@ class MoySkladClientTests(SimpleTestCase):
         self.assertEqual(
             session.get.call_args.kwargs['params'],
             {'limit': 1000, 'offset': 0},
+        )
+
+
+class MoySkladMatchingTests(SimpleTestCase):
+    def test_normalizes_common_console_vocabulary(self):
+        tokens = normalized_tokens('PlayStation 5 Slim с дисководом, новая')
+        self.assertTrue({'ps', '5', 'slim', 'disc', 'new'} <= tokens)
+
+    def test_related_names_rank_above_unrelated_names(self):
+        target = 'PlayStation 5 Slim с дисководом'
+        self.assertGreater(
+            score(target, 'PS5 SLIM DISC NEW ACT'),
+            score(target, 'Кофемашина DeLonghi'),
         )
