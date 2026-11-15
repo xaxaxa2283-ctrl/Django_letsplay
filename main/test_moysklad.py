@@ -80,3 +80,28 @@ class MoySkladClientTests(SimpleTestCase):
 
         with self.assertRaisesMessage(MoySkladError, 'Недопустимый параметр'):
             MoySkladClient(session=session).list_warehouses()
+
+    @override_settings(MOYSKLAD_ACCESS_TOKEN='test-token')
+    def test_reads_free_stock_for_selected_warehouse(self):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            'rows': [{
+                'meta': {'href': 'https://api.moysklad.ru/api/remap/1.2/entity/product/product-id'},
+                'stockByStore': [
+                    {'meta': {'href': 'https://api.moysklad.ru/api/remap/1.2/entity/store/other'}, 'stock': 9},
+                    {'meta': {'href': 'https://api.moysklad.ru/api/remap/1.2/entity/store/store-id'}, 'stock': 3, 'reserve': 1},
+                ],
+            }],
+        }
+        session = Mock()
+        session.get.return_value = response
+
+        stock = MoySkladClient(session=session).list_stock_for_store('store-id')
+
+        self.assertEqual(str(stock['product-id'].stock), '3')
+        self.assertEqual(str(stock['product-id'].free_stock), '2')
+        self.assertEqual(
+            session.get.call_args.kwargs['params'],
+            {'limit': 1000, 'offset': 0},
+        )

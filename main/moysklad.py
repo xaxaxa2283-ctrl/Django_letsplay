@@ -30,6 +30,20 @@ class MoySkladAssortment:
     prices: tuple[tuple[str, Decimal], ...]
 
 
+@dataclass(frozen=True)
+class MoySkladStock:
+    """Current stock figures for one assortment item at one warehouse."""
+
+    assortment_id: str
+    stock: Decimal
+    reserve: Decimal
+
+    @property
+    def free_stock(self) -> Decimal:
+        """Stock that is not already reserved in MoySklad."""
+        return self.stock - self.reserve
+
+
 class MoySkladClient:
     """A deliberately read-only JSON API client.
 
@@ -147,6 +161,58 @@ class MoySkladClient:
                     external_code=str(row.get('externalCode') or ''),
                     prices=tuple(prices),
                 ))
+            if len(rows) < limit:
+                return result
+            offset += limit
+
+    @staticmethod
+    def _id_from_meta(value: Any) -> str | None:
+        """Extract an entity UUID from a MoySklad meta object or URL."""
+        if not isinstance(value, dict):
+            return None
+        identifier = value.get('id')
+        if identifier:
+            return str(identifier)
+        href = value.get('href')
+        if not isinstance(href, str):
+            return None
+        candidate = href.rstrip('/').split('/')[-1].split('?')[0]
+        return candidate or None
+
+    def list_stock_for_store(self, store_id: str) -> dict[str, MoySkladStock]:
+        """Read stock and reservations for a warehouse, without changing MoySklad.
+
+        The report contains all warehouses in each row, so filtering is done
+        locally by the warehouse ID chosen for the website store.
+        """
+        result: dict[str, MoySkladStock] = {}
+        offset = 0
+        limit = 1000
+        while True:
+            data = self._get('report/stock/bystore', params={'limit': limit, 'offset': offset})
+            rows = data.get('rows')
+            if not isinstance(rows, list):
+                raise MoySkladError('В отчёте МоегоСклада отсутствует список остатков.')
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                assortment_id = self._id_from_meta(row.get('meta'))
+                stock_by_store = row.get('stockByStore')
+                if not assortment_id or not isinstance(stock_by_store, list):
+                    continue
+                for store_stock in stock_by_store:
+                    if not isinstance(store_stock, dict):
+                        continue
+                    if self._id_from_meta(store_stock.get('meta')) != str(store_id):
+                        continue
+                    stock = Decimal(str(store_stock.get('stock', 0)))
+                    reserve = Decimal(str(store_stock.get('reserve', 0)))
+                    result[assortment_id] = MoySkladStock(
+                        assortment_id=assortment_id,
+                        stock=stock,
+                        reserve=reserve,
+                    )
+                    break
             if len(rows) < limit:
                 return result
             offset += limit
