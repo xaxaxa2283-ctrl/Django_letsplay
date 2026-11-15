@@ -48,6 +48,29 @@ class MoySkladClientTests(SimpleTestCase):
         self.assertEqual(session.get.call_args_list[1].kwargs['params']['offset'], 100)
 
     @override_settings(MOYSKLAD_ACCESS_TOKEN='test-token')
+    def test_reads_assortment_and_converts_minor_units_to_rubles(self):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            'rows': [{
+                'id': 'ps5-id',
+                'name': 'PlayStation 5 Slim',
+                'code': 'PS5-SLIM',
+                'externalCode': 'external-id',
+                'meta': {'type': 'product'},
+                'salePrices': [{'value': 4999000, 'priceType': {'name': 'Розница'}}],
+            }]
+        }
+        session = Mock()
+        session.get.return_value = response
+
+        assortment = MoySkladClient(session=session).list_assortment()
+
+        self.assertEqual(assortment[0].name, 'PlayStation 5 Slim')
+        self.assertEqual(str(assortment[0].prices[0][1]), '49990')
+        self.assertEqual(session.get.call_args.kwargs['params'], {'limit': 1000, 'offset': 0})
+
+    @override_settings(MOYSKLAD_ACCESS_TOKEN='test-token')
     def test_includes_safe_api_error_detail(self):
         response = Mock(status_code=400)
         response.json.return_value = {'errors': [{'error': 'Недопустимый параметр'}]}

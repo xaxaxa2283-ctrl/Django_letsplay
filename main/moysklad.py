@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any
 
 import requests
@@ -17,6 +18,16 @@ class MoySkladError(RuntimeError):
 class MoySkladWarehouse:
     id: str
     name: str
+
+
+@dataclass(frozen=True)
+class MoySkladAssortment:
+    id: str
+    name: str
+    entity_type: str
+    code: str
+    external_code: str
+    prices: tuple[tuple[str, Decimal], ...]
 
 
 class MoySkladClient:
@@ -105,4 +116,37 @@ class MoySkladClient:
                 warehouses.append(MoySkladWarehouse(id=str(row['id']), name=str(row['name'])))
             if len(rows) < limit:
                 return warehouses
+            offset += limit
+
+    def list_assortment(self) -> list[MoySkladAssortment]:
+        """Read the accounting catalogue without changing it or the site."""
+        result: list[MoySkladAssortment] = []
+        offset = 0
+        limit = 1000
+        while True:
+            data = self._get('entity/assortment', params={'limit': limit, 'offset': offset})
+            rows = data.get('rows')
+            if not isinstance(rows, list):
+                raise MoySkladError('В ответе МоегоСклада отсутствует список ассортимента.')
+            for row in rows:
+                if not isinstance(row, dict) or not row.get('id') or not row.get('name'):
+                    continue
+                meta = row.get('meta') if isinstance(row.get('meta'), dict) else {}
+                prices: list[tuple[str, Decimal]] = []
+                for sale_price in row.get('salePrices', []):
+                    if not isinstance(sale_price, dict) or sale_price.get('value') is None:
+                        continue
+                    price_type = sale_price.get('priceType')
+                    label = price_type.get('name') if isinstance(price_type, dict) else None
+                    prices.append((str(label or 'Цена продажи'), Decimal(str(sale_price['value'])) / 100))
+                result.append(MoySkladAssortment(
+                    id=str(row['id']),
+                    name=str(row['name']),
+                    entity_type=str(meta.get('type') or ''),
+                    code=str(row.get('code') or ''),
+                    external_code=str(row.get('externalCode') or ''),
+                    prices=tuple(prices),
+                ))
+            if len(rows) < limit:
+                return result
             offset += limit
