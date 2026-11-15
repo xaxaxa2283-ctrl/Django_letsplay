@@ -704,7 +704,7 @@ def update_cart_item(request, item_id):
 
     if quantity > 999:
         return JsonResponse({'error': 'Максимальное количество — 999.'}, status=400)
-    if quantity > cart_item.quantity and (not cart_item.product.is_active or not cart_item.product.in_stock):
+    if quantity > cart_item.quantity and not cart_item.product.is_purchasable:
         if is_ajax:
             return JsonResponse({'error': 'Товар недоступен для заказа.'}, status=409)
         messages.error(request, 'Товар недоступен для заказа. Его можно удалить из корзины.')
@@ -807,7 +807,7 @@ def checkout_view(request):
             if not cart_items:
                 messages.warning(request, 'Ваша корзина пуста')
                 return redirect('main:catalog')
-            if any(not item.product.is_active or not item.product.in_stock or item.quantity < 1 for item in cart_items):
+            if any(not item.product.is_purchasable or item.quantity < 1 for item in cart_items):
                 messages.error(request, 'Наличие одного из товаров изменилось. Проверьте корзину.')
                 return redirect('main:cart_view')
             order = Order.objects.create(
@@ -1031,7 +1031,7 @@ import json
 
 @require_POST
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id, is_active=True, in_stock=True)
+    product = get_object_or_404(Product, id=product_id, is_active=True, in_stock=True, price__gt=0)
 
     # корзина по юзеру или по сессии
     if request.user.is_authenticated:

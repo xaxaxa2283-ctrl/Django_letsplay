@@ -31,6 +31,14 @@ class CartBackendTests(TestCase):
         self.assertEqual(self.update('{"delta":-1}').json()['quantity'], 0)
         self.assertFalse(CartItem.objects.filter(pk=self.item.pk).exists())
 
+    def test_zero_price_product_cannot_be_added_or_increased(self):
+        self.product.price = 0
+        self.product.save()
+        self.assertFalse(self.product.is_purchasable)
+        self.assertEqual(self.update('{"delta":1}').status_code, 409)
+        response = self.client.post(reverse('main:add_to_cart', args=[self.product.pk]))
+        self.assertEqual(response.status_code, 404)
+
     def test_other_session_cannot_modify_item(self):
         from django.test import Client
         response = Client().post(self.url, {'action':'increase'})

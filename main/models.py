@@ -245,6 +245,11 @@ class Product(models.Model):
             parts.append(f'Гарантия: {self.warranty_months} мес.')
         return ' · '.join(parts)[:300]
 
+    @property
+    def is_purchasable(self):
+        """An item without a confirmed price must never enter the cart."""
+        return self.is_active and self.in_stock and self.price > 0
+
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('main:catalog_detail_by_slug', kwargs={'slug': self.slug})
